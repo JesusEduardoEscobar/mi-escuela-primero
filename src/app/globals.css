@@ -14,4 +14,17 @@ html,
 body {
   color: #000000;
   background: #fafafa;
+  font-family: "merriweather", serif;
+}
+
+.b-shadow {
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+  padding: 20px;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+  margin-top: 5%;
 }

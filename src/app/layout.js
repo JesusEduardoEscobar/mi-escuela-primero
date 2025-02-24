@@ -1,11 +1,12 @@
-import { Urbanist } from "next/font/google";
+import { Merriweather } from "next/font/google";
 
 import Inicio from "../components/inicio"
 
 import "./globals.css";
 
-const urbanist = Urbanist({
+const merriweather = Merriweather ({
   subsets: ["latin"],
+  weight: ["400", "700"]
 });
 
 export const metadata = {
@@ -17,7 +18,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={urbanist.className}
+        className={merriweather.className}
       >
         <Inicio/>
         {children}
