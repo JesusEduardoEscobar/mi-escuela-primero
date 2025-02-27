@@ -12,39 +12,36 @@ export default function inicio() {
   const [mensajeContra, setMensajeContra] = useState('')
 
   const validarNombre = (e) => {
-    const regexNombre = /^[A-Za-z\s]{4,}$/
-    valor=e.target.value
-    if(regexNombre.test(valor)){
-      setMensajeNombre("El nombre ingresado es valido")
+    const regexNombre = /^[A-Za-z\s]+$/
+    if(regexNombre.test(e.target.value)){
+      setMensajeNombre("El nombre ingresado el valido")
     } else {
       setMensajeNombre('Usted ha ingresado un nombre invalido')
     }
-    setNombre(valor)
+    setNombre(e.target.value)
   }
 
   const validarCorreo = (e) => {
     const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-    valor=e.target.value
-    if(regexCorreo.test(valor)){
+    if(regexCorreo.test(e.target.value)){
       setMensajeCorreo("El correo ingresado es valido")
     } else {
       setMensajeCorreo("El correo ingresado no es valida")
     }
-    setCorreo(valor)
+    setCorreo(e.target.value)
   }
   const validarContra = (e) => {
-    const regexContra = /^[A-Za-z1-9]{4,}$/
-    valor=e.target.value
-    if(regexContra.test(valor)){
+    const regexContra = /^[A-Za-z1-9]+$/
+    if(regexContra.test(e.target.value)){
       setMensajeContra("La contraseña ingresada es valida")
     } else {
       setMensajeContra("La contraseña ingresada no es valida")
     }
-    setContra(valor)
+    setContra(e.target.value)
   }
 
   return (
-    <div className='flex flex-col items-center justify-center'>
+    <div className='b-shadow flex flex-col items-center justify-center w-[50%]'>
       <label className='mx-auto mb-2 text-[18px] md:mx-0 md:mb-8 text-justify'>
         Ingresa tu nombre:
       </label>
