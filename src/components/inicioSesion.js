@@ -17,7 +17,6 @@
 
     // Funcion para dirigirme de una pagina a otra
     const router = useRouter()
-    const [mostrarRegistro, setMostrarRegistro] = useState(false)
 
     const validarNombre = (e) => {
       const regexNombre = /^[A-Za-z\s]{3,}$/
@@ -61,8 +60,6 @@
 
     return (
       <div className='b-shadow flex flex-col items-center justify-center w-[50%] p-6 bg-white shadow-lg rounded-lg'>
-        {!mostrarRegistro ? (
-          <>
         <label className='mb-1 text-lg font-semibold'>Ingresa tu nombre:</label>
         <input
           type="text"
@@ -108,23 +105,19 @@
         {/* Btn para iniciar sesion */}
         <div className="mt-6 flex gap-6 w-full">
           <button
-            onClick={() => router.push('/paginaPrincipal/incio')}
+            onClick={() => router.push('/paginaPrincipal/')}
             className="bg-green-500 text-white px-4 py-3 rounded  hover:bg-green-600 transition w-full"
           >
             Ingresar
           </button>
           {/* Botón para ir a la página de registro */}
           <button
-            onClick={() => setMostrarRegistro(true)}
+            onClick={() => router.push('/Registro')}
             className="bg-green-500 text-white px-4 py-3 rounded hover:bg-green-600 transition w-full"
           >
             Ir a Registro
           </button>
         </div>
-        </>
-      ) : (
-        <Registro />
-      )}
       </div>
     )
   }
