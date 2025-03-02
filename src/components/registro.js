@@ -115,7 +115,8 @@ export default function Inicio() {
               type="text"
               value={nombreEscuela}
               onChange={validarNombreEscuela}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500"
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none"
+              placeholder="Ingresa el nombre de la institucion a la que pertenece"
             />
           </div>
 
