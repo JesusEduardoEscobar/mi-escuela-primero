@@ -1,8 +1,10 @@
 import Registro from "../../components/registro"
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <Registro />
-    </div>
+    <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-gradient-to-b from-green-100 to-green-600">
+      <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-lg">
+        <Registro />
+      </div>
+    </main>
   );
 }

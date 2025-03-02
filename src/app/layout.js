@@ -18,9 +18,7 @@ export default function RootLayout({ children }) {
       <body
         className={merriweather.className}
       >
-        <div className="min-h-screen bg-gradient-to-t from-green-500 to-white">
         {children}
-        </div>
       </body>
     </html>
   );
