@@ -2,13 +2,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation"; // Para obtener la ruta actual
 import { itemsNavbar } from "@/data";
+import MotionTransition from "@/components/transition-component";
+
 
 export default function Navbar() {
   const pathname = usePathname(); // Ruta actual
 
   return (
-    <nav className="fixed bottom-0 left-0 w-full z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-      <div className="max-w-screen-xl mx-auto px-4">
+    <MotionTransition position="bottom" className="fixed bottom-0 left-0 w-full z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+      <div className="max-w-screen-l mx-auto px-2">
         <div className="flex items-center justify-around py-3">
           {itemsNavbar.map((item) => (
             <div key={item.id} className="relative group">
@@ -35,6 +37,6 @@ export default function Navbar() {
           ))}
         </div>
       </div>
-    </nav>
+    </MotionTransition>
   );
 }

@@ -11,7 +11,7 @@ export const itemsNavbar = [
         id: 2,
         title: "Mensaje",
         icon: <MessageCircle size={25} color="#fff" strokeWidth={1} />,
-        link: "/mensaje",
+        link: "/mensajes",
     },
     {
         id: 3,
