@@ -1,12 +1,11 @@
 import MotionTransition from '@/components/transition-component'
 import React from 'react'
 
-export default function Perfil() {
+export default function Agergar() {
   return (
-    <div className='pb-20'>
+    <div>
         <MotionTransition />
-
-        Bienvenido a la pagina del perfil
+        Agergar
     </div>
   )
 }

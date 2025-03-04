@@ -5,7 +5,7 @@ export const itemsNavbar = [
         id: 1,
         title: "Home",
         icon: <HomeIcon size={25} color="#fff" strokeWidth={1} />,
-        link: "/",
+        link: "/paginaPrincipal",
     },
     {
         id: 2,

@@ -1,7 +1,12 @@
-import React from 'react'
+"use client"
+import SalaMensaje from '@/components/salaMensaje'
+import TransitionPage from '@/components/transition-page'
 
 export default function page() {
   return (
-    <div>Hoila yo soy la pagina de mensajes</div>
+    <div className=' pb-20'>
+      <TransitionPage />
+      <SalaMensaje />
+    </div>
   )
 }

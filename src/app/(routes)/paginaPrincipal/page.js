@@ -1,10 +1,10 @@
 "use-client"
-import Inicio from '@/components/incio'
+import Inicio from '@/components/inicio'
 import TransitionPage from '@/components/transition-page'
 
 export default function page() {
   return (
-    <div className='pt-10 pb-20'>
+    <div className='pb-20'>
       <TransitionPage />
       <Inicio />
     </div>
