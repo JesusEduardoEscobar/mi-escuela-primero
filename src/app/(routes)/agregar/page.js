@@ -1,11 +1,11 @@
 import MotionTransition from '@/components/transition-component'
-import React from 'react'
+import Agregar from '@/components/crearPost'
 
 export default function Agergar() {
   return (
     <div>
         <MotionTransition />
-        Agergar
+        <Agregar />
     </div>
   )
 }
