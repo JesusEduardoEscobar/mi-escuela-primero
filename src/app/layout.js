@@ -1,8 +1,8 @@
-import { Merriweather } from "next/font/google";
+import { Montserrat } from "next/font/google";
 
 import "./globals.css";
 
-const merriweather = Merriweather ({
+const montserrat = Montserrat ({
   subsets: ["latin"],
   weight: ["300", "700"]
 });
@@ -16,7 +16,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={merriweather.className}
+        className={montserrat.className}
       >
         {children}
       </body>

@@ -1,140 +1,170 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Head from "next/head"
-import { Settings, LogOut } from "lucide-react"
-import CrearPost from "../components/crearPost"
-import Post from "../components/post"
-import AjustesDelPerfil from "../components/ajustesDelPerfil"
+import { useRouter } from "next/navigation"
+import CrearPost from "./crearPost"
+import EditarPerfil from "./editarPerfil"
+import { Settings, Grid, Bookmark, UserPlus } from "lucide-react"
+import { currentUser, getPostsByUser } from "../data/posts"
 
-export default function Profile() {
-  const [user, setUser] = useState({
-    name: "Escuela Benito Juar",
-    username: "@usuario",
-    bio: "Esta es mi biografía personal",
-    profilePic: "/placeholder.svg?height=100&width=100",
-    coverPic: "/placeholder.svg?height=300&width=800",
-  })
-
+export default function Perfil() {
+  const [user, setUser] = useState(currentUser)
   const [posts, setPosts] = useState([])
-  const [showSettings, setShowSettings] = useState(false)
+  const [showCreatePost, setShowCreatePost] = useState(false)
+  const [showEditProfile, setShowEditProfile] = useState(false)
+  const [activeTab, setActiveTab] = useState("posts")
+  const router = useRouter()
 
-  // Simular carga de publicaciones
   useEffect(() => {
-    // Aquí normalmente cargarías las publicaciones desde una API
-    setPosts([
-      {
-        id: 1,
-        content: "Mi primera publicación",
-        media: "/placeholder.svg?height=400&width=600",
-        mediaType: "image",
-        date: "Hace 2 horas",
-      },
-      {
-        id: 2,
-        content: "Miren este video increíble",
-        media: "https://example.com/video.mp4", // URL de ejemplo
-        mediaType: "video",
-        date: "Hace 1 día",
-      },
-    ])
-  }, [])
+    // Cargar posts del usuario actual
+    const userPosts = getPostsByUser(user.id)
+    setPosts(userPosts)
+  }, [user.id])
 
-  const handleCrearPost = (newPost) => {
-    // Agregar un ID único y fecha
-    const post = {
-      ...newPost,
+  const handleCreatePost = (newPost) => {
+    console.log("Nueva publicación:", newPost)
+
+    // Crear un nuevo post con ID y fecha
+    const postWithDetails = {
       id: Date.now(),
-      date: "Justo ahora",
+      ...newPost,
+      date: new Date().toISOString(),
+      user: {
+        id: user.id,
+        name: user.name,
+        username: user.username,
+        image: user.image,
+      },
+      likes: 0,
+      comments: [],
     }
-    setPosts([post, ...posts])
+
+    // Actualizar el estado con el nuevo post
+    setPosts((prevPosts) => [postWithDetails, ...prevPosts])
+
+    // Cerrar el modal
+    setShowCreatePost(false)
   }
 
-  const handleDeletePost = (postId) => {
-    setPosts(posts.filter((post) => post.id !== postId))
-  }
+  // Función para guardar los cambios del perfil
+  const handleSaveProfile = (updatedUser) => {
+    console.log("Perfil actualizado:", updatedUser)
 
-  const updateUserProfile = (updatedUser) => {
-    setUser({ ...user, ...updatedUser })
-    setShowSettings(false)
+    // Actualizar el estado del usuario
+    setUser(updatedUser)
+
+    // En un caso real, aquí enviarías los datos al servidor
+
+    // Cerrar el modal
+    setShowEditProfile(false)
   }
 
   return (
-    <>
-      <Head>
-        <title>{user.name} - Perfil</title>
-      </Head>
-
-      <div className="min-h-screen bg-gray-50">
-        {/* Barra de navegación */}
-        <nav className="bg-white shadow-sm p-4 flex justify-between items-center">
-          <h1 className="text-xl font-bold text-blue-600">SocialApp</h1>
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => setShowSettings(true)}
-              className="p-2 rounded-full hover:bg-gray-100"
-              aria-label="Configuración"
-            >
-              <Settings size={20} />
-            </button>
-            <button className="p-2 rounded-full hover:bg-gray-100" aria-label="Cerrar sesión">
-              <LogOut size={20} />
-            </button>
-          </div>
-        </nav>
-
-        {/* Portada y foto de perfil */}
-        <div className="relative">
-          <div className="h-48 md:h-64 w-full bg-gray-200 overflow-hidden">
-            <img src={user.coverPic || "/placeholder.svg"} alt="Portada" className="w-full h-full object-cover" />
-          </div>
-          <div className="absolute -bottom-16 left-4 md:left-8">
-            <div className="w-32 h-32 rounded-full border-4 border-white overflow-hidden bg-white">
-              <img src={user.profilePic || "/placeholder.svg"} alt={user.name} className="w-full h-full object-cover" />
-            </div>
-          </div>
+    <div className="max-w-4xl mx-auto p-4">
+      {/* Cabecera del perfil */}
+      <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-8">
+        {/* Foto de perfil */}
+        <div className="w-24 h-24 md:w-36 md:h-36 rounded-full overflow-hidden border-2 border-white shadow-md">
+          <img src={user.image || "/placeholder.svg"} alt={user.name} className="w-full h-full object-cover" />
         </div>
 
         {/* Información del perfil */}
-        <div className="mt-20 px-4 md:px-8">
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-2xl font-bold">{user.name}</h1>
-              <p className="text-gray-600">{user.username}</p>
-              <p className="mt-2">{user.bio}</p>
+        <div className="flex-1">
+          <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
+            <h1 className="text-xl font-semibold">{user.username}</h1>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowEditProfile(true)}
+                className="px-4 py-1.5 bg-blue-500 text-white rounded-md font-medium hover:bg-blue-600 transition-colors"
+              >
+                Editar perfil
+              </button>
+              <button className="p-2 border rounded-md hover:bg-gray-50 transition-colors">
+                <Settings size={18} />
+              </button>
             </div>
-            <button
-              onClick={() => setShowSettings(true)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
-            >
-              Editar perfil
-            </button>
           </div>
 
-          {/* Crear publicación */}
-          <div className="mt-8">
-            <CrearPost onCrearPost={handleCrearPost} />
+          {/* Estadísticas */}
+          <div className="flex gap-6 mb-4 justify-center md:justify-start">
+            <div className="text-center md:text-left">
+              <span className="font-semibold">{posts.length}</span> publicaciones
+            </div>
+            <div className="text-center md:text-left">
+              <span className="font-semibold">{user.followers}</span> seguidores
+            </div>
+            <div className="text-center md:text-left">
+              <span className="font-semibold">{user.following}</span> seguidos
+            </div>
           </div>
 
-          {/* Lista de publicaciones */}
-          <div className="mt-8 space-y-6">
-            {posts.length === 0 ? (
-              <div className="text-center py-8 bg-white rounded-lg shadow">
-                <p className="text-gray-500">No hay publicaciones aún</p>
-              </div>
-            ) : (
-              posts.map((post) => <Post key={post.id} post={post} user={user} onDelete={handleDeletePost} />)
-            )}
+          {/* Bio */}
+          <div>
+            <h2 className="font-semibold">{user.name}</h2>
+            <p className="whitespace-pre-wrap">{user.bio}</p>
           </div>
         </div>
       </div>
 
-      {/* Modal de configuración */}
-      {showSettings && (
-        <AjustesDelPerfil
-         user={user} onSave={updateUserProfile} onClose={() => setShowSettings(false)} />
+      {/* Tabs */}
+      <div className="border-t">
+        <div className="flex justify-center">
+          <button
+            className={`px-4 py-3 flex items-center gap-2 ${activeTab === "posts" ? "border-t border-black" : "text-gray-500"}`}
+            onClick={() => setActiveTab("posts")}
+          >
+            <Grid size={16} />
+            <span>Publicaciones</span>
+          </button>
+          <button
+            className={`px-4 py-3 flex items-center gap-2 ${activeTab === "saved" ? "border-t border-black" : "text-gray-500"}`}
+            onClick={() => setActiveTab("saved")}
+          >
+            <Bookmark size={16} />
+            <span>Guardados</span>
+          </button>
+          <button
+            className={`px-4 py-3 flex items-center gap-2 ${activeTab === "tagged" ? "border-t border-black" : "text-gray-500"}`}
+            onClick={() => setActiveTab("tagged")}
+          >
+            <UserPlus size={16} />
+            <span>Etiquetados</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Botón para abrir el modal */}
+      <div className="fixed bottom-6 right-6">
+        <button
+          onClick={() => setShowCreatePost(true)}
+          className="p-4 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 transition-colors"
+        >
+          +
+        </button>
+      </div>
+
+      {/* Grid de publicaciones */}
+      {activeTab === "posts" && (
+        <div className="grid grid-cols-3 gap-1 mt-4">
+          {posts.map((post) => (
+            <div key={post.id} className="aspect-square cursor-pointer">
+              <img src={post.image || "/placeholder.svg"} alt={post.caption} className="w-full h-full object-cover" />
+            </div>
+          ))}
+          {posts.length === 0 && (
+            <div className="col-span-3 py-12 text-center text-gray-500">No hay publicaciones aún</div>
+          )}
+        </div>
       )}
-    </>
+
+      {/* Modal de crear publicación */}
+      {showCreatePost && <CrearPost onCreatePost={handleCreatePost} onClose={() => setShowCreatePost(false)} />}
+
+      {/* Modal de editar perfil */}
+      {showEditProfile && (
+        <EditarPerfil user={user} onSave={handleSaveProfile} onClose={() => setShowEditProfile(false)} />
+      )}
+    </div>
   )
 }
 
