@@ -75,7 +75,7 @@ export default function Inicio() {
 
   const validarToken = (e) => {
     const valor = e.target.value
-    const regexToken = /^.[A-Z]{4}[0-9]{2}$/
+    const regexToken = /^[A-Z]{4}[0-9]{2}$/
     if (regexToken.test(valor)) {
       setMensajeToken("")
     } else {
@@ -210,7 +210,7 @@ export default function Inicio() {
               Regesar
             </button>
             <button
-              onClick={() => router.push("/paginaPrincipal")}
+              onClick={() => router.push("/usuarios/paginaPrincipal")}
               className="w-full bg-white text-green-500 py-3 rounded-lg font-semibold
                       z  border-2 border-green-500
                         hover:bg-green-50 active:bg-green-100

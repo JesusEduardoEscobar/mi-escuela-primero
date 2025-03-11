@@ -1,7 +1,7 @@
 import { Merriweather } from "next/font/google";
 import Navbar from '@/components/navbar';
 import Header from '@/components/header'
-import "../globals.css";
+import "../../globals.css";
 
 const merriweather = Merriweather({
   subsets: ["latin"],
