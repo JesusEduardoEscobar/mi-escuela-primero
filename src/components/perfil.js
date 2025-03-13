@@ -4,8 +4,9 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import CrearPost from "./crearPost"
 import EditarPerfil from "./editarPerfil"
-import { Settings, Grid, Bookmark, UserPlus } from "lucide-react"
-import { currentUser, getPostsByUser } from "../data/posts"
+import Solicitudes from "./solicitudes"
+import { Settings, Grid, Bookmark, UserPlus, HelpCircle } from "lucide-react"
+import { currentUser, getPostsByUser } from "../data"
 
 export default function Perfil() {
   const [user, setUser] = useState(currentUser)
@@ -108,13 +109,20 @@ export default function Perfil() {
 
       {/* Tabs */}
       <div className="border-t">
-        <div className="flex justify-center">
+        <div className="flex justify-center flex-wrap">
           <button
             className={`px-4 py-3 flex items-center gap-2 ${activeTab === "posts" ? "border-t border-black" : "text-gray-500"}`}
             onClick={() => setActiveTab("posts")}
           >
             <Grid size={16} />
             <span>Publicaciones</span>
+          </button>
+          <button
+            className={`px-4 py-3 flex items-center gap-2 ${activeTab === "solicitudes" ? "border-t border-black" : "text-gray-500"}`}
+            onClick={() => setActiveTab("solicitudes")}
+          >
+            <HelpCircle size={16} />
+            <span>Solicitudes</span>
           </button>
           <button
             className={`px-4 py-3 flex items-center gap-2 ${activeTab === "saved" ? "border-t border-black" : "text-gray-500"}`}
@@ -134,16 +142,18 @@ export default function Perfil() {
       </div>
 
       {/* Botón para abrir el modal */}
-      <div className="fixed bottom-6 right-6">
-        <button
-          onClick={() => setShowCreatePost(true)}
-          className="p-4 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 transition-colors"
-        >
-          +
-        </button>
+      <div className="fixed bottom-20 right-6">
+        {activeTab === "posts" ? (
+          <button
+            onClick={() => setShowCreatePost(true)}
+            className="p-4 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600 transition-colors"
+          >
+            +
+          </button>
+        ) : null}
       </div>
 
-      {/* Grid de publicaciones */}
+      {/* Contenido según la pestaña activa */}
       {activeTab === "posts" && (
         <div className="grid grid-cols-3 gap-1 mt-4">
           {posts.map((post) => (
@@ -154,6 +164,13 @@ export default function Perfil() {
           {posts.length === 0 && (
             <div className="col-span-3 py-12 text-center text-gray-500">No hay publicaciones aún</div>
           )}
+        </div>
+      )}
+
+      {/* Pestaña de solicitudes */}
+      {activeTab === "solicitudes" && (
+        <div className="mt-4">
+          <Solicitudes userId={user.id} userType={user.type || "regular"} />
         </div>
       )}
 
