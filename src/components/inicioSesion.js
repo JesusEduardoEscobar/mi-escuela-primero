@@ -220,20 +220,7 @@ export default function LoginPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Nombre</label>
-            <input
-              type="text"
-              value={nombre}
-              onChange={validarNombre}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none"
-              placeholder="Ingresa tu nombre"
-              required
-            />
-            <p className={`text-xs ${mensajeNombre.includes("✅") ? "text-green-600" : "text-red-500"}`}>
-              {mensajeNombre}
-            </p>
-          </div>
+          
 
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">Correo electrónico</label>
