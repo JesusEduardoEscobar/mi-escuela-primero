@@ -1,28 +1,34 @@
-import { CirclePlus, User, HomeIcon, MessageCircle} from "lucide-react";
+import { CirclePlus, User, HomeIcon, Heart, MessageCircle} from "lucide-react";
 
 export const itemsNavbar = [
     {
         id: 1,
         title: "Home",
-        icon: <HomeIcon size={25} color="#fff" strokeWidth={1} />,
+        icon: <HomeIcon size={25} color="black" strokeWidth={1.5} />,
         link: "/usuarios/paginaPrincipal",
     },
     {
         id: 2,
         title: "Mensaje",
-        icon: <MessageCircle size={25} color="#fff" strokeWidth={1} />,
+        icon: <MessageCircle size={25} color="black" strokeWidth={1.5} />,
         link: "/usuarios/mensajes",
     },
     {
         id: 3,
-        title: "Agregar",
-        icon: <CirclePlus size={25} color="#fff" strokeWidth={1} />,
-        link: "/usuarios/agregar",
+        title: "Matches",
+        icon: <Heart size={25} color="black" strokeWidth={1.5} />,
+        link: "/usuarios/matches",
     },
     {
         id: 4,
+        title: "Agregar",
+        icon: <CirclePlus size={25} color="black" strokeWidth={1.5} />,
+        link: "/usuarios/agregar",
+    },
+    {
+        id: 5,
         title: "Perfil",
-        icon: <User size={25} color="#fff" strokeWidth={1} />,
+        icon: <User size={25} color="black" strokeWidth={1.5} />,
         link: "/usuarios/perfil",
     },
 ]
@@ -88,7 +94,7 @@ export const currentUser = {
   id: 1,
   name: "Juan Pérez",
   username: "juanperez",
-  image: "/placeholder.svg?height=300&width=300",
+  image: "/https://imgs.search.brave.com/_jNap9jRRcWdeDWSBOEtwtQvPc8v6E7Vk6RskJHKvoA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTE2/NDgyMjE4OC92ZWN0/b3IvbWFsZS1hdmF0/YXItcHJvZmlsZS1w/aWN0dXJlLmpwZz9z/PTYxMng2MTImdz0w/Jms9MjAmYz1LUHNM/Z1ZJd0VHZER2ZjRf/a2l5bkNYdzk2cF9Q/aEJqSUdkVTY4cWtw/YnVJPQ?height=300&width=300",
   bio: "Activista social y voluntario",
   followers: 120,
   following: 85,
@@ -102,28 +108,28 @@ export const getPostsByUser = (userId) => {
   return [
     {
       id: 1,
-      image: "/placeholder.svg?height=600&width=600",
+      image: "/https://imgs.search.brave.com/_jNap9jRRcWdeDWSBOEtwtQvPc8v6E7Vk6RskJHKvoA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTE2/NDgyMjE4OC92ZWN0/b3IvbWFsZS1hdmF0/YXItcHJvZmlsZS1w/aWN0dXJlLmpwZz9z/PTYxMng2MTImdz0w/Jms9MjAmYz1LUHNM/Z1ZJd0VHZER2ZjRf/a2l5bkNYdzk2cF9Q/aEJqSUdkVTY4cWtw/YnVJPQ?height=600&width=600",
       caption: "Evento comunitario",
       date: "2025-03-01T10:00:00Z",
       user: {
         id: userId,
         name: "Juan Pérez",
         username: "juanperez",
-        image: "/placeholder.svg?height=300&width=300",
+        image: "/https://imgs.search.brave.com/_jNap9jRRcWdeDWSBOEtwtQvPc8v6E7Vk6RskJHKvoA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTE2/NDgyMjE4OC92ZWN0/b3IvbWFsZS1hdmF0/YXItcHJvZmlsZS1w/aWN0dXJlLmpwZz9z/PTYxMng2MTImdz0w/Jms9MjAmYz1LUHNM/Z1ZJd0VHZER2ZjRf/a2l5bkNYdzk2cF9Q/aEJqSUdkVTY4cWtw/YnVJPQ?height=300&width=300",
       },
       likes: 24,
       comments: []
     },
     {
       id: 2,
-      image: "/placeholder.svg?height=600&width=600",
+      image: "/https://imgs.search.brave.com/_jNap9jRRcWdeDWSBOEtwtQvPc8v6E7Vk6RskJHKvoA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTE2/NDgyMjE4OC92ZWN0/b3IvbWFsZS1hdmF0/YXItcHJvZmlsZS1w/aWN0dXJlLmpwZz9z/PTYxMng2MTImdz0w/Jms9MjAmYz1LUHNM/Z1ZJd0VHZER2ZjRf/a2l5bkNYdzk2cF9Q/aEJqSUdkVTY4cWtw/YnVJPQ?height=600&width=600",
       caption: "Voluntariado",
       date: "2025-02-15T14:30:00Z",
       user: {
         id: userId,
         name: "Juan Pérez",
         username: "juanperez",
-        image: "/placeholder.svg?height=300&width=300",
+        image: "/https://imgs.search.brave.com/_jNap9jRRcWdeDWSBOEtwtQvPc8v6E7Vk6RskJHKvoA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTE2/NDgyMjE4OC92ZWN0/b3IvbWFsZS1hdmF0/YXItcHJvZmlsZS1w/aWN0dXJlLmpwZz9z/PTYxMng2MTImdz0w/Jms9MjAmYz1LUHNM/Z1ZJd0VHZER2ZjRf/a2l5bkNYdzk2cF9Q/aEJqSUdkVTY4cWtw/YnVJPQ?height=300&width=300",
       },
       likes: 42,
       comments: []

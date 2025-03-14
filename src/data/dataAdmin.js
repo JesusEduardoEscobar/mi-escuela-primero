@@ -116,7 +116,7 @@ export const usuariosProblematicos = [
     telefono: "614-123-4567",
     email: "miguel@cen.edu.mx",
     tipo: "escuela",
-    imagen: "/placeholder.svg?height=100&width=100",
+    imagen: "/https://imgs.search.brave.com/_jNap9jRRcWdeDWSBOEtwtQvPc8v6E7Vk6RskJHKvoA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTE2/NDgyMjE4OC92ZWN0/b3IvbWFsZS1hdmF0/YXItcHJvZmlsZS1w/aWN0dXJlLmpwZz9z/PTYxMng2MTImdz0w/Jms9MjAmYz1LUHNM/Z1ZJd0VHZER2ZjRf/a2l5bkNYdzk2cF9Q/aEJqSUdkVTY4cWtw/YnVJPQ?height=100&width=100",
     strikes: 1,
   },
   {
@@ -127,7 +127,7 @@ export const usuariosProblematicos = [
     telefono: "951-987-6543",
     email: "laura@ces.com.mx",
     tipo: "aliado",
-    imagen: "/placeholder.svg?height=100&width=100",
+    imagen: "/https://imgs.search.brave.com/_jNap9jRRcWdeDWSBOEtwtQvPc8v6E7Vk6RskJHKvoA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTE2/NDgyMjE4OC92ZWN0/b3IvbWFsZS1hdmF0/YXItcHJvZmlsZS1w/aWN0dXJlLmpwZz9z/PTYxMng2MTImdz0w/Jms9MjAmYz1LUHNM/Z1ZJd0VHZER2ZjRf/a2l5bkNYdzk2cF9Q/aEJqSUdkVTY4cWtw/YnVJPQ?height=100&width=100",
     strikes: 2,
   },
   {
@@ -138,7 +138,7 @@ export const usuariosProblematicos = [
     telefono: "999-456-7890",
     email: "ricardo@itr.edu.mx",
     tipo: "escuela",
-    imagen: "/placeholder.svg?height=100&width=100",
+    imagen: "/https://imgs.search.brave.com/_jNap9jRRcWdeDWSBOEtwtQvPc8v6E7Vk6RskJHKvoA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTE2/NDgyMjE4OC92ZWN0/b3IvbWFsZS1hdmF0/YXItcHJvZmlsZS1w/aWN0dXJlLmpwZz9z/PTYxMng2MTImdz0w/Jms9MjAmYz1LUHNM/Z1ZJd0VHZER2ZjRf/a2l5bkNYdzk2cF9Q/aEJqSUdkVTY4cWtw/YnVJPQ?height=100&width=100",
     strikes: 3,
   },
   {
@@ -149,7 +149,7 @@ export const usuariosProblematicos = [
     telefono: "722-345-6789",
     email: "gabriela@primaria-libertad.edu.mx",
     tipo: "escuela",
-    imagen: "/placeholder.svg?height=100&width=100",
+    imagen: "/https://imgs.search.brave.com/_jNap9jRRcWdeDWSBOEtwtQvPc8v6E7Vk6RskJHKvoA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTE2/NDgyMjE4OC92ZWN0/b3IvbWFsZS1hdmF0/YXItcHJvZmlsZS1w/aWN0dXJlLmpwZz9z/PTYxMng2MTImdz0w/Jms9MjAmYz1LUHNM/Z1ZJd0VHZER2ZjRf/a2l5bkNYdzk2cF9Q/aEJqSUdkVTY4cWtw/YnVJPQ?height=100&width=100",
     strikes: 0,
   },
   {
@@ -160,7 +160,7 @@ export const usuariosProblematicos = [
     telefono: "222-765-4321",
     email: "javier@capacitacion.org",
     tipo: "aliado",
-    imagen: "/placeholder.svg?height=100&width=100",
+    imagen: "/https://imgs.search.brave.com/_jNap9jRRcWdeDWSBOEtwtQvPc8v6E7Vk6RskJHKvoA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTE2/NDgyMjE4OC92ZWN0/b3IvbWFsZS1hdmF0/YXItcHJvZmlsZS1w/aWN0dXJlLmpwZz9z/PTYxMng2MTImdz0w/Jms9MjAmYz1LUHNM/Z1ZJd0VHZER2ZjRf/a2l5bkNYdzk2cF9Q/aEJqSUdkVTY4cWtw/YnVJPQ?height=100&width=100",
     strikes: 1,
   },
 ]

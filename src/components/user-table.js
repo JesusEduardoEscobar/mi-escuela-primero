@@ -25,7 +25,7 @@ export function UserTable({ users, title }) {
                     <div className="flex items-center space-x-3">
                       <div className="relative h-10 w-10 rounded-full overflow-hidden">
                         <Image
-                          src={user.imagen || "/placeholder.svg"}
+                          src={user.imagen || "/https://imgs.search.brave.com/_jNap9jRRcWdeDWSBOEtwtQvPc8v6E7Vk6RskJHKvoA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTE2/NDgyMjE4OC92ZWN0/b3IvbWFsZS1hdmF0/YXItcHJvZmlsZS1w/aWN0dXJlLmpwZz9z/PTYxMng2MTImdz0w/Jms9MjAmYz1LUHNM/Z1ZJd0VHZER2ZjRf/a2l5bkNYdzk2cF9Q/aEJqSUdkVTY4cWtw/YnVJPQ"}
                           alt={user.nombre}
                           fill
                           className="object-cover"

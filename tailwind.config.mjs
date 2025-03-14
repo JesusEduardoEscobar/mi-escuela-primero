@@ -9,7 +9,8 @@ export default {
     extend: {
       colors: {
         secondary: "#007aff",
-        darkBg: "#131424"
+        darkBg: "#131424",
+        "white-translucent": "rgba(255, 255, 255, 0.8)",
       },
     },
   },

@@ -1,45 +1,47 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { MapPin, Mail, Grid, BookOpen, Heart, Clock, Plus, Edit } from "lucide-react"
+import { useParams } from "next/navigation"
+import { MapPin, Mail, Grid, BookOpen, Heart, MessageCircle } from "lucide-react"
 import { usuarios, publicaciones } from "@/data/dataUsuarios"
-import SolicitudModal from "@/components/solicitudes"
-import NuevaSolicitudModal from "@/components/nueva-solicitud"
-import PerfilMenu from "@/components/ajustesDelPerfil"
-import EditarPerfilModal from "@/components/editar-perfil"
 
-// Simulamos un usuario logueado para la demo
-const USUARIO_ACTUAL_ID = 1
-const USUARIO_INICIAL = usuarios.find((u) => u.id === USUARIO_ACTUAL_ID)
-
-export default function PerfilPage() {
-  const [usuario, setUsuario] = useState(USUARIO_INICIAL)
+export default function PerfilUsuarioPage() {
+  const params = useParams()
+  const [usuario, setUsuario] = useState(null)
   const [pestanaActiva, setPestanaActiva] = useState("publicaciones")
-  const [solicitudSeleccionada, setSolicitudSeleccionada] = useState(null)
-  const [mostrarNuevaSolicitud, setMostrarNuevaSolicitud] = useState(false)
-  const [mostrarEditarPerfil, setMostrarEditarPerfil] = useState(false)
-  const [solicitudes, setSolicitudes] = useState(usuario.solicitudes || [])
+  const [publicacionesUsuario, setPublicacionesUsuario] = useState([])
 
-  // Obtener publicaciones del usuario
-  const publicacionesUsuario = publicaciones.filter((p) => p.usuarioId === usuario.id)
+  useEffect(() => {
+    if (params.id) {
+      // Convertir a número si viene como string
+      const usuarioId = Number.parseInt(params.id, 10)
+
+      // Buscar el usuario
+      const usuarioEncontrado = usuarios.find((u) => u.id === usuarioId)
+      setUsuario(usuarioEncontrado)
+
+      // Buscar publicaciones del usuario
+      const publicacionesEncontradas = publicaciones.filter((p) => p.usuarioId === usuarioId)
+      setPublicacionesUsuario(publicacionesEncontradas)
+    }
+  }, [params.id])
+
+  if (!usuario) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p className="text-gray-500">Cargando perfil...</p>
+      </div>
+    )
+  }
 
   // Obtener matches del usuario
   const matchesUsuario = usuario.matches || []
   const usuariosMatches = usuarios.filter((u) => matchesUsuario.includes(u.id))
 
-  const handleNuevaSolicitud = (nuevaSolicitud) => {
-    setSolicitudes([...solicitudes, nuevaSolicitud])
-  }
-
-  const handleEditarPerfil = (perfilActualizado) => {
-    setUsuario(perfilActualizado)
-  }
-
-  const handleEditarClick = () => {
-    setMostrarEditarPerfil(true)
-  }
+  // Obtener solicitudes o escuelas apoyadas según el tipo de usuario
+  const solicitudesOApoyos = usuario.tipo === "escuela" ? usuario.solicitudes || [] : usuario.escuelasApoyadas || []
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -49,17 +51,11 @@ export default function PerfilPage() {
           <div className="mb-4 md:mb-0">
             <div className="relative w-32 h-32 mx-auto md:mx-0">
               <Image
-                src={usuario.imagen || "/https://imgs.search.brave.com/_jNap9jRRcWdeDWSBOEtwtQvPc8v6E7Vk6RskJHKvoA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTE2/NDgyMjE4OC92ZWN0/b3IvbWFsZS1hdmF0/YXItcHJvZmlsZS1w/aWN0dXJlLmpwZz9z/PTYxMng2MTImdz0w/Jms9MjAmYz1LUHNM/Z1ZJd0VHZER2ZjRf/a2l5bkNYdzk2cF9Q/aEJqSUdkVTY4cWtw/YnVJPQ"}
+                src={usuario.imagen || "/placeholder.svg"}
                 alt={usuario.nombre}
                 fill
                 className="rounded-full object-cover border-4 border-white shadow-md"
               />
-              <button
-                className="absolute bottom-0 right-0 bg-primary text-white rounded-full p-2 shadow-lg"
-                onClick={handleEditarClick}
-              >
-                <Edit size={16} />
-              </button>
             </div>
           </div>
 
@@ -104,10 +100,8 @@ export default function PerfilPage() {
           </div>
 
           <div className="mt-4 md:mt-0 flex md:flex-col gap-4 justify-center">
-            <button className="btn-primary" onClick={handleEditarClick}>
-              Editar perfil
-            </button>
-            <PerfilMenu tipo="config" />
+            <button className="btn-primary">Enviar mensaje</button>
+            <button className="btn-secondary">Solicitar apoyo</button>
           </div>
         </div>
       </div>
@@ -134,7 +128,7 @@ export default function PerfilPage() {
           onClick={() => setPestanaActiva("solicitudes")}
         >
           <BookOpen size={18} />
-          Solicitudes
+          {usuario.tipo === "escuela" ? "Solicitudes" : "Escuelas apoyadas"}
         </button>
         <button
           className={`flex items-center gap-1 px-4 py-2 text-sm font-medium ${
@@ -177,8 +171,14 @@ export default function PerfilPage() {
                       })}
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm">{post.likes} likes</span>
-                      <span className="text-sm">{post.comentarios.length} comentarios</span>
+                      <span className="text-sm flex items-center">
+                        <Heart size={14} className="mr-1" />
+                        {post.likes}
+                      </span>
+                      <span className="text-sm flex items-center">
+                        <MessageCircle size={14} className="mr-1" />
+                        {post.comentarios.length}
+                      </span>
                     </div>
                   </div>
                 </article>
@@ -186,10 +186,7 @@ export default function PerfilPage() {
             </div>
           ) : (
             <div className="text-center py-8 card">
-              <p className="text-gray-500 mb-2">Aún no has publicado nada</p>
-              <Link href="/publicar" className="btn-primary">
-                Crear publicación
-              </Link>
+              <p className="text-gray-500">Este usuario aún no ha publicado nada</p>
             </div>
           )}
         </div>
@@ -197,82 +194,105 @@ export default function PerfilPage() {
 
       {pestanaActiva === "solicitudes" && (
         <div>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Mis solicitudes</h2>
-            <button className="btn-primary flex items-center gap-1" onClick={() => setMostrarNuevaSolicitud(true)}>
-              <Plus size={18} />
-              Nueva solicitud
-            </button>
-          </div>
-
-          {solicitudes.length > 0 ? (
-            <div className="space-y-4">
-              {solicitudes.map((solicitud) => (
-                <div
-                  key={solicitud.id}
-                  className="card hover:shadow-md transition-shadow cursor-pointer"
-                  onClick={() => setSolicitudSeleccionada(solicitud)}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <h2 className="font-bold text-lg">{solicitud.titulo}</h2>
-                    <span
-                      className={`text-xs px-2 py-1 rounded-full ${
-                        solicitud.estado === "pendiente"
-                          ? "bg-yellow-100 text-yellow-800"
+          {usuario.tipo === "escuela" ? (
+            // Mostrar solicitudes si es una escuela
+            solicitudesOApoyos.length > 0 ? (
+              <div className="space-y-4">
+                {solicitudesOApoyos.map((solicitud) => (
+                  <div key={solicitud.id} className="card">
+                    <div className="flex justify-between items-start mb-2">
+                      <h2 className="font-bold text-lg">{solicitud.titulo}</h2>
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full ${
+                          solicitud.estado === "pendiente"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : solicitud.estado === "en proceso"
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-green-100 text-green-800"
+                        }`}
+                      >
+                        {solicitud.estado === "pendiente"
+                          ? "Pendiente"
                           : solicitud.estado === "en proceso"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-green-100 text-green-800"
-                      }`}
-                    >
-                      {solicitud.estado === "pendiente"
-                        ? "Pendiente"
-                        : solicitud.estado === "en proceso"
-                          ? "En proceso"
-                          : "Completada"}
-                    </span>
+                            ? "En proceso"
+                            : "Completada"}
+                      </span>
+                    </div>
+
+                    <p className="text-sm text-gray-600 mb-3">{solicitud.descripcion}</p>
+
+                    {solicitud.aliados && solicitud.aliados.length > 0 ? (
+                      <div>
+                        <h3 className="text-sm font-semibold mb-2">Aliados participantes:</h3>
+                        <div className="flex flex-wrap gap-2">
+                          {solicitud.aliados.map((aliadoId) => {
+                            const aliado = usuarios.find((u) => u.id === aliadoId)
+                            return (
+                              <Link
+                                key={aliadoId}
+                                href={`/perfil/${aliadoId}`}
+                                className="flex items-center gap-1 bg-gray-100 rounded-full pl-1 pr-3 py-1"
+                              >
+                                <Image
+                                  src={aliado.imagen || "/placeholder.svg"}
+                                  alt={aliado.nombre}
+                                  width={24}
+                                  height={24}
+                                  className="rounded-full"
+                                />
+                                <span className="text-xs">{aliado.nombre}</span>
+                              </Link>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500">Esperando aliados</p>
+                    )}
                   </div>
-
-                  <p className="text-sm text-gray-600 mb-3">{solicitud.descripcion}</p>
-
-                  {solicitud.aliados && solicitud.aliados.length > 0 ? (
-                    <div>
-                      <h3 className="text-sm font-semibold mb-2">Aliados participantes:</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {solicitud.aliados.map((aliadoId) => {
-                          const aliado = usuarios.find((u) => u.id === aliadoId)
-                          return (
-                            <div
-                              key={aliadoId}
-                              className="flex items-center gap-1 bg-gray-100 rounded-full pl-1 pr-3 py-1"
-                            >
-                              <Image
-                                src={aliado.imagen || "/placeholder.svg"}
-                                alt={aliado.nombre}
-                                width={24}
-                                height={24}
-                                className="rounded-full"
-                              />
-                              <span className="text-xs">{aliado.nombre}</span>
-                            </div>
-                          )
-                        })}
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 card">
+                <p className="text-gray-500">No hay solicitudes activas</p>
+              </div>
+            )
+          ) : // Mostrar escuelas apoyadas si es un aliado
+          solicitudesOApoyos.length > 0 ? (
+            <div className="grid md:grid-cols-2 gap-4">
+              {solicitudesOApoyos.map((escuelaId) => {
+                const escuela = usuarios.find((u) => u.id === escuelaId)
+                return (
+                  <Link
+                    key={escuelaId}
+                    href={`/perfil/${escuelaId}`}
+                    className="card hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex gap-4">
+                      <Image
+                        src={escuela.imagen || "/placeholder.svg"}
+                        alt={escuela.nombre}
+                        width={80}
+                        height={80}
+                        className="rounded-full"
+                      />
+                      <div>
+                        <h2 className="font-bold text-lg">{escuela.nombre}</h2>
+                        <p className="text-sm text-gray-500 mb-1">Escuela</p>
+                        <div className="flex items-center text-xs text-gray-600 mb-2">
+                          <MapPin size={12} className="mr-1" />
+                          {escuela.ubicacion}
+                        </div>
+                        <p className="text-sm line-clamp-2">{escuela.descripcion}</p>
                       </div>
                     </div>
-                  ) : (
-                    <p className="text-sm text-gray-500 flex items-center">
-                      <Clock size={14} className="mr-1" />
-                      Esperando aliados
-                    </p>
-                  )}
-                </div>
-              ))}
+                  </Link>
+                )
+              })}
             </div>
           ) : (
             <div className="text-center py-8 card">
-              <p className="text-gray-500">No tienes solicitudes activas</p>
-              <button className="btn-primary mt-2" onClick={() => setMostrarNuevaSolicitud(true)}>
-                Crear solicitud
-              </button>
+              <p className="text-gray-500">Este aliado aún no apoya a ninguna escuela</p>
             </div>
           )}
         </div>
@@ -307,32 +327,10 @@ export default function PerfilPage() {
             </div>
           ) : (
             <div className="text-center py-8 card">
-              <p className="text-gray-500">Aún no tienes matches</p>
-              <Link href="/matches" className="btn-primary mt-2">
-                Explorar perfiles
-              </Link>
+              <p className="text-gray-500">Este usuario aún no tiene matches</p>
             </div>
           )}
         </div>
-      )}
-
-      {/* Modal de solicitud */}
-      {solicitudSeleccionada && (
-        <SolicitudModal solicitud={solicitudSeleccionada} onClose={() => setSolicitudSeleccionada(null)} />
-      )}
-
-      {/* Modal de nueva solicitud */}
-      {mostrarNuevaSolicitud && (
-        <NuevaSolicitudModal onClose={() => setMostrarNuevaSolicitud(false)} onSubmit={handleNuevaSolicitud} />
-      )}
-
-      {/* Modal de editar perfil */}
-      {mostrarEditarPerfil && (
-        <EditarPerfilModal
-          usuario={usuario}
-          onClose={() => setMostrarEditarPerfil(false)}
-          onSave={handleEditarPerfil}
-        />
       )}
     </div>
   )

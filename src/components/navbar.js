@@ -10,8 +10,8 @@ export default function Navbar() {
 
   return (
     <MotionTransition position="bottom" className="fixed bottom-0 left-0 w-full z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
-      <div className="max-w-screen-l mx-auto px-2">
-        <div className="flex items-center justify-around py-3">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 px-4 z-50">
+      <div className="flex justify-between items-center max-w-5xl mx-auto">
           {itemsNavbar.map((item) => (
             <div key={item.id} className="relative group">
               <Link
@@ -31,12 +31,12 @@ export default function Navbar() {
                 <span className="group-hover:scale-110 transition-transform duration-200">{item.icon}</span>
               </Link>
               {pathname === item.link && (
-                <span className="absolute -bottom-1 left-1/2 w-1 h-1 bg-primary rounded-full transform -translate-x-1/2" />
+                <span className="absolute-bottom-1 left-1/2 w-1 h-1 bg-primary rounded-full transform mt-1 -translate-x-1/2" />
               )}
             </div>
           ))}
         </div>
-      </div>
+      </nav>
     </MotionTransition>
   );
 }

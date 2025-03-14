@@ -5,7 +5,7 @@ import { Calendar, FileText } from "lucide-react"
 
 export default function SolicitudesPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20">
       <h1 className="text-2xl font-bold">Solicitudes de Ingreso</h1>
 
       <div className="grid grid-cols-1 gap-4">

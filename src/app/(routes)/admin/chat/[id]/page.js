@@ -1,17 +1,28 @@
-import Image from "next/image"
-import { usuariosChat } from "@/data/dataAdmin";
-import { Send } from "lucide-react"
+"use client"
 
-export default function ChatDetailPage({ params }) {
+import Image from "next/image"
+import { useRouter, useParams } from "next/navigation"
+import { usuariosChat } from "@/data/dataAdmin"
+import { Send, ArrowLeft } from "lucide-react"
+
+export default function ChatDetailPage() {
+  const router = useRouter()
+  const params = useParams()
   const user = usuariosChat.find((u) => u.id === params.id)
 
-  if (!user) {
-    return <div>Usuario no encontrado</div>
+  const goBack = () => {
+    router.back()
   }
 
   return (
     <div className="h-[calc(100vh-10rem)] flex flex-col">
       <div className="flex items-center p-4 border-b bg-white">
+        <button
+          className="p-2 mr-2 rounded-full hover:bg-gray-100"
+          onClick={goBack}
+        >
+          <ArrowLeft size={20} className="text-gray-600" />
+        </button>
         <div className="relative h-10 w-10 rounded-full overflow-hidden">
           <Image src={user.imagen || "/placeholder.svg"} alt={user.nombre} fill className="object-cover" />
         </div>
@@ -57,4 +68,3 @@ export default function ChatDetailPage({ params }) {
     </div>
   )
 }
-

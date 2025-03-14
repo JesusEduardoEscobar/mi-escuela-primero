@@ -51,7 +51,7 @@ export default function ProblematicosPage() {
         <div className="text-sm text-gray-500">Total: {usuariosProblematicos.length} usuarios</div>
       </div>
 
-      <div className="space-y-8">
+      <div className="space-y-8 pb-20">
         {strike0.length > 0 && (
           <div>
             <h2 className="text-lg font-medium mb-3 text-gray-600">Sin Strikes</h2>

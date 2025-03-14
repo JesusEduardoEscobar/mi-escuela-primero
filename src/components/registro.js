@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Eye, EyeOff } from "lucide-react" 
+import { Checkbox } from "@mui/material"
 
 export default function Inicio() {
   const [nombre, setNombre] = useState("")
@@ -11,12 +12,14 @@ export default function Inicio() {
   const [contra, setContra] = useState("")
   const [verificarContra, setVerificarContra] = useState("")
   const [token, setToken] = useState("")
+  const [checkbox, setCheckbox] = useState("")
   const [mensajeNombre, setMensajeNombre] = useState("")
   const [mensajenombreEscuela, setMensajeNombreEscuela] = useState("")
   const [mensajeCorreo, setMensajeCorreo] = useState("")
   const [mensajeContra, setMensajeContra] = useState("")
   const [mensajeToken, setMensajeToken] = useState("")
   const [mensajeVerificarContra, setMensajeVerificarContra] = useState("")
+  const [mensajeCheckbox, setMensajeCheckbox] = useState("")
   const [showPassword, setShowPassword] = useState(false)
 
   const router = useRouter()
@@ -83,6 +86,14 @@ export default function Inicio() {
     }
     setToken(valor)
   }
+
+  const validarCheckbox = () => {
+    if (!checkbox) {
+      setMensajeCheckbox("❌ Debes aceptar las políticas para continuar.");
+    } else {
+      setMensajeCheckbox("✅ Políticas aceptadas.");
+    }
+  };
 
   return (
       <div className="">
@@ -197,6 +208,75 @@ export default function Inicio() {
               {mensajeToken}
             </p>
           </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Colonia</label>
+            <input
+              type="text"
+              value={token}
+              onChange={validarToken}
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none"
+              placeholder="Ingresa tu colonia"
+            />
+            <p className={`text-xs ${mensajeToken.includes("✅") ? "text-green-600" : "text-red-500"}`}>
+              {mensajeToken}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Calle</label>
+            <input
+              type="text"
+              value={token}
+              onChange={validarToken}
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none"
+              placeholder="Ingresa tu calle"
+            />
+            <p className={`text-xs ${mensajeToken.includes("✅") ? "text-green-600" : "text-red-500"}`}>
+              {mensajeToken}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Descripcion</label>
+            <input
+              type="text"
+              value={token}
+              onChange={validarToken}
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none"
+              placeholder="Ingresa una descripcion"
+            />
+            <p className={`text-xs ${mensajeToken.includes("✅") ? "text-green-600" : "text-red-500"}`}>
+              {mensajeToken}
+            </p>
+          </div>
+
+          {/* CHECKBOX DE POLITICAS DE USO */}
+          <div className="space-y-2">
+      <label className="block text-sm font-medium text-gray-700">
+        Acepta políticas de privacidad
+      </label>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          checked={checkbox}
+          onChange={(checked) => setCheckbox(checked)}
+          className="w-5 h-5 border-gray-300 rounded-md"
+        />
+        <a
+          href="/politicas.pdf" // Ruta del PDF
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:underline text-sm"
+        >
+          Ver políticas de privacidad
+        </a>
+      </div>
+
+      <p className={`text-xs ${mensajeCheckbox.includes("✅") ? "text-green-600" : "text-red-500"}`}>
+        {mensajeCheckbox}
+      </p>
+    </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
             <button

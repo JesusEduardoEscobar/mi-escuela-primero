@@ -4,7 +4,7 @@ import { Search } from "lucide-react"
 
 export default function ChatPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20">
       <h1 className="text-2xl font-bold">Chat con Usuarios</h1>
 
       <div className="relative">
