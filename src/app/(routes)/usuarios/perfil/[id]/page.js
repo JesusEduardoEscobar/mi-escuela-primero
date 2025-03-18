@@ -100,8 +100,8 @@ export default function PerfilUsuarioPage() {
           </div>
 
           <div className="mt-4 md:mt-0 flex md:flex-col gap-4 justify-center">
-            <button className="btn-primary">Enviar mensaje</button>
-            <button className="btn-secondary">Solicitar apoyo</button>
+            {/* <button className="btn-primary">Enviar mensaje</button>
+            <button className="btn-secondary">Solicitar apoyo</button> */}
           </div>
         </div>
       </div>

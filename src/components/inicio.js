@@ -1,47 +1,100 @@
-import Post from "@/components/post"
+"use client"
 
-export default function PaginaPrincipal() {
+import { useState } from "react"
+import { Heart, MoreHorizontal } from "lucide-react"
+import { publicaciones, usuariosAliados, usuariosEscuelas } from "@/data/dataUsuarios"
+import Link from 'next/link'
+
+// Función para transformar los datos
+const transformPosts = (publicaciones) => {
+  return publicaciones.map((pub) => {
+    // Busca el usuario en las listas de aliados y escuelas
+    const user = [...usuariosAliados, ...usuariosEscuelas].find((u) => u.id === pub.usuarioId);
+
+    return {
+      id: pub.id,
+      usuarioId: pub.usuarioId,
+      image: pub.imagenes[0], // Usa la primera imagen de la lista
+      caption: pub.descripcion, // Usa la descripción como caption
+      likes: pub.likes,
+      user: {
+        name: user?.nombre || "Usuario Desconocido", // Nombre del usuario
+        image: user?.imagen || "/placeholder.svg", // Imagen de perfil del usuario
+        tipo: user?.tipo || "escuela", // Tipo de usuario (aliado o escuela)
+      },
+    };
+  });
+};
+
+// Componente Post
+function Post({ post }) {
+  const [isLiked, setIsLiked] = useState(false);
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Instagram-style posts */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-[470px] mx-auto space-y-6">
-          <Post
-            post={{
-              id: 1,
-              user: {
-                name: "Vegetta777",
-                image: "/img/vegetta777.png",
-              },
-              image: "/img/doona1.png",
-              likes: 124,
-              caption: "Tengo en mi diposicion para donar 20 sillas y 5 mesas en buneas condiciones",
-              comments: [
-                { user: "profesor_juan", text: "¡Excelente inicio de clases! 🎉" },
-                { user: "maria_edu", text: "Me encanta ver el entusiasmo 💫" },
-              ],
-            }}
-          />
+    <div className="border rounded-lg bg-white overflow-hidden shadow-sm">
+      {/* Header */}
+      <div className="flex items-center justify-between p-5">
+        <Link href={`/usuarios/perfil/${post.usuarioId}`} className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full overflow-hidden">
+              <img
+                src={post.user?.image || "/placeholder.svg"}
+                alt={post.user?.name || "Usuario"}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <h2 className="font-semibold text-sm">{post.user?.name || "Usuario"}</h2>
+            <p className="text-xs text-gray-500">{post.user.tipo === "escuela" ? "Escuela" : "Aliado"}</p>
+          </div>
+        </Link>
+        <button className="p-1">
+          <MoreHorizontal className="w-6 h-6" />
+        </button>
+      </div>
 
-          <Post
-            post={{
-              id: 2,
-              user: {
-                name: "Alfredo.tinieblas",
-                image: "/img/Persona1.png",
-              },
-              image: "/img/escuela1.png",
-              likes: 89,
-              caption: "Diseño para nuevos salones de clase",
-              comments: [
-                { user: "padre_pedro", text: "¡Qué buena actividad! 👏" },
-                { user: "ana_maestra", text: "Los niños están muy entusiasmados 😊" },
-              ],
-            }}
-          />
+      {/* Imagen del post */}
+      <div>
+        <img 
+          src={post.image || "/placeholder.svg"} 
+          alt="Post" 
+          className="w-full aspect-square object-cover" 
+        />
+      </div>
+
+      {/* Acciones */}
+      <div className="flex justify-between p-5 pb-3">
+        <div className="flex gap-5">
+          <button onClick={() => setIsLiked(!isLiked)} className={isLiked ? "text-red-500" : ""}>
+            <Heart className="w-7 h-7" fill={isLiked ? "currentColor" : "none"} />
+          </button>
+        </div>
+      </div>
+
+      {/* Likes, caption y comentarios */}
+      <div className="px-5 pb-3">
+        <p className="font-semibold text-base">{post.likes ? post.likes.toLocaleString() : "0"} Me gusta</p>
+        <p className="text-base my-1">
+          <span className="font-semibold">{post.user?.name || "Usuario"}</span> {post.caption}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// Página PaginaPrincipal
+export default function PaginaPrincipal() {
+  // Transforma los datos de publicaciones
+  const posts = transformPosts(publicaciones)
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8 max-w-[1400px] mx-auto">
+          {posts.map((post) => (
+            <Post key={post.id} post={post} />
+          ))}
         </div>
       </div>
     </div>
-  )
+  );
 }
-

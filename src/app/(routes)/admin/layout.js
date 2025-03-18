@@ -1,7 +1,7 @@
 "use client"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { Users, ClipboardCheck, AlertTriangle, MessageSquare } from "lucide-react"
+import { Users, ClipboardCheck, AlertTriangle, MessageSquare, School } from "lucide-react"
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname()
@@ -22,15 +22,26 @@ export default function AdminLayout({ children }) {
         <div className="container mx-auto h-full">
           <div className="flex justify-around items-center h-full">
             <Link
-              href="/admin/usuarios"
+              href="/admin/usuariosAliados"
               className={`flex flex-col items-center justify-center w-full h-full transition-colors ${
-                pathname.includes("/admin/usuarios")
+                pathname.includes("/admin/usuariosAliados")
                   ? "text-blue-600 border-t-2 border-blue-600"
                   : "text-gray-600 hover:text-blue-500"
               }`}
             >
               <Users size={24} />
-              <span className="text-xs mt-1">Usuarios</span>
+              <span className="text-xs mt-1">Aliados</span>
+            </Link>
+            <Link
+              href="/admin/usuariosEscuelas"
+              className={`flex flex-col items-center justify-center w-full h-full transition-colors ${
+                pathname.includes("/admin/usuariosEscuelas")
+                  ? "text-blue-600 border-t-2 border-blue-600"
+                  : "text-gray-600 hover:text-blue-500"
+              }`}
+            >
+              <School size={24} />
+              <span className="text-xs mt-1">Escuelas</span>
             </Link>
             <Link
               href="/admin/solicitudes"

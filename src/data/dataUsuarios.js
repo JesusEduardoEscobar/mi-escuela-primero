@@ -85,6 +85,37 @@ export const usuarios = [
   },
 ]
 
+// dataAdmin.js
+export const usuariosAliados = [
+  {
+    id: 1,
+    nombre: "Aliado 1",
+    imagen: "/img/aliado1.jpg",
+    tipo: "aliado",
+  },
+  {
+    id: 2,
+    nombre: "Aliado 2",
+    imagen: "/img/aliado2.jpg",
+    tipo: "aliado",
+  },
+];
+
+export const usuariosEscuelas = [
+  {
+    id: 3,
+    nombre: "Escuela 1",
+    imagen: "/img/escuela1.jpg",
+    tipo: "escuela",
+  },
+  {
+    id: 4,
+    nombre: "Escuela 2",
+    imagen: "/img/escuela2.jpg",
+    tipo: "escuela",
+  },
+];
+
 export const publicaciones = [
   {
     id: 1,
@@ -93,7 +124,7 @@ export const publicaciones = [
     titulo: "Renovación de nuestra biblioteca escolar",
     descripcion:
       "Gracias al apoyo de Fundación Educativa Futuro, hemos logrado renovar completamente nuestra biblioteca con nuevos libros y mobiliario. Los estudiantes están encantados con el nuevo espacio de lectura.",
-    imagenes: ["/https://imgs.search.brave.com/_jNap9jRRcWdeDWSBOEtwtQvPc8v6E7Vk6RskJHKvoA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTE2/NDgyMjE4OC92ZWN0/b3IvbWFsZS1hdmF0/YXItcHJvZmlsZS1w/aWN0dXJlLmpwZz9z/PTYxMng2MTImdz0w/Jms9MjAmYz1LUHNM/Z1ZJd0VHZER2ZjRf/a2l5bkNYdzk2cF9Q/aEJqSUdkVTY4cWtw/YnVJPQ?height=400&width=600", "/https://imgs.search.brave.com/_jNap9jRRcWdeDWSBOEtwtQvPc8v6E7Vk6RskJHKvoA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTE2/NDgyMjE4OC92ZWN0/b3IvbWFsZS1hdmF0/YXItcHJvZmlsZS1w/aWN0dXJlLmpwZz9z/PTYxMng2MTImdz0w/Jms9MjAmYz1LUHNM/Z1ZJd0VHZER2ZjRf/a2l5bkNYdzk2cF9Q/aEJqSUdkVTY4cWtw/YnVJPQ?height=400&width=600"],
+    imagenes: ["/img/escuela1.png", "/img/doona1.png"],
     participantes: [1, 3],
     likes: 24,
     comentarios: [
@@ -101,11 +132,6 @@ export const publicaciones = [
         usuarioId: 3,
         texto: "¡Fue un placer colaborar en este proyecto! Los niños merecen espacios dignos para su educación.",
         fecha: "2023-10-15",
-      },
-      {
-        usuarioId: 5,
-        texto: "¡Qué transformación tan increíble! Felicidades por este logro.",
-        fecha: "2023-10-16",
       },
     ],
   },
@@ -116,7 +142,7 @@ export const publicaciones = [
     titulo: "Nuevo laboratorio de computación",
     descripcion:
       "Estamos muy agradecidos con TechMex Empresarial por la donación de 20 computadoras nuevas para nuestro laboratorio. Ahora nuestros estudiantes podrán desarrollar habilidades digitales con equipos de última generación.",
-    imagenes: ["/https://imgs.search.brave.com/_jNap9jRRcWdeDWSBOEtwtQvPc8v6E7Vk6RskJHKvoA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTE2/NDgyMjE4OC92ZWN0/b3IvbWFsZS1hdmF0/YXItcHJvZmlsZS1w/aWN0dXJlLmpwZz9z/PTYxMng2MTImdz0w/Jms9MjAmYz1LUHNM/Z1ZJd0VHZER2ZjRf/a2l5bkNYdzk2cF9Q/aEJqSUdkVTY4cWtw/YnVJPQ?height=400&width=600"],
+    imagenes: ["/img/doona1.png"],
     participantes: [2, 4],
     likes: 35,
     comentarios: [
@@ -127,29 +153,7 @@ export const publicaciones = [
       },
     ],
   },
-  {
-    id: 3,
-    usuarioId: 5,
-    fecha: "2023-11-05",
-    titulo: "Festival cultural en Escuela Primaria Benito Juárez",
-    descripcion:
-      "Organizamos un festival cultural con talleres de danza, música y artes plásticas para los estudiantes. Fue una jornada llena de creatividad y aprendizaje.",
-    imagenes: [
-      "/https://imgs.search.brave.com/_jNap9jRRcWdeDWSBOEtwtQvPc8v6E7Vk6RskJHKvoA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTE2/NDgyMjE4OC92ZWN0/b3IvbWFsZS1hdmF0/YXItcHJvZmlsZS1w/aWN0dXJlLmpwZz9z/PTYxMng2MTImdz0w/Jms9MjAmYz1LUHNM/Z1ZJd0VHZER2ZjRf/a2l5bkNYdzk2cF9Q/aEJqSUdkVTY4cWtw/YnVJPQ?height=400&width=600",
-      "/https://imgs.search.brave.com/_jNap9jRRcWdeDWSBOEtwtQvPc8v6E7Vk6RskJHKvoA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTE2/NDgyMjE4OC92ZWN0/b3IvbWFsZS1hdmF0/YXItcHJvZmlsZS1w/aWN0dXJlLmpwZz9z/PTYxMng2MTImdz0w/Jms9MjAmYz1LUHNM/Z1ZJd0VHZER2ZjRf/a2l5bkNYdzk2cF9Q/aEJqSUdkVTY4cWtw/YnVJPQ?height=400&width=600",
-      "/https://imgs.search.brave.com/_jNap9jRRcWdeDWSBOEtwtQvPc8v6E7Vk6RskJHKvoA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTE2/NDgyMjE4OC92ZWN0/b3IvbWFsZS1hdmF0/YXItcHJvZmlsZS1w/aWN0dXJlLmpwZz9z/PTYxMng2MTImdz0w/Jms9MjAmYz1LUHNM/Z1ZJd0VHZER2ZjRf/a2l5bkNYdzk2cF9Q/aEJqSUdkVTY4cWtw/YnVJPQ?height=400&width=600",
-    ],
-    participantes: [1, 5],
-    likes: 42,
-    comentarios: [
-      {
-        usuarioId: 1,
-        texto: "¡Gracias por traer estas actividades culturales a nuestra escuela! Los niños disfrutaron muchísimo.",
-        fecha: "2023-11-06",
-      },
-    ],
-  },
-]
+];
 
 export const mensajes = [
   {
@@ -201,5 +205,69 @@ export const mensajes = [
         fecha: "2023-10-01T09:15:00",
       },
     ],
+  },
+]
+
+export const posts = [
+  {
+    id: 1,
+    user: {
+      name: "Vegetta777",
+      image: "/img/vegetta777.png",
+    },
+    image: "/img/doona1.png",
+    likes: 124,
+    caption: "Tengo en mi diposicion para donar 20 sillas y 5 mesas en buneas condiciones",
+  },
+  {
+    id: 2,
+    user: {
+      name: "Vegetta777",
+      image: "/img/vegetta777.png",
+    },
+    image: "/img/doona1.png",
+    likes: 124,
+    caption: "Tengo en mi diposicion para donar 20 sillas y 5 mesas en buneas condiciones",
+  },
+  {
+    id: 3,
+    nombre: "Vegetta777",
+    user: {
+      name: "Vegetta777",
+      image: "/img/vegetta777.png",
+    },
+    image: "/img/doona1.png",
+    likes: 124,
+    caption: "Tengo en mi diposicion para donar 20 sillas y 5 mesas en buneas condiciones",
+  },
+  {
+    id: 4,
+    user: {
+      name: "Vegetta777",
+      image: "/img/vegetta777.png",
+    },
+    image: "/img/doona1.png",
+    likes: 124,
+    caption: "Tengo en mi diposicion para donar 20 sillas y 5 mesas en buneas condiciones",
+  },
+  {
+    id: 5,
+    user: {
+      name: "Vegetta777",
+      image: "/img/vegetta777.png",
+    },
+    image: "/img/doona1.png",
+    likes: 124,
+    caption: "Tengo en mi diposicion para donar 20 sillas y 5 mesas en buneas condiciones",
+  },
+  {
+    id: 6,
+    user: {
+      name: "Alfredo.tinieblas",
+      image: "/img/Persona1.png",
+    },
+    image: "/img/escuela1.png",
+    likes: 89,
+    caption: "Diseño para nuevos salones de clase",
   },
 ]

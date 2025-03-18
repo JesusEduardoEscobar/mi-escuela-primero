@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Settings } from 'lucide-react'
 import { useRouter } from "next/navigation"
+import Image from 'next/image'
 
 export default function Header() {
   const router = useRouter()
@@ -12,8 +13,13 @@ export default function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo or title */}
           <div className="container mx-auto px-2 py-2" 
-          onClick={() => router.push("/paginaPrincipal")}>
-            <h1 className="text-xl font-semibold">Mi escuela primero</h1>
+          onClick={() => router.push("/usuarios/paginaPrincipal")}>
+            <Image 
+              src="/img/Mi_Escuela_Primero.png" 
+              width={200} 
+              height={10} 
+              alt="Mi Escuela Primero"
+            />
           </div>
           
           <Link

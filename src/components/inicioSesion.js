@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function LoginPage() {
   // Carousel state
@@ -17,23 +18,21 @@ export default function LoginPage() {
   ];
 
   // Form state
-  const [nombre, setNombre] = useState("")
-  const [correo, setCorreo] = useState("")
-  const [contra, setContra] = useState("")
-  const [token, setToken] = useState("")
-  const [mensajeNombre, setMensajeNombre] = useState("")
-  const [mensajeCorreo, setMensajeCorreo] = useState("")
-  const [mensajeContra, setMensajeContra] = useState("")
-  const [mensajeToken, setMensajeToken] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState("") // Estado para manejar errores generales
+  const [correo, setCorreo] = useState("");
+  const [contra, setContra] = useState("");
+  const [token, setToken] = useState("");
+  const [mensajeCorreo, setMensajeCorreo] = useState("");
+  const [mensajeContra, setMensajeContra] = useState("");
+  const [mensajeToken, setMensajeToken] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
 
   // Auto-rotate carousel
   useEffect(() => {
     if (!isPaused) {
       timerRef.current = setInterval(() => {
         setCurrentImage((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-      }, 5000); // Change image every 5 seconds
+      }, 5000);
     }
 
     return () => {
@@ -45,11 +44,9 @@ export default function LoginPage() {
 
   // Carousel navigation
   const nextImage = () => {
-    // Pause auto-rotation temporarily when user interacts
     setIsPaused(true);
     setCurrentImage((prev) => (prev === images.length - 1 ? 0 : prev + 1));
 
-    // Resume auto-rotation after 10 seconds of inactivity
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
@@ -60,11 +57,9 @@ export default function LoginPage() {
   };
 
   const prevImage = () => {
-    // Pause auto-rotation temporarily when user interacts
     setIsPaused(true);
     setCurrentImage((prev) => (prev === 0 ? images.length - 1 : prev - 1));
 
-    // Resume auto-rotation after 10 seconds of inactivity
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
@@ -75,75 +70,62 @@ export default function LoginPage() {
   };
 
   // Form validation
-  const router = useRouter()
-
-  const validarNombre = (e) => {
-    const regexNombre = /^[A-Za-z\s]{3,}$/
-    if (regexNombre.test(e.target.value)) {
-      setMensajeNombre("✅ El nombre ingresado es válido")
-    } else {
-      setMensajeNombre("❌ Usted ha ingresado un nombre inválido")
-    }
-    setNombre(e.target.value)
-  }
+  const router = useRouter();
 
   const validarCorreo = (e) => {
-    const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+    const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (regexCorreo.test(e.target.value)) {
-      setMensajeCorreo("✅ El correo ingresado es válido")
+      setMensajeCorreo("✅ El correo ingresado es válido");
     } else {
-      setMensajeCorreo("❌ El correo ingresado no es válido")
+      setMensajeCorreo("❌ El correo ingresado no es válido");
     }
-    setCorreo(e.target.value)
-  }
+    setCorreo(e.target.value);
+  };
 
   const validarContra = (e) => {
-    const regexContra = /^[A-Za-z1-9]{5,}$/
+    const regexContra = /^[A-Za-z1-9]{5,}$/;
     if (regexContra.test(e.target.value)) {
-      setMensajeContra("✅ La contraseña ingresada es válida")
+      setMensajeContra("✅ La contraseña ingresada es válida");
     } else {
-      setMensajeContra("❌ La contraseña ingresada no es válida")
+      setMensajeContra("❌ La contraseña ingresada no es válida");
     }
-    setContra(e.target.value)
-  }
+    setContra(e.target.value);
+  };
 
   const validarToken = (e) => {
-    const valor = e.target.value
-    const regexToken = /^.[A-Z]{4}[0-9]{2}$/
+    const valor = e.target.value;
+    const regexToken = /^.[A-Z]{4}[0-9]{2}$/;
     if (regexToken.test(valor)) {
-      setMensajeToken("✅ El token ingresado es válido")
+      setMensajeToken("✅ El token ingresado es válido");
     } else {
-      setMensajeToken("❌ El token ingresado no es válido")
+      setMensajeToken("❌ El token ingresado no es válido");
     }
-    setToken(valor)
+    setToken(valor);
+  };
+
+  const paginaPrincipal = (e) => {
+    router.push()
   }
 
   const handleSubmit = (e) => {
-    e.preventDefault() // Evita el envío del formulario por defecto
+    e.preventDefault();
 
-    // Validar que los campos no estén vacíos (excepto el token)
-    if (!nombre.trim() || !correo.trim() || !contra.trim()) {
-      setError("Por favor, completa todos los campos obligatorios.")
-      return
+    if (!correo.trim() || !contra.trim()) {
+      setError("Por favor, completa todos los campos obligatorios.");
+      return;
     }
 
-    // Validar que los campos sean válidos
-    if (
-      mensajeNombre.includes("❌") ||
-      mensajeCorreo.includes("❌") ||
-      mensajeContra.includes("❌")
-    ) {
-      setError("Por favor, corrige los errores en los campos.")
-      return
+    if (mensajeCorreo.includes("❌") || mensajeContra.includes("❌")) {
+      setError("Por favor, corrige los errores en los campos.");
+      return;
     }
 
-    // Redirigir según el token
     if (token.trim()) {
-      router.push("/admin/usuarios") // Redirige a la página de admin si hay token
+      router.push("/admin/usuarios");
     } else {
-      router.push("/usuarios/paginaPrincipal") // Redirige a la página de usuarios si no hay token
+      router.push("/usuarios/paginaPrincipal");
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
@@ -210,99 +192,121 @@ export default function LoginPage() {
 
       {/* Right side - Login form with green to white gradient */}
       <div className="w-full md:w-1/2 bg-gradient-to-b from-green-500 to-white p-6 md:p-12 flex items-center justify-center">
+        <div className="absolute top-4 right-4 flex space-x-4">
+          <h1 className="text-3xl font-bold mb-6 text-center text-green-900 mt-7">
+            Conocenos:
+          </h1>
+          <a href="https://www.mexicanosprimero.org" target="_blank" rel="noopener noreferrer">
+            <Image 
+              src="/img/Mexicanos_Primero_Jalisco_blanco.png" 
+              width={100} 
+              height={100} 
+              alt="Mexicanos Primero Jalisco"
+            />
+          </a>
+        </div>
+
         <div className="w-full max-w-md p-8 bg-white/70 rounded-lg shadow-md">
-          <h1 className="text-3xl font-bold mb-6 text-center text-green-900">Iniciar Sesión</h1>
+        <div className="flex items-center justify-center">
+            <Image 
+              src="/img/Mi_Escuela_Primero.png" 
+              width={200} 
+              height={10} 
+              alt="Mi Escuela Primero"
+            />
+          </div>
+          <h1 className="text-3xl font-bold mb-6 text-center text-green-900">
+            Iniciar Sesión
+          </h1>
 
           {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          
-
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Correo electrónico</label>
-            <div className="relative"> 
-              <Mail className="absolute left-3 top-3 h-5 w-5 text-green-600" />
-              <input
-              type="email"
-              value={correo}
-              onChange={validarCorreo}
-              className="w-full px-4 pl-10 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none"
-              placeholder="ejemplo@correo.com"
-              required
-            />
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              {error}
             </div>
-            <p className={`text-xs ${mensajeCorreo.includes("✅") ? "text-green-600" : "text-red-500"}`}>
-              {mensajeCorreo}
-            </p>
-          </div>
+          )}
 
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Contraseña</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 h-5 w-5 text-green-600" />
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Correo electrónico</label>
+              <div className="relative"> 
+                <Mail className="absolute left-3 top-3 h-5 w-5 text-green-600" />
+                <input
+                  type="email"
+                  value={correo}
+                  onChange={validarCorreo}
+                  className="w-full px-4 pl-10 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none"
+                  placeholder="ejemplo@correo.com"
+                  required
+                />
+              </div>
+              <p className={`text-xs ${mensajeCorreo.includes("✅") ? "text-green-600" : "text-red-500"}`}>
+                {mensajeCorreo}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Contraseña</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-5 w-5 text-green-600" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={contra}
+                  onChange={validarContra}
+                  className="w-full pl-10 px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none"
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+              <p className={`text-xs ${mensajeContra.includes("✅") ? "text-green-600" : "text-red-500"}`}>
+                {mensajeContra}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Token</label>
               <input
-                type={showPassword ? "text" : "password"}
-                value={contra}
-                onChange={validarContra}
-                className="w-full pl-10 px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none"
-                placeholder="••••••••"
-                required
+                type="text"
+                value={token}
+                onChange={validarToken}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none"
+                placeholder="Ingresa tu token"
               />
+              <p className={`text-xs ${mensajeToken.includes("✅") ? "text-green-600" : "text-red-500"}`}>
+                {mensajeToken}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+              <button
+                type="submit"
+                className="w-full bg-green-500 text-white py-3 rounded-lg font-semibold
+                          hover:bg-green-600 active:bg-green-700 
+                          transform transition-all duration-200 
+                          hover:scale-[1.02] active:scale-[0.98]
+                          focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+              >
+                Ingresar
+              </button>
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                onClick={() => router.push("/Registro")}
+                className="w-full bg-white text-green-500 py-3 rounded-lg font-semibold
+                          border-2 border-green-500
+                          hover:bg-green-50 active:bg-green-100
+                          transform transition-all duration-200
+                          hover:scale-[1.02] active:scale-[0.98]
+                          focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                Registrarse
               </button>
             </div>
-            <p className={`text-xs ${mensajeContra.includes("✅") ? "text-green-600" : "text-red-500"}`}>
-              {mensajeContra}
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">Token</label>
-            <input
-              type="text"
-              value={token}
-              onChange={validarToken}
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none"
-              placeholder="Ingresa tu token"
-            />
-            <p className={`text-xs ${mensajeToken.includes("✅") ? "text-green-600" : "text-red-500"}`}>
-              {mensajeToken}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-            <button
-              type="submit"
-              className="w-full bg-green-500 text-white py-3 rounded-lg font-semibold
-                        hover:bg-green-600 active:bg-green-700 
-                        transform transition-all duration-200 
-                        hover:scale-[1.02] active:scale-[0.98]
-                        focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-            >
-              Ingresar
-            </button>
-            <button
-              type="button"
-              onClick={() => router.push("/Registro")}
-              className="w-full bg-white text-green-500 py-3 rounded-lg font-semibold
-                        border-2 border-green-500
-                        hover:bg-green-50 active:bg-green-100
-                        transform transition-all duration-200
-                        hover:scale-[1.02] active:scale-[0.98]
-                        focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-            >
-              Registrarse
-            </button>
-          </div>
           </form>
         </div>
       </div>

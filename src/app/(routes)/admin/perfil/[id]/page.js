@@ -1,10 +1,15 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
 import { usuariosAliados, usuariosEscuelas, usuariosProblematicos, solicitudesRegistro } from "@/data/dataAdmin";
 import { Building, Phone, Mail, MapPin, Calendar, ArrowLeft, MessageSquare } from "lucide-react"
 import { StrikeManager } from "@/components/strike-manager"
+import { useParams, useRouter } from "next/navigation";
 
-export default function PerfilPage({ params }) {
+export default function PerfilPage() {
+  const params = useParams()
+  const router = useRouter()
   // Buscar el usuario en todas las listas
   const allUsers = [...usuariosAliados, ...usuariosEscuelas, ...usuariosProblematicos, ...solicitudesRegistro]
 
@@ -21,12 +26,19 @@ export default function PerfilPage({ params }) {
   const usuarioProblematico = usuariosProblematicos.find((u) => u.id === params.id)
   const strikes = usuarioProblematico?.strikes || 0
 
+  const goBack = () => {
+      router.back()
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center space-x-2">
-        <Link href="/admin/usuarios" className="text-gray-500 hover:text-gray-700">
+        <button
+          className="p-2 mr-2 hover:bg-gray-100"
+          onClick={goBack}
+        >
           <ArrowLeft size={20} />
-        </Link>
+        </button>
         <h1 className="text-2xl font-bold">Perfil de Usuario</h1>
       </div>
 

@@ -1,5 +1,5 @@
 import { UserTable } from "@/components/user-table";
-import { usuariosAliados, usuariosEscuelas } from "@/data/dataAdmin";
+import { usuariosEscuelas } from "@/data/dataAdmin";
 
 export default function UsuariosPage() {
     return (
@@ -8,7 +8,6 @@ export default function UsuariosPage() {
                 Usuarios Registrados
             </h1>
             <div className="space-y-6">
-                <UserTable users={usuariosAliados} title="Aliados" />
                 <UserTable users={usuariosEscuelas} title="Escuelas" />
             </div>
         </div>
