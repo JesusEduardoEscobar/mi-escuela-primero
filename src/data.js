@@ -1,6 +1,6 @@
-import { CirclePlus, User, HomeIcon, Heart, MessageCircle} from "lucide-react";
+import { CirclePlus, User, HomeIcon, Heart, MessageCircle, Users, ClipboardCheck, AlertTriangle, School} from "lucide-react";
 
-export const itemsNavbar = [
+export const itemsNavbarUsers = [
     {
         id: 1,
         title: "Home",
@@ -31,6 +31,45 @@ export const itemsNavbar = [
         icon: <User size={25} color="black" strokeWidth={1.5} />,
         link: "/usuarios/perfil",
     },
+]
+
+export const itemsNavbarAdmin = [
+  {
+    id: 1,
+    title: "Pagina Principal",
+    icon: <HomeIcon size={25} color="black" strokeWidth={1.5} />,
+    link: "/admin/paginaPrincipal"
+  },
+  {
+    id: 2,
+    title: "Aliados",
+    icon: <Users size={25} color="black" strokeWidth={1.5} />,
+    link: "/admin/usuariosAliados"
+  },
+  {
+    id: 3,
+    title: "Escuelas",
+    icon: <School size={25} color="black" strokeWidth={1.5} />,
+    link: "/admin/usuariosEscuelas"
+  },
+  {
+    id: 4,
+    title: "Solicitudes",
+    icon: <ClipboardCheck size={25} color="black" strokeWidth={1.5} />,
+    link: "/admin/solicitudes"
+  },
+  {
+    id: 5,
+    title: "Prolblematicos",
+    icon: <AlertTriangle size={25} color="black" strokeWidth={1.5} />,
+    link: "/admin/problematicos"
+  },
+  {
+    id: 6,
+    title: "Chat",
+    icon: <MessageCircle size={25} color="black" strokeWidth={1.5} />,
+    link: "/admin/chat"
+  }
 ]
 
 // Tipos de solicitudes

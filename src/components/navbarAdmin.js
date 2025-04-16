@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation"; // Para obtener la ruta actual
-import { itemsNavbarUsers } from "@/data";
+import { itemsNavbarAdmin } from "@/data";
 import MotionTransition from "@/components/transition-component";
 
 
@@ -12,7 +12,7 @@ export default function Navbar() {
     <MotionTransition position="bottom" className="fixed bottom-0 left-0 w-full z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 px-4 z-50">
       <div className="flex justify-between items-center max-w-5xl mx-auto">
-          {itemsNavbarUsers.map((item) => (
+          {itemsNavbarAdmin.map((item) => (
             <div key={item.id} className="relative group">
               <Link
                 href={item.link}

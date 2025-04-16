@@ -36,10 +36,6 @@ export default function PerfilUsuarioPage() {
     )
   }
 
-  // Obtener matches del usuario
-  const matchesUsuario = usuario.matches || []
-  const usuariosMatches = usuarios.filter((u) => matchesUsuario.includes(u.id))
-
   // Obtener solicitudes o escuelas apoyadas según el tipo de usuario
   const solicitudesOApoyos = usuario.tipo === "escuela" ? usuario.solicitudes || [] : usuario.escuelasApoyadas || []
 
@@ -130,15 +126,6 @@ export default function PerfilUsuarioPage() {
           <BookOpen size={18} />
           {usuario.tipo === "escuela" ? "Solicitudes" : "Escuelas apoyadas"}
         </button>
-        <button
-          className={`flex items-center gap-1 px-4 py-2 text-sm font-medium ${
-            pestanaActiva === "matches" ? "border-b-2 border-primary text-primary" : "text-gray-500 hover:text-gray-700"
-          }`}
-          onClick={() => setPestanaActiva("matches")}
-        >
-          <Heart size={18} />
-          Matches
-        </button>
       </div>
 
       {/* Contenido según pestaña activa */}
@@ -174,10 +161,6 @@ export default function PerfilUsuarioPage() {
                       <span className="text-sm flex items-center">
                         <Heart size={14} className="mr-1" />
                         {post.likes}
-                      </span>
-                      <span className="text-sm flex items-center">
-                        <MessageCircle size={14} className="mr-1" />
-                        {post.comentarios.length}
                       </span>
                     </div>
                   </div>
@@ -293,41 +276,6 @@ export default function PerfilUsuarioPage() {
           ) : (
             <div className="text-center py-8 card">
               <p className="text-gray-500">Este aliado aún no apoya a ninguna escuela</p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {pestanaActiva === "matches" && (
-        <div>
-          {usuariosMatches.length > 0 ? (
-            <div className="grid md:grid-cols-2 gap-4">
-              {usuariosMatches.map((match) => (
-                <Link key={match.id} href={`/perfil/${match.id}`} className="card hover:shadow-md transition-shadow">
-                  <div className="flex gap-4">
-                    <Image
-                      src={match.imagen || "/placeholder.svg"}
-                      alt={match.nombre}
-                      width={80}
-                      height={80}
-                      className="rounded-full"
-                    />
-                    <div>
-                      <h2 className="font-bold text-lg">{match.nombre}</h2>
-                      <p className="text-sm text-gray-500 mb-1">{match.tipo === "escuela" ? "Escuela" : "Aliado"}</p>
-                      <div className="flex items-center text-xs text-gray-600 mb-2">
-                        <MapPin size={12} className="mr-1" />
-                        {match.ubicacion}
-                      </div>
-                      <p className="text-sm line-clamp-2">{match.descripcion}</p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 card">
-              <p className="text-gray-500">Este usuario aún no tiene matches</p>
             </div>
           )}
         </div>
