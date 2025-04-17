@@ -13,19 +13,21 @@ export default function RegistrationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [profileImage, setProfileImage] = useState(null)
   const [profileImagePreview, setProfileImagePreview] = useState("")
+  const [showPrivacyTerms, setShowPrivacyTerms] = useState(false)
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
 
   // Campos comunes
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
 
+  // Campos para escuelas y aliados
+  const [phoneNumber, setPhoneNumber] = useState("")
+
   // Campos para Escuelas
   const [institutionName, setInstitutionName] = useState("")
   const [street, setStreet] = useState("")
   const [neighborhood, setNeighborhood] = useState("")
-  const [betweenStreet1, setBetweenStreet1] = useState("")
-  const [betweenStreet2, setBetweenStreet2] = useState("")
-  const [observations, setObservations] = useState("")
   const [cct, setCct] = useState("")
   const [directorName, setDirectorName] = useState("")
   const [zipCode, setZipCode] = useState("")
@@ -45,18 +47,32 @@ export default function RegistrationForm() {
   const [emailError, setEmailError] = useState("")
   const [passwordError, setPasswordError] = useState("")
   const [confirmPasswordError, setConfirmPasswordError] = useState("")
+  const [phoneError, setPhoneError] = useState("")
   const [submitError, setSubmitError] = useState("")
 
   // Validaciones
   const validateEmail = (e) => {
     const value = e.target.value
     const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-    if (regex.test(value)) {
-      setEmailError("")
-    } else {
+
+    // Validación básica de formato de correo
+    if (!regex.test(value)) {
       setEmailError("El correo ingresado no es válido")
+      setEmail(value)
+      return
     }
+
+    if (userType === "administrador") {
+      const dominioAdmin = /@mpj\.org\.mx$/
+      if (!dominioAdmin.test(value)) {
+        setEmailError("Los admonostradores deben usar un correo especifico")
+        setEmail(value)
+        return
+      }
+    }
+    setEmailError("")
     setEmail(value)
+    return
   }
 
   const validatePassword = (e) => {
@@ -77,6 +93,22 @@ export default function RegistrationForm() {
       setConfirmPasswordError("")
     } else {
       setConfirmPasswordError("Las contraseñas no coinciden")
+    }
+  }
+
+  const validatePhoneNumber = (e) => {
+    const value = e.target.value
+    // Permitir solo números y un máximo de 10 dígitos
+    const regex = /^[0-9]{0,10}$/
+    if (regex.test(value)) {
+      setPhoneNumber(value)
+      if (value.length === 10) {
+        setPhoneError("")
+      } else if (value.length > 0) {
+        setPhoneError("El número debe tener 10 dígitos")
+      } else {
+        setPhoneError("")
+      }
     }
   }
 
@@ -129,6 +161,18 @@ export default function RegistrationForm() {
       return
     }
 
+    // Validar número de teléfono
+    if (phoneNumber.length > 0 && phoneNumber.length !== 10) {
+      setPhoneError("El número debe tener 10 dígitos")
+      return
+    }
+
+    // Validar aceptación de términos para escuelas y aliados
+    if ((userType === "escuela" || userType === "aliado") && !acceptedTerms) {
+      setSubmitError("Debes aceptar los términos de privacidad para continuar")
+      return
+    }
+
     setIsSubmitting(true)
     setSubmitError("")
 
@@ -140,6 +184,9 @@ export default function RegistrationForm() {
       formData.append("userType", userType)
       formData.append("email", email)
       formData.append("password", password)
+      if (phoneNumber) {
+        formData.append("phoneNumber", phoneNumber)
+      }
 
       // Agregar foto de perfil si existe
       if (profileImage) {
@@ -151,12 +198,10 @@ export default function RegistrationForm() {
         formData.append("institutionName", institutionName)
         formData.append("street", street)
         formData.append("neighborhood", neighborhood)
-        formData.append("betweenStreet1", betweenStreet1)
-        formData.append("betweenStreet2", betweenStreet2)
-        formData.append("observations", observations)
         formData.append("cct", cct)
         formData.append("directorName", directorName)
         formData.append("zipCode", zipCode)
+        formData.append("acceptedTerms", acceptedTerms.toString())
 
         if (documentValid) {
           formData.append("documentValid", documentValid)
@@ -168,11 +213,9 @@ export default function RegistrationForm() {
         formData.append("representativeName", representativeName)
         formData.append("personType", personType)
         formData.append("street", street)
-        formData.append("neighborhood", neighborhood)
-        formData.append("betweenStreet1", betweenStreet1)
-        formData.append("betweenStreet2", betweenStreet2)
         formData.append("observations", observations)
         formData.append("zipCode", zipCode)
+        formData.append("acceptedTerms", acceptedTerms.toString())
 
         if (personType === "moral") {
           formData.append("companyName", companyName)
@@ -184,7 +227,7 @@ export default function RegistrationForm() {
       }
 
       // Enviar datos al backend
-      const response = await fetch("http://tu-backend-url.com/api/registrar", {
+      const response = await fetch("http://localhost:3000/api/registrar", {
         method: "POST",
         body: formData,
         // No es necesario establecer Content-Type, se establece automáticamente con FormData
@@ -212,6 +255,85 @@ export default function RegistrationForm() {
       setIsSubmitting(false)
     }
   }
+
+  // Modal de términos de privacidad
+  const PrivacyTermsModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">Términos de Privacidad</h2>
+            <button onClick={() => setShowPrivacyTerms(false)} className="text-gray-500 hover:text-gray-700">
+              ✕
+            </button>
+          </div>
+          <div className="prose max-w-none">
+            <h3>Política de Privacidad de Mi Escuela Primero</h3>
+            <p>Última actualización: 16 de abril de 2025</p>
+
+            <p>
+              En Mi Escuela Primero, valoramos y respetamos su privacidad. Esta Política de Privacidad describe cómo
+              recopilamos, utilizamos, almacenamos y compartimos su información cuando utiliza nuestra plataforma.
+            </p>
+
+            <h4>1. Información que recopilamos</h4>
+            <p>Recopilamos información que usted nos proporciona directamente:</p>
+            <ul>
+              <li>Información de registro: nombre, correo electrónico, contraseña, tipo de usuario.</li>
+              <li>Información de perfil: fotografía, dirección, teléfono, documentos de validación.</li>
+              <li>Información de uso: interacciones con la plataforma, publicaciones, solicitudes.</li>
+            </ul>
+
+            <h4>2. Cómo utilizamos su información</h4>
+            <p>Utilizamos la información recopilada para:</p>
+            <ul>
+              <li>Proporcionar, mantener y mejorar nuestra plataforma.</li>
+              <li>Procesar solicitudes y facilitar la comunicación entre escuelas y aliados.</li>
+              <li>Verificar la identidad de los usuarios y prevenir fraudes.</li>
+              <li>Enviar notificaciones relacionadas con su cuenta o actividades.</li>
+            </ul>
+
+            <h4>3. Compartición de información</h4>
+            <p>Podemos compartir su información en las siguientes circunstancias:</p>
+            <ul>
+              <li>Con otros usuarios de la plataforma según sea necesario para las funciones de la aplicación.</li>
+              <li>Con proveedores de servicios que nos ayudan a operar la plataforma.</li>
+              <li>Cuando sea requerido por ley o para proteger nuestros derechos.</li>
+            </ul>
+
+            <h4>4. Seguridad de la información</h4>
+            <p>
+              Implementamos medidas de seguridad diseñadas para proteger su información, pero ningún sistema es
+              completamente seguro.
+            </p>
+
+            <h4>5. Sus derechos</h4>
+            <p>
+              Dependiendo de su ubicación, puede tener ciertos derechos relacionados con su información personal, como
+              el derecho a acceder, corregir o eliminar sus datos.
+            </p>
+
+            <h4>6. Cambios a esta política</h4>
+            <p>Podemos actualizar esta política periódicamente. Le notificaremos sobre cambios significativos.</p>
+
+            <h4>7. Contacto</h4>
+            <p>Si tiene preguntas sobre esta política, contáctenos en: privacidad@miescuelaprimero.org</p>
+          </div>
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={() => {
+                setAcceptedTerms(true)
+                setShowPrivacyTerms(false)
+              }}
+              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+            >
+              Aceptar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 
   return (
     <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-4xl mx-auto">
@@ -278,6 +400,22 @@ export default function RegistrationForm() {
           </div>
           {confirmPasswordError && <p className="text-xs text-red-500">{confirmPasswordError}</p>}
         </div>
+
+        {/* Campo de teléfono para todos los usuarios */}
+        {(userType === "escuela" || userType === "aliado") && (
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">Número de teléfono</label>
+          <input
+            type="tel"
+            value={phoneNumber}
+            onChange={validatePhoneNumber}
+            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none"
+            placeholder="10 dígitos"
+            maxLength={10}
+          />
+          {phoneError && <p className="text-xs text-red-500">{phoneError}</p>}
+        </div>
+          )}
 
         {/* Selector de tipo de usuario */}
         <div className="space-y-2">
@@ -388,7 +526,7 @@ export default function RegistrationForm() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700">Entre calle 1</label>
                   <input
@@ -421,7 +559,7 @@ export default function RegistrationForm() {
                   placeholder="Observaciones adicionales"
                   rows={3}
                 />
-              </div>
+              </div> */}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -469,6 +607,7 @@ export default function RegistrationForm() {
                     onChange={handleDocumentChange}
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none"
                     required
+                    name="documentValid"
                   />
                   {documentValid && (
                     <span className="text-green-500 text-sm">Archivo seleccionado: {documentValid.name}</span>
@@ -516,7 +655,6 @@ export default function RegistrationForm() {
                   <input type="text" className="w-full px-4 py-3 rounded-lg border border-gray-300" disabled />
                 </div>
               </div>
-
               <div className="space-y-2 opacity-0 h-0 overflow-hidden">
                 <label className="block text-sm font-medium text-gray-700">Campo invisible</label>
                 <textarea className="w-full px-4 py-3 rounded-lg border border-gray-300" rows={3} disabled />
@@ -620,7 +758,7 @@ export default function RegistrationForm() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700">Entre calle 1</label>
                   <input
@@ -653,7 +791,7 @@ export default function RegistrationForm() {
                   placeholder="Observaciones adicionales"
                   rows={3}
                 />
-              </div>
+              </div> */}
 
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700">
@@ -675,8 +813,36 @@ export default function RegistrationForm() {
           )}
         </div>
 
+        {/* Términos de privacidad para escuelas y aliados */}
+        {(userType === "escuela" || userType === "aliado") && (
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="terms"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                className="w-4 h-4 text-green-500 focus:ring-green-500"
+              />
+              <label htmlFor="terms" className="text-sm text-gray-700">
+                He leído y acepto los{" "}
+                <button
+                  type="button"
+                  onClick={() => setShowPrivacyTerms(true)}
+                  className="text-green-500 hover:text-green-700 font-medium"
+                >
+                  términos de privacidad
+                </button>
+              </label>
+            </div>
+            {submitError && submitError.includes("términos") && <p className="text-xs text-red-500">{submitError}</p>}
+          </div>
+        )}
+
         {/* Mensaje de error general */}
-        {submitError && <div className="p-3 bg-red-100 text-red-700 rounded-lg">{submitError}</div>}
+        {submitError && !submitError.includes("términos") && (
+          <div className="p-3 bg-red-100 text-red-700 rounded-lg">{submitError}</div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 mt-auto">
           <button
@@ -711,6 +877,9 @@ export default function RegistrationForm() {
           </button>
         </div>
       </form>
+
+      {/* Modal de términos de privacidad */}
+      {showPrivacyTerms && <PrivacyTermsModal />}
     </div>
   )
 }

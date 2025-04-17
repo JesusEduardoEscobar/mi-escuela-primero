@@ -36,27 +36,39 @@ app.post('/api/registrar', upload.fields([
 
 async function registrarEscuela(req, res, connection) {
     const {
-        email, password, institutionName, street, neighboardhood, betweenStreet1, betweemStreet2, observations, cct, directorName, zipCode
+        email, telefono, password, institutionName, street, neighboardhood, cct, directorName, cp
     } = req.body
-    let linkDrive = null
+    let linkDriveArchivo = null
+    let linkDriveFoto = null
     if(req.files?.documentValid?.[0]){
         const file = req.files.documentValid[0]
-        linkDrive = await subirArchivoADrive(file.originalname, file.mimetype, file.path, "El id del folder")
+        linkDriveArchivo = await subirArchivoADrive(file.originalname, file.mimetype, file.path, "El id del folder")
         fs.unlinkSync(file.path)
     }
+    if(req.files?.photoProfile?.[0]) {
+        const foto = req.files.photoProfile[0]
+        linkDriveFoto = await subirArchivoADrive(
+            foto.originalname, 
+            foto.mimetype,
+            foto.path,
+            "El id del folder"
+        )
+        fs.unlinkSync(foto.path)
+    }
+    
     const nivelEducativo = obtenerNivelDesdeCCT(cct)
     const queryUsuario = `
-        INSERT INTO usuario (nombre, email, contrasena, telefono, tipoUsuario, estado) VALUES (?, ?, ?, ?, 1, 1)
+        INSERT INTO usuario (nombre, email, contrasena, telefono, tipoUsuario, estado) VALUES (?, ?, ?, ?, 3, 0)
     `
     
-    connection.query(queryUsuario, [nombre, email, contrasena, telefono], (err, res) => {
+    connection.query(queryUsuario, [directorName, email, password, telefono], (err, res) => {
         if (err) return res.status(500).json({ error: 'Error creando usuario' });
 
         const idUsuario = resultado.insertId;
         const queryEscuela = `
-            INSERT INTO escuela (id_Usuario, nivelEducativo, cct, numeroEstudiantes, documentoVerificacion, calle, colonia, cp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO escuela (id_Usuario, nivelEducativo, cct, numeroEstudiantes, documentoVerificacion, calle, colonia, cp, nombreInstitucionm, foto) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `
-        connection.query(queryEscuela, [idUsuario, nivel, cct, numeroEstudiantes, linkDrive, calle, colonia, cp], () => {
+        connection.query(queryEscuela, [idUsuario, nivelEducativo, cct, numeroEstudiantes, linkDriveArchivo, street, neighboardhood, cp, institutionName], () => {
             connection.end();
             if (err2) return res.status(500).json({ error: 'Error creando escuela' });
             res.status(201).json({ message: 'Escuela registrada correctamente' });
@@ -74,7 +86,7 @@ async function registrarAliado(req, res, connection) {
     if (documento) fs.unlinkSync(documento.path);
 
     const queryUsuario = `
-        INSERT INTO usuario (nombre, email, contrasena, telefono, tipoUsuario, estado) VALUES (?, ?, ?, ?, 'aliado', 1)
+        INSERT INTO usuario (nombre, email, contrasena, telefono, tipoUsuario, estado) VALUES (?, ?, ?, ?, 2, 0)
     `;
     connection.query(queryUsuario, [nombre, email, contrasena, telefono], (err, resultado) => {
     if (err) return res.status(500).json({ error: 'Error creando usuario' })
@@ -82,7 +94,7 @@ async function registrarAliado(req, res, connection) {
     const idUsuario = resultado.insertId
 
     const queryAliado = `
-        INSERT INTO aliado (id_Usuario, personaFisica, institucion, documentoVerificacion, calle, colonia, cp) VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO aliado (id_Usuario, personaFisica, institucion, documentoVerificacion, calle, colonia, cp, foto) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `
     connection.query(queryAliado, [idUsuario, personaFisica, institucion, linkDrive, calle, colonia, cp], (err2) => {
             connection.end()
@@ -96,7 +108,7 @@ async function registrarAdministrador(req, res, connection) {
     const { nombre, email, contrasena, telefono, token } = req.body
 
     const queryUsuario = `
-        INSERT INTO usuario (nombre, email, contrasena, telefono, tipoUsuario, estado) VALUES (?, ?, ?, ?, 'administrador', 1)
+        INSERT INTO usuario (nombre, email, contrasena, telefono, tipoUsuario, estado) VALUES (?, ?, ?, ?, 3, 1)
     `
     connection.query(queryUsuario, [nombre, email, contrasena, telefono], (err, resultado) => {
         if (err) return res.status(500).json({ error: 'Error creando usuario' })
