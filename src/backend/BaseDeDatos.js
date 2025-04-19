@@ -9,7 +9,7 @@ export function conectar(){
         // user: "admin",
         password: "",
         // password: "admin123#",
-        database: "practica_de_las_escuelas"
+        database: "mi_escuela_primero"
         // database: "database-1"
     })
     conect.connect(error => {

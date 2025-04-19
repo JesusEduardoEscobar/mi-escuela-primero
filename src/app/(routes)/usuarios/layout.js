@@ -10,7 +10,7 @@ const merriweather = Merriweather({
 
 export const metadata = {
   title: "Mi escuela primero",
-  description: "mi",
+  description: "mi escula primero",
 };
 
 export default function RootLayout({ children }) {
@@ -18,7 +18,7 @@ export default function RootLayout({ children }) {
     <div className={`min-h-screen ${merriweather.className}`}>
       <Header />
       <Navbar />
-      {children}
+      <main>{children}</main>
     </div>
   );
 }
