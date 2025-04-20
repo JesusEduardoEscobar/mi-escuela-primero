@@ -1,4 +1,4 @@
-import { CirclePlus, User, HomeIcon, Heart, MessageCircle, Users, ClipboardCheck, AlertTriangle, School} from "lucide-react";
+import { CirclePlus, User, HomeIcon, Heart, MessageCircle, Users, ClipboardCheck, AlertTriangle, School, HelpCircle, HandHelping} from "lucide-react";
 
 export const itemsNavbarUsers = [
     {
@@ -65,7 +65,19 @@ export const itemsNavbarAdmin = [
     link: "/admin/problematicos"
   },
   {
-    id: 6,
+    id:6,
+    title: "Apoyo/Ayuda",
+    icon: <HelpCircle size={25} color="black" strokeWidth={1.5} />,
+    link: "/admin/solicitudesApoyo"
+  },
+  {
+    id:7,
+    title: "Apoyo/Ayuda",
+    icon: <HandHelping size={25} color="black" strokeWidth={1.5} />,
+    link: "/admin/solicitudesAyuda"
+  },
+  {
+    id: 8,
     title: "Chat",
     icon: <MessageCircle size={25} color="black" strokeWidth={1.5} />,
     link: "/admin/chat"

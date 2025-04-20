@@ -165,6 +165,106 @@ export const usuariosProblematicos = [
   },
 ]
 
+// data/dataAdmin.js (añadir al final del archivo)
+
+// Datos de ejemplo para solicitudes de apoyo (de aliados a escuelas)
+export const solicitudesApoyo = [
+  {
+    id: "sa1",
+    tipo: "apoyo",
+    solicitante: {
+      id: "a1",
+      nombre: "Carlos Méndez",
+      institucion: "Empresa Tecnológica S.A.",
+      telefono: "555-123-4567",
+      tipo: "aliado",
+      imagen: "/placeholder.svg?height=100&width=100"
+    },
+    descripcion: "Donación de 20 computadoras para laboratorio escolar",
+    fechaSolicitud: "2023-11-05",
+    estado: "pendiente"
+  },
+  {
+    id: "sa2",
+    tipo: "apoyo",
+    solicitante: {
+      id: "a2",
+      nombre: "María González",
+      institucion: "Consultora Educativa",
+      telefono: "333-987-6543",
+      tipo: "aliado",
+      imagen: "/placeholder.svg?height=100&width=100"
+    },
+    descripcion: "Programa de mentoría para estudiantes de último año",
+    fechaSolicitud: "2023-11-10",
+    estado: "aprobada"
+  },
+  {
+    id: "sa3",
+    tipo: "apoyo",
+    solicitante: {
+      id: "a3",
+      nombre: "Roberto Juárez",
+      institucion: "Fundación Aprendizaje",
+      telefono: "818-456-7890",
+      tipo: "aliado",
+      imagen: "/placeholder.svg?height=100&width=100"
+    },
+    descripcion: "Talleres de capacitación para docentes en nuevas tecnologías",
+    fechaSolicitud: "2023-11-15",
+    estado: "pendiente"
+  }
+];
+
+// Datos de ejemplo para solicitudes de ayuda (de escuelas a aliados)
+export const solicitudesAyuda = [
+  {
+    id: "sh1",
+    tipo: "ayuda",
+    solicitante: {
+      id: "e1",
+      nombre: "Ana Martínez",
+      institucion: "Escuela Primaria Benito Juárez",
+      telefono: "222-345-6789",
+      tipo: "escuela",
+      imagen: "/placeholder.svg?height=100&width=100"
+    },
+    descripcion: "Necesitamos material didáctico para 150 alumnos",
+    fechaSolicitud: "2023-11-02",
+    estado: "pendiente"
+  },
+  {
+    id: "sh2",
+    tipo: "ayuda",
+    solicitante: {
+      id: "e2",
+      nombre: "Pedro Ramírez",
+      institucion: "Colegio Tecnológico de Veracruz",
+      telefono: "229-876-5432",
+      tipo: "escuela",
+      imagen: "/placeholder.svg?height=100&width=100"
+    },
+    descripcion: "Solicitud de equipamiento para laboratorio de ciencias",
+    fechaSolicitud: "2023-11-08",
+    estado: "aprobada"
+  },
+  {
+    id: "sh3",
+    tipo: "ayuda",
+    solicitante: {
+      id: "e3",
+      nombre: "Lucía Hernández",
+      institucion: "Instituto Superior de Querétaro",
+      telefono: "442-234-5678",
+      tipo: "escuela",
+      imagen: "/placeholder.svg?height=100&width=100"
+    },
+    descripcion: "Requerimos apoyo para programa de becas estudiantiles",
+    fechaSolicitud: "2023-11-12",
+    estado: "rechazada"
+  }
+];
+
 // Datos de ejemplo para usuarios de chat
 export const usuariosChat = [
   ...usuariosAliados,

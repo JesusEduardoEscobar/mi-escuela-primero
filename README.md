@@ -34,3 +34,16 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+# INFORMACION SOBRE EL PROYECTO MI ESCUELA PRIMERO
+
+- Carpeta para los docuemntos de los aliados
+  - 1esKNSQ1N_B_a89p4ulptXkLQvuVJuJb3
+- Carpeta para las imagenes de los aliados
+  - 1g2XNiM5DZf4nr_ZhZohcS4HVhAmFDeqm
+- Carpeta para los documentos de las esculas
+  - 1i2aBwM8ptSGrHNAxqP6R3ySmUQsnd--7
+- Carpeta para las imagenes de las escuelas
+  - 1d4z20p9-UT86S-hoT-2xNxa40DAzLMXK
+
+Algunas funciones necesarias para obtener poder mostrar laos archivos que se ecuentran como links en la base de datos estan en la carpeta libs

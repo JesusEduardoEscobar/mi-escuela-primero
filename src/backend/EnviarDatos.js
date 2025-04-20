@@ -171,7 +171,7 @@ async function registrarAliado(req, res, connection) {
       file.originalname,
       file.mimetype,
       file.path,
-      "1i2aBwM8ptSGrHNAxqP6R3ySmUQsnd--7",
+      "1esKNSQ1N_B_a89p4ulptXkLQvuVJuJb3",
     )
     fs.unlinkSync(file.path)
   }
@@ -183,7 +183,7 @@ async function registrarAliado(req, res, connection) {
       foto.originalname,
       foto.mimetype,
       foto.path,
-      "1d4z20p9-UT86S-hoT-2xNxa40DAzLMXK",
+      "1g2XNiM5DZf4nr_ZhZohcS4HVhAmFDeqm",
     )
     fs.unlinkSync(foto.path)
   }
