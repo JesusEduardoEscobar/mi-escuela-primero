@@ -107,7 +107,7 @@ export default function LoginPage() {
     router.push()
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!correo.trim() || !contra.trim()) {
@@ -115,16 +115,28 @@ export default function LoginPage() {
       return;
     }
 
-    if (mensajeCorreo.includes("❌") || mensajeContra.includes("❌")) {
-      setError("Por favor, corrige los errores en los campos.");
+     try {
+    const response = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: correo, password: contra }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setError(data.message);
       return;
     }
 
-    if (token.trim()) {
-      router.push("/admin/usuarios");
-    } else {
-      router.push("/usuarios/paginaPrincipal");
-    }
+    // Guardar datos del usuario o token en el estado/localStorage
+    localStorage.setItem("token", data.token);
+    router.push("/usuarios/paginaPrincipal"); 
+
+  } catch (error) {
+    setError("Error en el servidor. Intenta nuevamente.");
+  }
+
   };
 
   return (

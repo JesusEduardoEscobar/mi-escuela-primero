@@ -47,3 +47,25 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
   - 1d4z20p9-UT86S-hoT-2xNxa40DAzLMXK
 
 Algunas funciones necesarias para obtener poder mostrar laos archivos que se ecuentran como links en la base de datos estan en la carpeta libs
+
+# TECNOLOGIAS A USAR
+
+- back-end: node.js, express
+- Base de datos: MySQL
+- front-end: React, javascript y next.js
+
+# FORMATO PARA LOS TIPO DE USUARIOS ASI COMO TAMBIEN EL ESTADO DE ACTIVIDAD
+
+- Ingreso
+  En espera(0)
+  Aceptado (1)
+  rechazado(2)
+
+- Estado de actividad
+  Activo(1)
+  Inactivo(0)
+
+- Tipo de usuarios
+  Escuela (1)
+  Aliado (2)
+  Administrador (3)

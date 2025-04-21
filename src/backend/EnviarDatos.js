@@ -5,9 +5,9 @@ import multer from "multer"
 import path from "path"
 import fs from "fs"
 import { subirArchivoADrive } from "./ConecDrive.js"
+import bcrypt from 'bcrypt'
 
 const app = express()
-
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -15,6 +15,11 @@ app.use(
   }),
 )
 app.use(express.json())
+
+const saltRounds = 10;
+// Crear el hash de la contraseña
+const hashedPassword = await bcrypt.hash(password, saltRounds);
+
 
 // Configure multer to store files on disk temporarily
 const storage = multer.diskStorage({
@@ -65,7 +70,7 @@ async function registrarEscuela(req, res, connection) {
   // Fix parameter names to match frontend
   const {
     email,
-    password,
+    hashedPassword,
     phoneNumber, // Changed from telefono
     institutionName, // Changed from nombreInstitucion
     street, // Changed from calle
@@ -109,7 +114,7 @@ async function registrarEscuela(req, res, connection) {
         INSERT INTO usuario (nombre, email, contrasena, telefono, tipoUsuario, estado) VALUES (?, ?, ?, ?, 3, 0)
     `
 
-  connection.query(queryUsuario, [directorName, email, password, phoneNumber], (err, resultado) => {
+  connection.query(queryUsuario, [directorName, email, hashedPassword, phoneNumber], (err, resultado) => {
     if (err) {
       console.error("Error en query usuario:", err)
       return res.status(500).json({ error: "Error creando usuario" })
@@ -152,7 +157,7 @@ async function registrarAliado(req, res, connection) {
   // Fix parameter names to match frontend
   const {
     email,
-    password,
+    hashedPassword,
     phoneNumber, // Changed from telefono
     representativeName, // Changed from nombre
     personType, // Changed from personaFisica
@@ -192,7 +197,7 @@ async function registrarAliado(req, res, connection) {
         INSERT INTO usuario (nombre, email, contrasena, telefono, tipoUsuario, estado) VALUES (?, ?, ?, ?, 2, 0)
     `
 
-  connection.query(queryUsuario, [representativeName, email, password, phoneNumber], (err, resultado) => {
+  connection.query(queryUsuario, [representativeName, email, hashedPassword, phoneNumber], (err, resultado) => {
     if (err) {
       console.error("Error en query usuario:", err)
       return res.status(500).json({ error: "Error creando usuario" })
@@ -237,7 +242,7 @@ async function registrarAdministrador(req, res, connection) {
   const {
     name, // Changed from nombre
     email,
-    password, // Changed from contrasena
+    hashedPassword, // Changed from contrasena
     verificationCode, // Changed from token
   } = req.body
 
@@ -245,7 +250,7 @@ async function registrarAdministrador(req, res, connection) {
         INSERT INTO usuario (nombre, email, contrasena, telefono, tipoUsuario, estado) VALUES (?, ?, ?, ?, 3, 1)
     `
 
-  connection.query(queryUsuario, [name, email, password, ""], (err, resultado) => {
+  connection.query(queryUsuario, [name, email, hashedPassword, ""], (err, resultado) => {
     if (err) {
       console.error("Error en query usuario:", err)
       return res.status(500).json({ error: "Error creando usuario" })

@@ -25,20 +25,6 @@ export default function SolicitudesApoyoPage() {
     return matchesSearch && matchesEstado;
   });
   
-  // Filtrar solicitudes de ayuda
-  const ayudaFiltradas = solicitudesAyuda.filter(solicitud => {
-    // Filtrar por término de búsqueda
-    const matchesSearch = 
-      solicitud.solicitante.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      solicitud.solicitante.institucion.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      solicitud.descripcion.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    // Filtrar por estado
-    const matchesEstado = filtroEstado === "todos" || solicitud.estado === filtroEstado;
-    
-    return matchesSearch && matchesEstado;
-  });
-  
   // Limpiar la búsqueda
   const clearSearch = () => {
     setSearchTerm("");
