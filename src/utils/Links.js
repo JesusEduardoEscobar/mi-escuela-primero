@@ -5,7 +5,7 @@ En se devuelven dos links diferenctes una para la imagen y otro para el pdf
 las varables ya especifican cual es cual0
 */
 
-export function getDirectLink(imageLink){
+export function getDirectLink(shareableLink){
     let fileId = ''
     if (shareableLink.includes('/file/d/')) {
         fileId = shareableLink.split('/file/d/')[1].split('/')[0];

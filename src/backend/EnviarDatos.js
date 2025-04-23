@@ -17,9 +17,6 @@ app.use(
 app.use(express.json())
 
 const saltRounds = 10;
-// Crear el hash de la contraseña
-const hashedPassword = await bcrypt.hash(password, saltRounds);
-
 
 // Configure multer to store files on disk temporarily
 const storage = multer.diskStorage({
@@ -70,7 +67,7 @@ async function registrarEscuela(req, res, connection) {
   // Fix parameter names to match frontend
   const {
     email,
-    hashedPassword,
+    password,
     phoneNumber, // Changed from telefono
     institutionName, // Changed from nombreInstitucion
     street, // Changed from calle
@@ -80,6 +77,9 @@ async function registrarEscuela(req, res, connection) {
     directorName, // Changed from nombreDirector
     zipCode, // Changed from cp
   } = req.body
+
+  // Crear el hash de la contraseña
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
 
   let linkDriveArchivo = null
   let linkDriveFoto = null
@@ -289,7 +289,3 @@ function obtenerNivelDesdeCCT(cct) {
       return "Otro"
   }
 }
-
-app.listen(1984, () => {
-  console.log("Servidor iniciado en el puerto 1984")
-})
