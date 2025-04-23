@@ -69,3 +69,8 @@ Algunas funciones necesarias para obtener poder mostrar laos archivos que se ecu
   Escuela (1)
   Aliado (2)
   Administrador (3)
+
+# Archivo backend
+
+- CorrerBackend.js
+  Este archivo se encarga de ejecutar todos los archivos bakcend que estan importados
