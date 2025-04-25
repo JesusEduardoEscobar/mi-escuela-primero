@@ -35,9 +35,7 @@ if (!fs.existsSync("./uploads")) {
 
 const upload = multer({ storage })
 
-app.post(
-  "/api/registrar",
-  upload.fields([
+app.post("/api/registrar", upload.fields([
     { name: "profileImage", maxCount: 1 },
     { name: "documentValid", maxCount: 1 },
     { name: "incomeProof", maxCount: 1 },
@@ -289,3 +287,13 @@ function obtenerNivelDesdeCCT(cct) {
       return "Otro"
   }
 }
+
+app.post('api/solicitudesDeAdyudaApoyo', upload.fields([
+    { name: "documentValid", maxCount: 1 },
+    { name: "incomeProof", maxCount: 1 },
+  ]), async (req,res) => {
+  const conectar = conectar()
+  const solicitud = `
+  
+  `
+})

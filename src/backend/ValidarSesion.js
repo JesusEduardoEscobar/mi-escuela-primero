@@ -4,7 +4,6 @@ import cors from 'cors'
 import {conectar} from './BaseDeDatos.js'
 import jwt from 'jsonwebtoken'
 
-const token = "Clave secreta"
 const app = express()
 app.use(express.json())
 app.use(
