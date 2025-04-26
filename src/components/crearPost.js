@@ -2,8 +2,10 @@
 
 import { useState, useRef } from "react"
 import { ImageIcon, X, Send, HelpCircle, FileCheck, FileText } from "lucide-react"
+import { getUserRole } from "@/utils/UtilidadesAuth"
 
 export default function CrearPost({ onCreatePost, onClose, solicitudAtendida = null, convenios = [] }) {
+  const userRole = getUserRole()
   const [content, setContent] = useState("")
   const [media, setMedia] = useState(null)
   const [mediaPreview, setMediaPreview] = useState(null)
@@ -71,9 +73,7 @@ export default function CrearPost({ onCreatePost, onClose, solicitudAtendida = n
       content,
       media: mediaPreview,
       mediaType: media?.type?.startsWith("image/") ? "image" : "video",
-      // Incluir información de la solicitud atendida si está activada
       solicitudAtendida: incluirSolicitud ? solicitudAtendida : null,
-      // Incluir el convenio seleccionado
       convenio: selectedConvenio || null,
     }
 

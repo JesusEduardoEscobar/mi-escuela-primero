@@ -297,3 +297,7 @@ app.post('api/solicitudesDeAdyudaApoyo', upload.fields([
   
   `
 })
+
+app.post('api/solicitudespublicaciones', (req,res) => {
+  
+})

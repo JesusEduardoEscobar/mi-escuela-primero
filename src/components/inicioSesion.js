@@ -11,6 +11,12 @@ export default function LoginPage() {
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef(null);
 
+  const user_roles = { 
+    1: 'escuela',
+    2: 'aliado',
+    3: 'admin',
+  }
+
   const images = [
     "https://imgs.search.brave.com/Pwq-e9rPFpdlmds3hWMZkC3ypgLlBx0Hh0exgyOCf3w/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9mZ2xn/Lm9yZy5wYS93cC1j/b250ZW50L3VwbG9h/ZHMvMjAxOC8xMS9Q/cm9ncmFtYS1NaS1F/c2N1ZWxhLVByaW1l/cm8tMDAwLmpwZw",
     "https://imgs.search.brave.com/uiLZ86IfaMpRJL1MTw1J2lwui_bEvQBzxDOanTYshhQ/rs:fit:860:0:0:0/g:ce/aHR0cDovL3d3dy5n/b2IubXgvY21zL3Vw/bG9hZHMvaW1hZ2Uv/ZmlsZS81MDQ5MS9f/ZXNjdWVsYV9wcmlt/YXJpYV9taV9wYXRy/aWFfZXNfcHJpbWVy/b18zLmpwZw",
@@ -94,49 +100,51 @@ export default function LoginPage() {
 
   const validarToken = (e) => {
     const valor = e.target.value;
-    const regexToken = /^.[A-Z]{4}[0-9]{2}$/;
+    const regexToken = /^[A-Z]{4}[0-9]{2}$/;
     if (regexToken.test(valor)) {
       setMensajeToken("✅ El token ingresado es válido");
     } else {
       setMensajeToken("❌ El token ingresado no es válido");
     }
     setToken(valor);
-  };
-
-  const paginaPrincipal = (e) => {
-    router.push()
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!correo.trim() || !contra.trim()) {
       setError("Por favor, completa todos los campos obligatorios.");
       return;
     }
 
-     try {
-    const response = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: correo, password: contra }),
-    });
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: correo, password: contra }),
+      })
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (!response.ok) {
-      setError(data.message);
-      return;
+      if (!response.ok) {
+        setError(data.message);
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+        // Verificar si el usuario es un administrador
+      const userRole = user_roles[data.userType]
+      if (userRole === "admin") {
+        // Redirigir a la página de administradores
+        router.push("/admin/token");
+      } else {
+        // Guardar datos del usuario o token en el estado/localStorage
+        router.push("/usuarios/paginaPrincipal");
+      }
+
+    } catch (error) {
+      setError("Error en el servidor. Intenta nuevamente.");
     }
-
-    // Guardar datos del usuario o token en el estado/localStorage
-    localStorage.setItem("token", data.token);
-    router.push("/usuarios/paginaPrincipal"); 
-
-  } catch (error) {
-    setError("Error en el servidor. Intenta nuevamente.");
-  }
-
   };
 
   return (

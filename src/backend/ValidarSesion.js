@@ -1,7 +1,6 @@
-import mysql from 'mysql'
 import express from 'express'
 import cors from 'cors'
-import {conectar} from './BaseDeDatos.js'
+import {conectar, conectar} from './BaseDeDatos.js'
 import jwt from 'jsonwebtoken'
 
 const app = express()
@@ -12,6 +11,8 @@ app.use(
     credentials: true,
   }),
 )
+
+const SECRET_KEY =  process.env.SECRET_KEY || "Clasve_secreta"
 
 app.post("/api/login", async (req, res) => {
   const { email, password } = req.body
@@ -55,6 +56,7 @@ app.post("/api/login", async (req, res) => {
           { expiresIn: '1h' }
         )
         
+        
         connection.query(
           "UPDATE usuario SET sesionActiva = 1 WHERE email = ?",[email],(updateErr, updateResult) =>{
             connection.end()
@@ -63,7 +65,7 @@ app.post("/api/login", async (req, res) => {
               message: "Login exitoso",
               userType: user.userType,
               email: user.email,
-              token: "TOKEN_SIMULADO",
+              token: token,
             })
           }
         )
@@ -74,3 +76,8 @@ app.post("/api/login", async (req, res) => {
   }
   
 });
+
+app.post('/api/validarAdmin', async (req,res) => {
+  const conectar = conectar()
+  const consulta = ``
+})
