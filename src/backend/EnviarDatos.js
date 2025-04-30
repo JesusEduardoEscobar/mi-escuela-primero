@@ -8,13 +8,14 @@ import { subirArchivoADrive } from "./ConecDrive.js"
 import bcrypt from 'bcrypt'
 
 const app = express()
+app.use(express.json())
 app.use(
   cors({
     origin: "http://localhost:3000",
     credentials: true,
   }),
 )
-app.use(express.json())
+
 
 const saltRounds = 10;
 
@@ -288,16 +289,40 @@ function obtenerNivelDesdeCCT(cct) {
   }
 }
 
-app.post('api/solicitudesDeAdyudaApoyo', upload.fields([
-    { name: "documentValid", maxCount: 1 },
-    { name: "incomeProof", maxCount: 1 },
-  ]), async (req,res) => {
-  const conectar = conectar()
-  const solicitud = `
-  
-  `
-})
+app.post("/api/crear-post", upload.single("media"), async (req, res) => {
+  try {
+    const { content, convenioId, solicitudId } = req.body
+    const conectar = conectar()
+    // Validar datos básicos
+    if (!convenioId) {
+      return res.status(400).json({ message: "El convenio es obligatorio" })
+    }
 
-app.post('api/solicitudespublicaciones', (req,res) => {
-  
+    // Procesar archivo si existe usando la función existente
+    let mediaUrl = null
+    if (req.file) {
+      mediaUrl = await subirArchivoADrive(req.file.path)
+    }
+
+    // Aquí iría tu lógica para guardar en la base de datos
+    // Por ejemplo:
+    // const result = await db.query("INSERT INTO publicaciones...", [content, convenioId, solicitudId, mediaUrl])
+
+    const result = await connection.query(
+      "INSERT INTO publicaciones (content, convenioId, solicitudId, mediaUrl) VALUES (?, ?, ?, ?)",
+      [content, convenioId, solicitudId, mediaUrl]
+    )
+    if (result.affectedRows === 0) {
+      return res.status(500).json({ message: "Error al crear la publicación" })
+    }
+    // Simulamos una respuesta exitosa
+    res.status(201).json({
+      message: "Publicación creada correctamente",
+      postId: Date.now(), // Simulado
+      mediaUrl,
+    })
+  } catch (error) {
+    console.error("Error:", error)
+    res.status(500).json({ message: "Error al crear la publicación" })
+  }
 })

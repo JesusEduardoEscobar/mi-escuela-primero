@@ -1,65 +1,83 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { X } from "lucide-react"
+import { useState } from "react";
+import { X } from "lucide-react";
 
 export default function NuevaSolicitudModal({ onClose, onSubmit }) {
-  const [titulo, setTitulo] = useState("")
-  const [descripcion, setDescripcion] = useState("")
-  const [categoria, setCategoria] = useState("")
+  const [descripcion, setDescripcion] = useState("");
+  const [categoria, setCategoria] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    if (!titulo || !descripcion) {
-      alert("Por favor completa todos los campos requeridos")
-      return
+    if (!descripcion) {
+      alert("Por favor completa la descripción");
+      return;
     }
 
-    // Crear objeto de solicitud
-    const nuevaSolicitud = {
-      id: Date.now(), // ID temporal
-      titulo,
+    if (!categoria) {
+      alert("Por favor selecciona una categoría");
+      return;
+    }
+
+    const solicitudPayload = {
       descripcion,
-      categoria,
-      estado: "pendiente",
-      aliados: [],
-    }
+      prioridad: "MEDIA",
+      documentacion: "Document",
+      id_Escuela: 3,
+      id_Apoyo: parseInt(categoria), // Ya es valor numérico
+      fecha: new Date().toISOString().split("T")[0], // YYYY-MM-DD
+    };
 
-    onSubmit(nuevaSolicitud)
-    onClose()
-  }
+    try {
+      const response = await fetch("http://localhost:1984/api/crearSolicitud", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(solicitudPayload),
+      });
+
+      if (response.ok) {
+        alert("Solicitud enviada con éxito");
+        const result = await response.json();
+
+        onSubmit({
+          ...solicitudPayload,
+          estado: "pendiente",
+          aliados: [],
+          id: Date.now(), // Simulación
+        });
+
+        onClose();
+      } else {
+        alert("Error al crear la solicitud");
+      }
+    } catch (error) {
+      console.error("Error de red:", error);
+      alert("No se pudo conectar con el servidor");
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-lg">
-        {/* Header */}
         <div className="flex justify-between items-center p-4 border-b">
           <h2 className="text-xl font-bold">Nueva solicitud</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+          >
             <X size={24} />
           </button>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="p-4">
           <div className="mb-4">
-            <label htmlFor="titulo" className="block text-sm font-medium text-gray-700 mb-1">
-              Título de la solicitud *
-            </label>
-            <input
-              type="text"
-              id="titulo"
-              className="w-full border rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-primary"
-              placeholder="Ej: Renovación de biblioteca escolar"
-              value={titulo}
-              onChange={(e) => setTitulo(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="descripcion" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="descripcion"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Descripción detallada *
             </label>
             <textarea
@@ -74,7 +92,10 @@ export default function NuevaSolicitudModal({ onClose, onSubmit }) {
           </div>
 
           <div className="mb-6">
-            <label htmlFor="categoria" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="categoria"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Categoría
             </label>
             <select
@@ -82,14 +103,19 @@ export default function NuevaSolicitudModal({ onClose, onSubmit }) {
               className="w-full border rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-primary"
               value={categoria}
               onChange={(e) => setCategoria(e.target.value)}
+              required
             >
               <option value="">Selecciona una categoría</option>
-              <option value="infraestructura">Infraestructura</option>
-              <option value="material_didactico">Material didáctico</option>
-              <option value="capacitacion">Capacitación</option>
-              <option value="tecnologia">Tecnología</option>
-              <option value="eventos">Eventos</option>
-              <option value="otro">Otro</option>
+              <option value="1">Formación docente</option>
+              <option value="2">Formación a familias</option>
+              <option value="3">Formación niñas y niños</option>
+              <option value="4">Personal de apoyo</option>
+              <option value="5">Infraestructura</option>
+              <option value="6">Materiales</option>
+              <option value="7">Mobiliario</option>
+              <option value="8">Alimentación</option>
+              <option value="9">Transporte</option>
+              <option value="10">Jurídico</option>
             </select>
           </div>
 
@@ -108,6 +134,5 @@ export default function NuevaSolicitudModal({ onClose, onSubmit }) {
         </form>
       </div>
     </div>
-  )
+  );
 }
-

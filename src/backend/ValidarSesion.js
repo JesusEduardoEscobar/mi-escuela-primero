@@ -1,6 +1,6 @@
 import express from 'express'
 import cors from 'cors'
-import {conectar, conectar} from './BaseDeDatos.js'
+import {conectar } from './BaseDeDatos.js'
 import jwt from 'jsonwebtoken'
 
 const app = express()
@@ -53,7 +53,7 @@ app.post("/api/login", async (req, res) => {
             tipoUsuario: user.tipoUsuario,
           },
           SECRET_KEY,
-          { expiresIn: '1h' }
+          { expiresIn: '2h' }
         )
         
         
@@ -76,6 +76,8 @@ app.post("/api/login", async (req, res) => {
   }
   
 });
+
+
 
 app.post('/api/validarAdmin', async (req,res) => {
   const conectar = conectar()

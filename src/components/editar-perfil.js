@@ -2,21 +2,21 @@
 
 import { useState, useRef } from "react"
 import Image from "next/image"
-import { X, Upload, Plus } from "lucide-react"
+import { X, Upload } from "lucide-react"
 
 export default function EditarPerfilModal({ usuario, onClose, onSave }) {
   const [nombre, setNombre] = useState(usuario.nombre || "")
   const [correo, setCorreo] = useState(usuario.correo || "")
-  const [descripcion, setDescripcion] = useState(usuario.descripcion || "")
-  const [ubicacion, setUbicacion] = useState(usuario.ubicacion || "")
   const [imagen, setImagen] = useState(usuario.imagen || "/placeholder.svg")
   const [previewImagen, setPreviewImagen] = useState(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState("")
 
   // Para escuelas: necesidades, para aliados: apoyos
   const [items, setItems] = useState(usuario.tipo === "escuela" ? usuario.necesidades || [] : usuario.apoyos || [])
-  const [nuevoItem, setNuevoItem] = useState("")
 
   const fileInputRef = useRef(null)
+  const selectedFileRef = useRef(null)
 
   const handleImagenClick = () => {
     fileInputRef.current.click()
@@ -25,17 +25,12 @@ export default function EditarPerfilModal({ usuario, onClose, onSave }) {
   const handleImagenChange = (e) => {
     const file = e.target.files[0]
     if (file) {
-      // En una app real, aquí subiríamos la imagen a un servidor
-      // Para la demo, usamos URL.createObjectURL para mostrar una vista previa
+      // Guardar referencia al archivo para subirlo después
+      selectedFileRef.current = file
+
+      // Crear vista previa
       const objectUrl = URL.createObjectURL(file)
       setPreviewImagen(objectUrl)
-    }
-  }
-
-  const agregarItem = () => {
-    if (nuevoItem.trim()) {
-      setItems([...items, nuevoItem.trim()])
-      setNuevoItem("")
     }
   }
 
@@ -45,27 +40,58 @@ export default function EditarPerfilModal({ usuario, onClose, onSave }) {
     setItems(nuevosItems)
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    setIsSubmitting(true)
+    setError("")
 
-    if (!nombre || !correo) {
-      alert("Por favor completa los campos obligatorios")
-      return
+    try {
+      if (!nombre || !correo) {
+        throw new Error("Por favor completa los campos obligatorios")
+      }
+
+      // Crear FormData para enviar al servidor
+      const formData = new FormData()
+      formData.append("userId", usuario.id)
+      formData.append("nombre", nombre)
+      formData.append("correo", correo)
+
+      // Añadir imagen si se seleccionó una nueva
+      if (selectedFileRef.current) {
+        formData.append("imagen", selectedFileRef.current)
+      }
+
+      // Enviar datos al servidor
+      const response = await fetch("/api/usuarios/actualizar-perfil", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Error al actualizar el perfil")
+      }
+
+      const data = await response.json()
+
+      // Actualizar el estado local con los datos actualizados
+      const perfilActualizado = {
+        ...usuario,
+        nombre,
+        correo,
+        imagen: data.usuario.imagen || imagen,
+        ...(usuario.tipo === "escuela" ? { necesidades: items } : { apoyos: items }),
+      }
+
+      // Llamar a la función onSave con los datos actualizados
+      onSave(perfilActualizado)
+      onClose()
+    } catch (error) {
+      console.error("Error al actualizar el perfil:", error)
+      setError(error.message || "Error al actualizar el perfil")
+    } finally {
+      setIsSubmitting(false)
     }
-
-    // Crear objeto con datos actualizados
-    const perfilActualizado = {
-      ...usuario,
-      nombre,
-      correo,
-      descripcion,
-      ubicacion,
-      imagen: previewImagen || imagen,
-      ...(usuario.tipo === "escuela" ? { necesidades: items } : { apoyos: items }),
-    }
-
-    onSave(perfilActualizado)
-    onClose()
   }
 
   return (
@@ -81,6 +107,8 @@ export default function EditarPerfilModal({ usuario, onClose, onSave }) {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-4">
+          {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">{error}</div>}
+
           <div className="flex flex-col md:flex-row gap-6 mb-6">
             {/* Imagen de perfil */}
             <div className="flex flex-col items-center">
@@ -89,7 +117,7 @@ export default function EditarPerfilModal({ usuario, onClose, onSave }) {
                 onClick={handleImagenClick}
               >
                 <Image
-                  src={previewImagen || imagen || "/placeholder.svg"}
+                  src={previewImagen || imagen || "/placeholder.svg?height=128&width=128"}
                   alt="Imagen de perfil"
                   fill
                   className="object-cover"
@@ -99,7 +127,7 @@ export default function EditarPerfilModal({ usuario, onClose, onSave }) {
                 </div>
               </div>
               <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImagenChange} />
-              <button type="button" className="text-sm text-primary hover:underline" onClick={handleImagenClick}>
+              <button type="button" className="text-sm text-blue-600 hover:underline" onClick={handleImagenClick}>
                 Cambiar foto
               </button>
             </div>
@@ -113,7 +141,7 @@ export default function EditarPerfilModal({ usuario, onClose, onSave }) {
                 <input
                   type="text"
                   id="nombre"
-                  className="w-full border rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="w-full border rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   value={nombre}
                   onChange={(e) => setNombre(e.target.value)}
                   required
@@ -127,40 +155,13 @@ export default function EditarPerfilModal({ usuario, onClose, onSave }) {
                 <input
                   type="email"
                   id="correo"
-                  className="w-full border rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="w-full border rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   value={correo}
                   onChange={(e) => setCorreo(e.target.value)}
                   required
                 />
               </div>
-
-              <div>
-                <label htmlFor="ubicacion" className="block text-sm font-medium text-gray-700 mb-1">
-                  Ubicación
-                </label>
-                <input
-                  type="text"
-                  id="ubicacion"
-                  className="w-full border rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-primary"
-                  value={ubicacion}
-                  onChange={(e) => setUbicacion(e.target.value)}
-                />
-              </div>
             </div>
-          </div>
-
-          {/* Descripción */}
-          <div className="mb-4">
-            <label htmlFor="descripcion" className="block text-sm font-medium text-gray-700 mb-1">
-              Descripción
-            </label>
-            <textarea
-              id="descripcion"
-              rows={3}
-              className="w-full border rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-primary"
-              value={descripcion}
-              onChange={(e) => setDescripcion(e.target.value)}
-            />
           </div>
 
           {/* Necesidades o Apoyos */}
@@ -183,24 +184,6 @@ export default function EditarPerfilModal({ usuario, onClose, onSave }) {
                 </div>
               ))}
             </div>
-
-            <div className="flex gap-2">
-              <input
-                type="text"
-                className="flex-1 border rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-primary"
-                placeholder={`Añadir ${usuario.tipo === "escuela" ? "necesidad" : "área de apoyo"}`}
-                value={nuevoItem}
-                onChange={(e) => setNuevoItem(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), agregarItem())}
-              />
-              <button
-                type="button"
-                className="bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg p-2"
-                onClick={agregarItem}
-              >
-                <Plus size={20} />
-              </button>
-            </div>
           </div>
 
           {/* Botones */}
@@ -209,11 +192,23 @@ export default function EditarPerfilModal({ usuario, onClose, onSave }) {
               type="button"
               onClick={onClose}
               className="border border-gray-300 text-gray-700 font-medium py-2 px-4 rounded hover:bg-gray-50"
+              disabled={isSubmitting}
             >
               Cancelar
             </button>
-            <button type="submit" className="btn-primary">
-              Guardar cambios
+            <button
+              type="submit"
+              className="bg-blue-600 text-white font-medium py-2 px-4 rounded hover:bg-blue-700 disabled:opacity-50"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <span className="inline-block h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
+                  Guardando...
+                </span>
+              ) : (
+                "Guardar cambios"
+              )}
             </button>
           </div>
         </form>
@@ -221,4 +216,3 @@ export default function EditarPerfilModal({ usuario, onClose, onSave }) {
     </div>
   )
 }
-
