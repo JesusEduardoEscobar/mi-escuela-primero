@@ -20,7 +20,7 @@ export function setPerfil(app) {
       const connection = conectar();
       connection.query(
         "UPDATE usuario SET sesionActiva = 0 WHERE id = ?",
-        [id],
+        [id], 
         (err) => {
           connection.end();
           if (err)
