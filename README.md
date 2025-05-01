@@ -37,12 +37,12 @@ Algunas funciones necesarias para obtener poder mostrar laos archivos que se ecu
 
 # FORMATO PARA LOS TIPO DE USUARIOS ASI COMO TAMBIEN EL ESTADO DE ACTIVIDAD
 
-- Ingreso
+- Estado
   En espera(0)
   Aceptado (1)
   rechazado(2)
 
-- Estado de actividad
+- sesionActiva
   Activo(1)
   Inactivo(0)
 
