@@ -100,40 +100,50 @@ export default function LoginPage() {
 
     try {
       const response = await fetch("http://localhost:1984/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: correo, password: contra }),
-      })
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: correo, password: contra }),
+      });
 
-      console.log("Status de la respuesta:", response.status)
+      console.log("Status de la respuesta:", response.status);
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || "Error en el inicio de sesión")
+          const errorData = await response.json();
+          console.error("Error en el login:", errorData);
+          throw new Error(errorData.message || "Error en el inicio de sesión");
       }
 
-      const data = await response.json()
-      console.log("Datos recibidos:", data)
+      const data = await response.json();
+      console.log("Datos recibidos completos:", data);
+
+      // Validar que `data.user` existe antes de acceder a `tipoUsuario`
+      if (!data.user || !data.user.tipoUsuario) {
+          throw new Error("Datos de usuario inválidos en la respuesta");
+      }
 
       // Guardar el token en localStorage
-      localStorage.setItem("token", data.token)
+      localStorage.setItem("token", data.token);
 
       // Verificar el tipo de usuario y redirigir
-      const userType = data.user.tipoUsuario
-      console.log("Tipo de usuario:", userType)
+      const userType = data.user.tipoUsuario;
+      console.log("Tipo de usuario:", userType);
+
+      let redirectUrl = "/"; // Default redirect en caso de error
 
       if (userType === 3) {
-        // Administrador
-        router.push("/admin/paginaPrincipal")
+          redirectUrl = "/admin/paginaPrincipal";
       } else if (userType === 1 || userType === 2) {
-        // Escuela o Aliado
-        router.push("/usuarios/paginaPrincipal")
+          redirectUrl = "/usuarios/paginaPrincipal";
       } else {
-        setError("Tipo de usuario no reconocido")
+          throw new Error("Tipo de usuario no reconocido");
       }
+
+      console.log("Redirigiendo a:", redirectUrl);
+      router.push(redirectUrl);
+
     } catch (error) {
-      console.error("Error en el inicio de sesión:", error)
-      setError(error.message || "Error en el servidor. Intenta nuevamente.")
+      console.error("Error en el inicio de sesión:", error);
+      setError(error.message || "Error en el servidor. Intenta nuevamente.");
     }
   }
 

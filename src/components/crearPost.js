@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react"
 import { ImageIcon, X, Send, HelpCircle, Info } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 export default function CrearPost({ onCreatePost, onClose, solicitudAtendida = null, convenios = [] }) {
   const [content, setContent] = useState("")
@@ -13,6 +14,8 @@ export default function CrearPost({ onCreatePost, onClose, solicitudAtendida = n
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
   const [showInstructions, setShowInstructions] = useState(false)
+
+  const router = useRouter()
 
   const handleMediaChange = (e) => {
     const file = e.target.files[0]
@@ -186,9 +189,7 @@ export default function CrearPost({ onCreatePost, onClose, solicitudAtendida = n
           <button
             onClick={(e) => {
               e.stopPropagation() // Evita la propagación del evento
-              if (typeof onClose === "function") {
-                onClose()
-              }
+              router.push("/")
             }}
             className="p-2 hover:bg-gray-100 rounded-full"
             aria-label="Cerrar"
@@ -282,11 +283,9 @@ export default function CrearPost({ onCreatePost, onClose, solicitudAtendida = n
               <button
                 type="button"
                 onClick={(e) => {
-                  e.stopPropagation()
-                  if (typeof onClose === "function") {
-                    onClose()
-                  }
-                }}
+                  e.stopPropagation() // Evita la propagación del evento
+                  router.push("/")
+                  }}
                 className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
               >
                 Cancelar

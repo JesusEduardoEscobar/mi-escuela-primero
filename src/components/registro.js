@@ -200,7 +200,7 @@ export default function RegistrationForm() {
       formData.append("password", password)
       formData.append(
         "name",
-        userType === "administrador" ? name : userType === "escuela" ? institutionName : representativeName,
+        userType === "escuela" ? institutionName : representativeName,
       )
       formData.append("estado", userStatus.toString())
 
@@ -542,18 +542,6 @@ export default function RegistrationForm() {
             {/* Campos específicos para Administradores */}
             {userType === "administrador" && (
               <div className="w-full space-y-6 py-10">
-                <div className="space-y-2 w-full">
-                  <label className="block text-sm font-medium text-gray-700">Nombre</label>
-                  <input
-                    type="text"
-                    value={userName}
-                    onChange={(e) => setUserName(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none"
-                    placeholder="Ingresa tu nombre completo"
-                    required
-                  />
-                </div>
-
                 <div className="space-y-2 w-full">
                   <label className="block text-sm font-medium text-gray-700">Código de verificación</label>
                   <input

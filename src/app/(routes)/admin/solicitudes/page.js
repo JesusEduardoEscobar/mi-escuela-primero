@@ -30,7 +30,7 @@ export default async function SolicitudesPage() {
             const nombreInstitucion = esEscuela ? solicitud.nombreInstitucion : solicitud.institucion;
             const calle = esEscuela ? solicitud.calleEscuela : solicitud.calleAliado;
             const colonia = esEscuela ? solicitud.coloniaEscuela : solicitud.coloniaAliado;
-            const foto = solicitud.fotoEscuela
+            const foto = solicitud.fotoEscuela || solicitud.fotoAliado;
             const documentoVerificacion = solicitud.docEscuela
 
             const imagen = getDirectLink(foto)?.directLinkImage || "/placeholder.svg";

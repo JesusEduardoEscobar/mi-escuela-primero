@@ -3,13 +3,14 @@ import { usePathname } from "next/navigation"
 import NavbarAdmin from '@/components/navbarAdmin'
 import { logout } from "@/backend/CerraryEliminar"
 import { useState, useRef, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Settings, LogOut, UserX } from "lucide-react"
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname()
   const [menuAbierto, setMenuAbierto] = useState(false)
   const menuRef = useRef(null)
-
+  const router = useRouter()
   useEffect(() => {
       function handleClickOutside(event) {
         if (menuRef.current && !menuRef.current.contains(event.target)) {
