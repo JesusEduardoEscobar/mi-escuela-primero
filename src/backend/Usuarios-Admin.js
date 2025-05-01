@@ -2,8 +2,7 @@ import cors from 'cors'
 import express from 'express'
 import { conectar } from "./BaseDeDatos.js"
 
-const app = express()
-
+export function setUsuariosAdmin(app) {
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -97,3 +96,4 @@ app.get("/api/usuarios/escuelas", (res, req) => {
     if(err) return res.status(500).json({ message: "Error al obtener aliados" })
   })
 })
+}

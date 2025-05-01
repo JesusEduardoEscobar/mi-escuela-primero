@@ -2,7 +2,7 @@ import { conectar } from "./BaseDeDatos.js";
 import cors from "cors";
 import express from "express";
 
-export default function setupRoutes(app) {
+export function setupRoutes(app) {
   app.use(cors({ origin: "http://localhost:3000", credentials: true }));
   app.use(express.json());
 

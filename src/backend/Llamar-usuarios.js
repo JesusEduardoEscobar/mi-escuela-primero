@@ -1,10 +1,8 @@
 import express from 'express'
 import { conectar } from './BaseDeDatos.js'
-import { connection } from 'next/server.js'
 import cors from 'cors'
 
-const app = express()
-app.use(express.json())
+export function setLlamarUsuario(app) {
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -14,7 +12,7 @@ app.use(
 
 app.get('/api/publicaciones/:idConvenio', (req, res) => {
   const { idConvenio } = req.params;
-  const conectar = conectar()
+  const connection = conectar()
   const solicitud = `
     SELECT * FROM evidenciaproyecto WHERE idConvenio?
   `
@@ -27,17 +25,18 @@ app.get('/api/publicaciones/:idConvenio', (req, res) => {
 })
 
 app.get('api/mostrarperfil', (req,res) => {
-  const conectar = conectar()
+  const connection = conectar()
   const consulta = `
     SELECT * FROM usuario WHERE id ?
   ` 
-  conectar.query(consulta, )
+  connection.query(consulta, )
 })
 
 app.get('/api/mostrarperfiles', (req,res) => {
-  const conectar = conectar()
+  const connection = conectar()
   const consulta = `
     SELECT * FROM usuario
   `  
-  conectar.query(consulta, )
+  connection.query(consulta, )
 })
+}

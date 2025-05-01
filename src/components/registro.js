@@ -141,6 +141,17 @@ export default function RegistrationForm() {
     }
   }
 
+  // Validar Token solo si es administrador
+  if (userType === "admin") {
+    const regexLettersNumbersMax8 = /^[a-zA-Z]\d{1,6}[a-zA-Z]$/;
+    if (!regexLettersNumbersMax8.test(verificationCode)) {
+      setVerificationCodeError(
+        "El código debe comenzar y terminar con letras, contener números en el  medio y tener un máximo de 8 caracteres."
+      );
+    }
+  }
+
+
   const handleSubmit = async (e) => {
     e.preventDefault()
 
@@ -188,51 +199,51 @@ export default function RegistrationForm() {
       formData.append("email", email)
       formData.append("password", password)
       formData.append(
-        "nombre",
+        "name",
         userType === "administrador" ? name : userType === "escuela" ? institutionName : representativeName,
       )
       formData.append("estado", userStatus.toString())
 
       if (phoneNumber) {
-        formData.append("telefono", phoneNumber)
+        formData.append("phoneNumber", phoneNumber)
       }
 
       // Agregar foto de perfil si existe
       if (profileImage) {
-        formData.append("foto", profileImage)
+        formData.append("profileImage", profileImage)
       }
 
       // Agregar campos específicos según el tipo de usuario
       if (userType === "escuela") {
-        formData.append("nombreInstitucion", institutionName)
+        formData.append("institutionName", institutionName)
         formData.append("street", street)
-        formData.append("colonia", neighborhood)
+        formData.append("neighborhood", neighborhood)
         formData.append("cct", cct)
         formData.append("directorName", directorName)
-        formData.append("cp", zipCode)
-        formData.append("numeroEstudiantes", studentCount)
+        formData.append("zipCode", zipCode)
+        formData.append("studentCount", studentCount)
         formData.append("acceptedTerms", acceptedTerms.toString())
 
         if (documentValid) {
-          formData.append("documentoVerificacion", documentValid)
+          formData.append("documentValid", documentValid)
         }
       } else if (userType === "administrador") {
         formData.append("verificationCode", verificationCode)
       } else if (userType === "aliado") {
         formData.append("representativeName", representativeName)
-        formData.append("personaFisica", personType === "fisica" ? "1" : "0")
+        formData.append("personType", personType === "fisica" ? "1" : "0")
         formData.append("sector", sector)
-        formData.append("calle", street)
-        formData.append("colonia", neighborhood)
-        formData.append("cp", zipCode)
+        formData.append("street", street)
+        formData.append("neighborhood", neighborhood)
+        formData.append("zipCode", zipCode)
         formData.append("acceptedTerms", acceptedTerms.toString())
 
         if (personType === "moral") {
-          formData.append("institucion", companyName)
+          formData.append("companyName", companyName)
         }
 
         if (incomeProof) {
-          formData.append("documentoVerificacion", incomeProof)
+          formData.append("incomeProof", incomeProof)
         }
       }
 
@@ -240,7 +251,6 @@ export default function RegistrationForm() {
       const response = await fetch("http://localhost:1984/api/registrar", {
         method: "POST",
         body: formData,
-        // No es necesario establecer Content-Type, se establece automáticamente con FormData
         credentials: "include", // Para manejar cookies si es necesario
       })
 
@@ -265,44 +275,6 @@ export default function RegistrationForm() {
       setIsSubmitting(false)
     }
   }
-
-  // Modal de términos de privacidad
-  const PrivacyTermsModal = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">Términos de Privacidad</h2>
-            <button onClick={() => setShowPrivacyTerms(false)} className="text-gray-500 hover:text-gray-700">
-              ✕
-            </button>
-          </div>
-          <div className="prose max-w-none">
-            <h3>Política de Privacidad de Mi Escuela Primero</h3>
-            <p>Última actualización: 16 de abril de 2025</p>
-
-            <p>
-              En Mi Escuela Primero, valoramos y respetamos su privacidad. Esta Política de Privacidad describe cómo
-              recopilamos, utilizamos, almacenamos y compartimos su información cuando utiliza nuestra plataforma.
-            </p>
-
-            {/* Contenido de la política de privacidad */}
-          </div>
-          <div className="mt-6 flex justify-end">
-            <button
-              onClick={() => {
-                setAcceptedTerms(true)
-                setShowPrivacyTerms(false)
-              }}
-              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-            >
-              Aceptar
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
 
   return (
 
@@ -561,9 +533,7 @@ export default function RegistrationForm() {
                       required
                       name="documentValid"
                     />
-                    {documentValid && (
-                      <span className="text-green-500 text-sm">Archivo seleccionado: {documentValid.name}</span>
-                    )}
+
                   </div>
                 </div>
               </>
@@ -723,9 +693,6 @@ export default function RegistrationForm() {
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none"
                       required
                     />
-                    {incomeProof && (
-                      <span className="text-green-500 text-sm">Archivo seleccionado: {incomeProof.name}</span>
-                    )}
                   </div>
                 </div>
               </>
@@ -745,13 +712,14 @@ export default function RegistrationForm() {
                 />
                 <label htmlFor="terms" className="text-sm text-gray-700">
                   He leído y acepto los{" "}
-                  <button
-                    type="button"
-                    onClick={() => setShowPrivacyTerms(true)}
+                  <a
+                    href="/politicas.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-green-500 hover:text-green-700 font-medium"
                   >
-                    términos de privacidad
-                  </button>
+                    términos de privacidad  
+                  </a>
                 </label>
               </div>
               {submitError && submitError.includes("términos") && <p className="text-xs text-red-500">{submitError}</p>}

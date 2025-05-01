@@ -4,7 +4,7 @@ import cors from 'cors'
 import { NextResponse } from "next/server.js"
 import { subirArchivoADrive } from "./ConecDrive.js"
 
-const app = express()
+export function setPerfil(app) {
 app.use(express.json())
 app.use(
   cors({
@@ -56,6 +56,7 @@ app.delete('/api/eliminarCuenta', async (req, res) => {
     res.status(500).json({ message: "Error interno", error })
   }
 });
+}
 
 export async function POST(request) {
   try {
