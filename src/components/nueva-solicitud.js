@@ -1,42 +1,104 @@
 "use client"
 
-import { useState } from "react"
-import { X } from "lucide-react"
+import { useState } from "react";
+import { X } from "lucide-react";
+import { getUserRole } from "../utils/UtilidadesAuth"; // Ajusta la ruta si es necesario
 
 export default function NuevaSolicitudModal({ onClose, onSubmit }) {
   const [titulo, setTitulo] = useState("")
   const [descripcion, setDescripcion] = useState("")
   const [categoria, setCategoria] = useState("")
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  // Obtiene tipoUsuario e idUsuario desde el JWT en localStorage
+  const userRole = getUserRole() || {};
+  const { tipoUsuario, id: usuarioId } = userRole;
 
-    if (!titulo || !descripcion) {
-      alert("Por favor completa todos los campos requeridos")
-      return
+  // Para probar manualmente sin login:
+  // const tipoUsuario = 2;  // 1 = escuela, 2 = aliado
+  // const usuarioId    = 25; // Pon aquí un ID válido para tu DB
+
+  console.log(
+    "PRUEBA ⛔⛔⛔ - Tipo de usuario:",
+    tipoUsuario,
+    "- ID de usuario:",
+    usuarioId
+  );
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!descripcion) {
+      alert("Por favor completa la descripción");
+      return;
     }
 
-    // Crear objeto de solicitud
-    const nuevaSolicitud = {
-      id: Date.now(), // ID temporal
-      titulo,
-      descripcion,
-      categoria,
-      estado: "pendiente",
-      aliados: [],
+    if (!categoria) {
+      alert("Por favor selecciona una categoría");
+      return;
     }
 
-    onSubmit(nuevaSolicitud)
-    onClose()
-  }
+    // Payload y endpoint según tipo de usuario
+    let endpoint, payload;
+    if (tipoUsuario === 1) {
+      endpoint = "/api/crearSolicitud";
+      payload = {
+        descripcion,
+        prioridad: "MEDIA",
+        documentacion: "Document",
+        id_Escuela: usuarioId,
+        id_Apoyo: parseInt(categoria),
+        fecha: new Date().toISOString().split("T")[0],
+      };
+    } else {
+      endpoint = "/api/crearOferta";
+      payload = {
+        descripcion,
+        id_Apoyo: parseInt(categoria),
+        id_Aliado: usuarioId,
+        fecha: new Date().toISOString().split("T")[0],
+      };
+    }
+
+    try {
+      const response = await fetch(`http://localhost:1984${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        alert(
+          tipoUsuario === 1
+            ? "Solicitud enviada con éxito"
+            : "Oferta enviada con éxito"
+        );
+        onSubmit({ ...payload, id: Date.now(), estado: "pendiente" });
+        onClose();
+      } else {
+        alert(
+          tipoUsuario === 1
+            ? "Error al crear la solicitud"
+            : "Error al crear la oferta"
+        );
+      }
+    } catch (error) {
+      console.error("Error de red:", error);
+      alert("No se pudo conectar con el servidor");
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-lg">
         {/* Header */}
         <div className="flex justify-between items-center p-4 border-b">
-          <h2 className="text-xl font-bold">Nueva solicitud</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+          <h2 className="text-xl font-bold">
+            {tipoUsuario === 1 ? "Nueva solicitud" : "Nueva oferta"}
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+          >
             <X size={24} />
           </button>
         </div>
@@ -44,26 +106,10 @@ export default function NuevaSolicitudModal({ onClose, onSubmit }) {
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-4">
           <div className="mb-4">
-            <label htmlFor="titulo" className="block text-sm font-medium text-gray-700 mb-1">
-              Título de la solicitud *
-            </label>
-            <input
-              type="text"
-              id="titulo"
-              className="w-full border rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-primary"
-              placeholder="Ej: Renovación de biblioteca escolar"
-              value={titulo}
-              onChange={(e) => setTitulo(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="descripcion" className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Descripción detallada *
             </label>
             <textarea
-              id="descripcion"
               rows={4}
               className="w-full border rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-primary"
               placeholder="Describe tu necesidad, objetivos y resultados esperados..."
@@ -74,11 +120,10 @@ export default function NuevaSolicitudModal({ onClose, onSubmit }) {
           </div>
 
           <div className="mb-6">
-            <label htmlFor="categoria" className="block text-sm font-medium text-gray-700 mb-1">
-              Categoría
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Categoría *
             </label>
             <select
-              id="categoria"
               className="w-full border rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-primary"
               value={categoria}
               onChange={(e) => setCategoria(e.target.value)}
@@ -102,7 +147,7 @@ export default function NuevaSolicitudModal({ onClose, onSubmit }) {
               Cancelar
             </button>
             <button type="submit" className="btn-primary">
-              Crear solicitud
+              {tipoUsuario === 1 ? "Crear solicitud" : "Crear oferta"}
             </button>
           </div>
         </form>
