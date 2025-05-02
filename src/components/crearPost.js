@@ -125,7 +125,7 @@ export default function CrearPost({ onCreatePost, onClose, solicitudAtendida = n
           <div className="border-l-4 border-blue-500 pl-4 py-1">
             <h4 className="font-medium text-lg">2. Adjunta archivos (opcional)</h4>
             <p className="text-gray-600">
-              Puedes adjuntar imágenes, videos o documentos haciendo clic en el botón "Adjuntar archivo".
+              Puedes adjuntar imágenes, te recomendamos que sean de alta calidad y se pudean ver bien las apotaciones que tuvo tu convenio.
             </p>
           </div>
 
@@ -189,7 +189,7 @@ export default function CrearPost({ onCreatePost, onClose, solicitudAtendida = n
           <button
             onClick={(e) => {
               e.stopPropagation() // Evita la propagación del evento
-              router.push("/")
+              router.push("/usuarios/usuarios/paginaPrincipal")
             }}
             className="p-2 hover:bg-gray-100 rounded-full"
             aria-label="Cerrar"
@@ -264,7 +264,7 @@ export default function CrearPost({ onCreatePost, onClose, solicitudAtendida = n
             <div>
               <input
                 type="file"
-                accept="image/*,video/*,application/pdf,.doc,.docx"
+                accept="image/*"
                 onChange={handleMediaChange}
                 className="hidden"
                 ref={fileInputRef}
@@ -284,7 +284,7 @@ export default function CrearPost({ onCreatePost, onClose, solicitudAtendida = n
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation() // Evita la propagación del evento
-                  router.push("/")
+                  router.push("/usuarios/paginaPrincipal")
                   }}
                 className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
               >
