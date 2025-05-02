@@ -11,7 +11,6 @@ export function setUsuariosAdmin(app) {
   );
   app.use(express.json());
 
-<<<<<<< HEAD
   // Obtener todas las solicitudes pendientes
   app.get("/api/admin/solicitudes", (req, res) => {
     const connection = conectar();
@@ -36,33 +35,6 @@ export function setUsuariosAdmin(app) {
       LEFT JOIN aliado a ON u.id = a.id_Usuario
       WHERE u.estado = 0;
     `;
-=======
-export const setUsuariosAdmin = (app) => {
-// Ruta para obtener las solicitudes
-app.get("/api/admin/solicitudes", (req, res) => {
-  const connection = conectar();
-  const consulta = `
-    SELECT
-      u.*,
-      e.nivelEducativo,
-      e.cct,
-      e.numeroEstudiantes,
-      e.documentoVerificacion AS docEscuela,
-      e.calle AS calleEscuela,
-      e.colonia AS coloniaEscuela,
-      e.nombreInstitucion,
-      e.foto AS fotoEscuela,
-      a.institucion,
-      a.documentoVerificacion AS docAliado,
-      a.calle AS calleAliado,
-      a.colonia AS coloniaAliado,
-      a.foto AS fotoAliado
-    FROM usuario u
-    LEFT JOIN escuela e ON u.id = e.id_Usuario
-    LEFT JOIN aliado a ON u.id = a.id_Usuario
-    WHERE u.estado = 0;
-  `;
->>>>>>> 73868f21c9a6c8e5b9c1f510e4c9cca96cab3e99
     connection.query(consulta, (err, results) => {
       connection.end();
       if (err) {
@@ -118,7 +90,6 @@ app.get("/api/admin/solicitudes", (req, res) => {
     });
   });
 
-<<<<<<< HEAD
   // Obtener escuelas aprobadas
   app.get("/api/usuarios/escuelas", (req, res) => {
     const connection = conectar();
@@ -127,35 +98,6 @@ app.get("/api/admin/solicitudes", (req, res) => {
       connection.end();
       if (err) return res.status(500).json({ message: "Error al obtener escuelas" });
       res.status(200).json(results);
-=======
-  app.get("/api/usuarios/aliado", (res, req) => {
-    const conectar = conectar();
-    const consulta =
-      "SELECT * FROM usuairos WHERE tipoUsuario = 2 AND estado = 1";
-    conectar.query(consulta, (err, res) => {
-      conectar.end();
-      if (err)
-        return res.status(500).json({ message: "Error al obtener aliados" });
-    });
-  });
-
-app.get("/api/usuarios/escuelas", (res, req) => {
-  const conectar = conectar()
-  const consulta = "SELECT * FROM usuairos WHERE tipoUsuario = 1 AND estado = 1"
-  conectar.query(consulta, (err, res) => {
-    conectar.end()
-    if(err) return res.status(500).json({ message: "Error al obtener aliados" })
-  })
-})
-  app.get("/api/usuarios/escuelas", (res, req) => {
-    const conectar = conectar();
-    const consulta =
-      "SELECT * FROM usuairos WHERE tipoUsuario = 1 AND estado = 1";
-    conectar.query(consulta, (err, res) => {
-      conectar.end();
-      if (err)
-        return res.status(500).json({ message: "Error al obtener aliados" });
->>>>>>> 73868f21c9a6c8e5b9c1f510e4c9cca96cab3e99
     });
   });
 }

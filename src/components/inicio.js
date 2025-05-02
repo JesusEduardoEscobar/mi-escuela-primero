@@ -1,49 +1,25 @@
 "use client"
 
-import { useState } from "react"
-import { Heart, MoreHorizontal } from "lucide-react"
-import { publicaciones, usuariosAliados, usuariosEscuelas } from "@/data/dataUsuarios"
-import Link from 'next/link'
+import { useEffect, useState } from "react";
+import { Heart, MoreHorizontal } from "lucide-react";
+import Link from "next/link";
 
-// Función para transformar los datos
-const transformPosts = (publicaciones) => {
-  return publicaciones.map((pub) => {
-    // Busca el usuario en las listas de aliados y escuelas
-    const user = [...usuariosAliados, ...usuariosEscuelas].find((u) => u.id === pub.usuarioId);
-
-    return {
-      id: pub.id,
-      usuarioId: pub.usuarioId,
-      image: pub.imagenes[0], // Usa la primera imagen de la lista
-      caption: pub.descripcion, // Usa la descripción como caption
-      likes: pub.likes,
-      user: {
-        name: user?.nombre || "Usuario Desconocido", // Nombre del usuario
-        image: user?.imagen || "/placeholder.svg", // Imagen de perfil del usuario
-        tipo: user?.tipo || "escuela", // Tipo de usuario (aliado o escuela)
-      },
-    };
-  });
-};
-
-// Componente Post
 function Post({ post }) {
   const [isLiked, setIsLiked] = useState(false);
 
   return (
     <div className="border rounded-lg bg-white overflow-hidden shadow-sm">
-      {/* Header */}
       <div className="flex items-center justify-between p-5">
         <Link href={`/usuarios/perfil/${post.usuarioId}`} className="flex items-center gap-2">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full overflow-hidden">
               <img
-                src={post.user?.image || "/placeholder.svg"}
-                alt={post.user?.name || "Usuario"}
+                src={post.user?.imagen || "/placeholder.svg"}
+                alt={post.user?.nombre || "Usuario"}
                 className="w-full h-full object-cover"
               />
             </div>
-            <h2 className="font-semibold text-sm">{post.user?.name || "Usuario"}</h2>
+            <h2 className="font-semibold text-sm">{post.user?.nombre || "Usuario"}</h2>
             <p className="text-xs text-gray-500">{post.user.tipo === "escuela" ? "Escuela" : "Aliado"}</p>
           </div>
         </Link>
@@ -52,16 +28,14 @@ function Post({ post }) {
         </button>
       </div>
 
-      {/* Imagen del post */}
       <div>
         <img 
-          src={post.image || "/placeholder.svg"} 
+          src={post.imagenes[0] || "/placeholder.svg"} 
           alt="Post" 
           className="w-full aspect-square object-cover" 
         />
       </div>
 
-      {/* Acciones */}
       <div className="flex justify-between p-5 pb-3">
         <div className="flex gap-5">
           <button onClick={() => setIsLiked(!isLiked)} className={isLiked ? "text-red-500" : ""}>
@@ -70,21 +44,25 @@ function Post({ post }) {
         </div>
       </div>
 
-      {/* Likes, caption y comentarios */}
       <div className="px-5 pb-3">
-        <p className="font-semibold text-base">{post.likes ? post.likes.toLocaleString() : "0"} Me gusta</p>
+        <p className="font-semibold text-base">{post.likes.toLocaleString()} Me gusta</p>
         <p className="text-base my-1">
-          <span className="font-semibold">{post.user?.name || "Usuario"}</span> {post.caption}
+          <span className="font-semibold">{post.user?.nombre}</span> {post.descripcion}
         </p>
       </div>
     </div>
   );
 }
 
-// Página PaginaPrincipal
 export default function PaginaPrincipal() {
-  // Transforma los datos de publicaciones
-  const posts = transformPosts(publicaciones)
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:1984/api/publicaciones")
+      .then((res) => res.json())
+      .then((data) => setPosts(data))
+      .catch((err) => console.error("Error cargando publicaciones:", err));
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -35,7 +35,7 @@ export function TarjetaSolicitud({ solicitud }) {
   };
 
   const esEscuela = solicitud.tipoUsuario === 1;
-  const tipo = esEscuela ? "Escuela" : "Aliado";
+  const tipo = esEscuela ? "Aliado" : "Escuela";
   const nombre = solicitud.nombre;
   const email = solicitud.email;
   const telefono = solicitud.telefono;

@@ -6,6 +6,7 @@ import { useRequiereAuth } from '@/utils/ComprobacionDePerfil'
 
 export default function Agergar() {
   // useRequiereAuth()
+  
   return (
     <div>
         <MotionTransition />

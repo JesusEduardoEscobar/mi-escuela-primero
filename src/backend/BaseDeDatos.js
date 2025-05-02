@@ -1,4 +1,5 @@
 import mysql from "mysql";
+import { promisify } from "util";
 
 export function conectar(){
     const conect = mysql.createConnection({
@@ -12,5 +13,8 @@ export function conectar(){
         if (error) throw error;
         console.log("Conectada correctamente a la base de datos")
     })
+
+    conect.queryAsync = promisify(conect.query).bind(conect)
+
     return conect
 }

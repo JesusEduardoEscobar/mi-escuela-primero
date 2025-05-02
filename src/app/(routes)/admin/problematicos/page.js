@@ -1,120 +1,95 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { UserCard } from "@/components/user-card"
-import { usuariosProblematicos as initialUsuariosProblematicos } from "@/data/dataAdmin"
-import { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from "react-hot-toast"
 
 export default function ProblematicosPage() {
-  const [usuariosProblematicos, setUsuariosProblematicos] = useState(initialUsuariosProblematicos)
+  const [usuariosProblematicos, setUsuariosProblematicos] = useState([])
 
-  // Agrupar usuarios por número de strikes
-  const strike1 = usuariosProblematicos.filter((user) => user.strikes === 1)
-  const strike2 = usuariosProblematicos.filter((user) => user.strikes === 2)
-  const strike3 = usuariosProblematicos.filter((user) => user.strikes === 3)
-  const strike0 = usuariosProblematicos.filter((user) => !user.strikes || user.strikes === 0)
-
-  const handleStrikeChange = (userId, newStrikeCount) => {
-    // Update the user's strike count
-    const updatedUsers = usuariosProblematicos.map((user) => {
-      if (user.id === userId) {
-        return { ...user, strikes: newStrikeCount }
+  // Obtener usuarios desde el backend
+  useEffect(() => {
+    const fetchUsuarios = async () => {
+      try {
+        const response = await fetch("http://localhost:1984/api/admin/usuarios-strikes")
+        const data = await response.json()
+        setUsuariosProblematicos(data.usuarios || data) // depende de cómo lo retornes
+      } catch (error) {
+        console.error("Error al cargar usuarios:", error)
+        toast.error("No se pudieron cargar los usuarios.")
       }
-      return user
-    })
+    }
 
-    setUsuariosProblematicos(updatedUsers)
+    fetchUsuarios()
+  }, [])
 
-    // Show a toast notification
-    const user = usuariosProblematicos.find((u) => u.id === userId)
-    if (user) {
+  const handleStrikeChange = async (userId, newStrikeCount) => {
+    try {
+      const res = await fetch(`http://localhost:1984/api/admin/actualizar-strike`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId, newStrikeCount }),
+      })
+
+      if (!res.ok) throw new Error("Error al actualizar strike")
+
+      const updatedUsers = usuariosProblematicos.map((user) =>
+        user.id === userId ? { ...user, strikes: newStrikeCount } : user
+      )
+      setUsuariosProblematicos(updatedUsers)
+
+      const user = updatedUsers.find((u) => u.id === userId)
       if (newStrikeCount === 3) {
-        Toaster({
-          title: "Strike máximo alcanzado",
-          description: `${user.nombre} ha alcanzado el máximo de 3 strikes. Se recomienda tomar acción.`,
-          variant: "destructive",
-        })
+        toast.error(`${user.nombre} ha alcanzado 3 strikes. Será eliminado automáticamente.`)
       } else {
-        Toaster({
-          title: "Strike actualizado",
-          description: `${user.nombre} ahora tiene ${newStrikeCount} ${newStrikeCount === 1 ? "strike" : "strikes"}.`,
-          variant: newStrikeCount === 0 ? "default" : "warning",
-        })
+        toast.success(`${user.nombre} ahora tiene ${newStrikeCount} strike(s).`)
       }
+    } catch (error) {
+      console.error("Error:", error)
+      toast.error("No se pudo actualizar el strike.")
     }
   }
 
+  // Agrupar usuarios por strikes
+  const strike0 = usuariosProblematicos.filter((u) => !u.strikes || u.strikes === 0)
+  const strike1 = usuariosProblematicos.filter((u) => u.strikes === 1)
+  const strike2 = usuariosProblematicos.filter((u) => u.strikes === 2)
+  const strike3 = usuariosProblematicos.filter((u) => u.strikes === 3)
+
   return (
     <div className="space-y-6">
+      <Toaster />
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Usuarios Problemáticos</h1>
         <div className="text-sm text-gray-500">Total: {usuariosProblematicos.length} usuarios</div>
       </div>
 
       <div className="space-y-8 pb-20">
-        {strike0.length > 0 && (
-          <div>
-            <h2 className="text-lg font-medium mb-3 text-gray-600">Sin Strikes</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {strike0.map((user) => (
-                <UserCard key={user.id} user={user} enableStrikeManagement onStrikeChange={handleStrikeChange} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {strike1.length > 0 && (
-          <div>
-            <h2 className="text-lg font-medium mb-3 text-yellow-600">Strike 1</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {strike1.map((user) => (
-                <UserCard
-                  key={user.id}
-                  user={user}
-                  showStrikes
-                  enableStrikeManagement
-                  onStrikeChange={handleStrikeChange}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {strike2.length > 0 && (
-          <div>
-            <h2 className="text-lg font-medium mb-3 text-orange-600">Strike 2</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {strike2.map((user) => (
-                <UserCard
-                  key={user.id}
-                  user={user}
-                  showStrikes
-                  enableStrikeManagement
-                  onStrikeChange={handleStrikeChange}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {strike3.length > 0 && (
-          <div>
-            <h2 className="text-lg font-medium mb-3 text-red-600">Strike 3</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {strike3.map((user) => (
-                <UserCard
-                  key={user.id}
-                  user={user}
-                  showStrikes
-                  enableStrikeManagement
-                  onStrikeChange={handleStrikeChange}
-                />
-              ))}
-            </div>
-          </div>
-        )}
+        {[{ data: strike0, label: "Sin Strikes", color: "text-gray-600" },
+          { data: strike1, label: "Strike 1", color: "text-yellow-600" },
+          { data: strike2, label: "Strike 2", color: "text-orange-600" },
+          { data: strike3, label: "Strike 3", color: "text-red-600" }].map(
+            (grupo, i) =>
+              grupo.data.length > 0 && (
+                <div key={i}>
+                  <h2 className={`text-lg font-medium mb-3 ${grupo.color}`}>{grupo.label}</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {grupo.data.map((user) => (
+                      <UserCard
+                        key={user.id}
+                        user={user}
+                        showStrikes
+                        enableStrikeManagement
+                        onStrikeChange={handleStrikeChange}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )
+          )}
       </div>
     </div>
   )
 }
-

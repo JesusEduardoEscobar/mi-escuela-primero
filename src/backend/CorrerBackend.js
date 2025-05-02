@@ -7,6 +7,7 @@ import { setLlamarUsuario } from './Llamar-usuarios.js'
 import { setPerfil } from './Pefil.js'
 import { setupRoutes } from './Solicitudes.js'
 import { setMatches } from './Matches.js'
+import { setEvidencias } from './Publicaciones.js'
 import mensajes from './Mensajeria.js'
 
 const app = express()
@@ -17,6 +18,8 @@ setValidarSesion(app)
 setUsuariosAdmin(app)
 setLlamarUsuario(app)
 mensajes(app)
+setEvidencias(app)
+setMatches(app)
 
 app.use(express.json());
 
@@ -26,12 +29,6 @@ app.use(
       credentials: true,               
     })
   )
-
-setEnviarDatos(app);
-setValidarSesion(app);
-setUsuariosAdmin(app);
-setLlamarUsuarios(app);
-setMatches(app);
 
 app.listen(1984, () => {
     console.log("Archivos ejecutados correctamente en el puerto 1984")
