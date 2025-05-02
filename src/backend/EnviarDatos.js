@@ -34,7 +34,7 @@ if (!fs.existsSync("./uploads")) {
 }
 
 const upload = multer({ storage })
-
+export const setEnviarDatos = (app) => {
 app.post("/api/registrar", upload.fields([
     { name: "profileImage", maxCount: 1 },
     { name: "documentValid", maxCount: 1 },
@@ -301,3 +301,4 @@ app.post('api/solicitudesDeAdyudaApoyo', upload.fields([
 app.post('api/solicitudespublicaciones', (req,res) => {
   
 })
+}

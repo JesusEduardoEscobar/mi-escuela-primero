@@ -1,6 +1,6 @@
 import express from 'express'
 import cors from 'cors'
-import {conectar, conectar} from './BaseDeDatos.js'
+import {conectar} from './BaseDeDatos.js'
 import jwt from 'jsonwebtoken'
 
 const app = express()
@@ -12,8 +12,8 @@ app.use(
   }),
 )
 
-const SECRET_KEY =  process.env.SECRET_KEY || "Clasve_secreta"
-
+const SECRET_KEY =  process.env.SECRET_KEY || "Clave_secreta"
+export const setValidarSesion = (app) => {
 app.post("/api/login", async (req, res) => {
   const { email, password } = req.body
 
@@ -81,3 +81,4 @@ app.post('/api/validarAdmin', async (req,res) => {
   const conectar = conectar()
   const consulta = ``
 })
+}

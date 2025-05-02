@@ -1,5 +1,6 @@
 import express from 'express'
-import { conectar, conectar, conectar } from './BaseDeDatos'
+import { conectar } from './BaseDeDatos.js'
+import cors from 'cors'
 
 const app = express()
 app.use(
@@ -10,7 +11,7 @@ app.use(
 )
 
 app.use(express.json())
-
+export const setLlamarUsuarios = (app) => {
 app.get('/api/publicaciones/:idConvenio', (req, res) => {
   const { idConvenio } = req.params;
   const conectar = conectar()
@@ -78,3 +79,4 @@ app.post('/api/agregarpublicacion', (req, res) => {
     });
   });
 });
+}

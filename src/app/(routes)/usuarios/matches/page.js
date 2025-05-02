@@ -3,100 +3,131 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import { Check, X, MapPin } from "lucide-react"
-import { usuarios } from "@/data/dataUsuarios"
 
-// Simulamos un usuario logueado para la demo
-const USUARIO_ACTUAL_ID = 1
-const USUARIO_ACTUAL = usuarios.find((u) => u.id === USUARIO_ACTUAL_ID)
+const API_URL = "http://localhost:1984"
+const USUARIO_ACTUAL_ID = 25 // simulado
 
 export default function MatchesPage() {
   const [potencialesMatches, setPotencialesMatches] = useState([])
   const [matchesActuales, setMatchesActuales] = useState([])
   const [indiceActual, setIndiceActual] = useState(0)
+  const [usuarioActual, setUsuarioActual] = useState(null)
 
   useEffect(() => {
-    // Filtrar usuarios que podrían ser matches potenciales
-    // En una app real, esto vendría de un algoritmo de recomendación
-    const usuariosFiltrados = usuarios.filter((u) => {
-      // No mostrar al usuario actual
-      if (u.id === USUARIO_ACTUAL_ID) return false
+    const fetchData = async () => {
+      try {
+        const resUsuarios = await fetch(`${API_URL}/api/usuarios`)
+        const dataUsuarios = await resUsuarios.json()
+        const fetchedUsuario = dataUsuarios.find((u) => u.id === USUARIO_ACTUAL_ID)
+        if (!fetchedUsuario) return console.error("Usuario no encontrado")
+        setUsuarioActual(fetchedUsuario)
 
-      // No mostrar usuarios que ya son matches
-      if (USUARIO_ACTUAL.matches && USUARIO_ACTUAL.matches.includes(u.id)) return false
+        if (fetchedUsuario.tipoUsuario === 3) return // Admin no hace matches
 
-      // Mostrar aliados si el usuario actual es escuela y viceversa
-      return (
-        (USUARIO_ACTUAL.tipo === "escuela" && u.tipo === "aliado") ||
-        (USUARIO_ACTUAL.tipo === "aliado" && u.tipo === "escuela")
-      )
-    })
+        // Obtener matches actuales
+        const resMatches = await fetch(`${API_URL}/api/convenios/usuario/${USUARIO_ACTUAL_ID}`)
+        const dataMatches = await resMatches.json()
+        setMatchesActuales(dataMatches)
 
-    setPotencialesMatches(usuariosFiltrados)
+        // Obtener posibles matches desde backend actualizado
+        const resPotenciales = await fetch(`${API_URL}/api/matches-potenciales/${USUARIO_ACTUAL_ID}`)
+        const posibles = await resPotenciales.json()
+        setPotencialesMatches(posibles)
 
-    // Obtener matches actuales
-    const matchesUsuario = USUARIO_ACTUAL.matches || []
-    const usuariosMatches = usuarios.filter((u) => matchesUsuario.includes(u.id))
-    setMatchesActuales(usuariosMatches)
+      } catch (error) {
+        console.error("Error cargando datos:", error)
+      }
+    }
+
+    fetchData()
   }, [])
 
-  const handleAceptar = () => {
-    // En una app real, aquí enviaríamos la solicitud al backend
-    // Para la demo, simplemente pasamos al siguiente usuario
-    if (indiceActual < potencialesMatches.length - 1) {
-      setIndiceActual(indiceActual + 1)
+  const handleAceptar = async () => {
+    const match = potencialesMatches[indiceActual]
+    try {
+      await fetch(`${API_URL}/api/convenios`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          usuario_id: USUARIO_ACTUAL_ID,
+          match_id: match.usuario.id,
+          tipoUsuario: usuarioActual.tipoUsuario,
+        }),
+      })
+      avanzarMatch()
+    } catch (err) {
+      console.error("Error al aceptar match:", err)
     }
   }
 
-  const handleRechazar = () => {
-    // Pasar al siguiente usuario
-    if (indiceActual < potencialesMatches.length - 1) {
-      setIndiceActual(indiceActual + 1)
+  const handleRechazar = () => avanzarMatch()
+
+  const avanzarMatch = () => {
+    setPotencialesMatches(prev => prev.filter((_, i) => i !== indiceActual))
+    setIndiceActual(0)
+  }
+
+  const actualizarEstadoConvenio = async (convenioId, estado) => {
+    try {
+      const res = await fetch(`${API_URL}/api/convenios/${convenioId}/estado`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          estadoProgreso: estado,
+          usuarioId: USUARIO_ACTUAL_ID,
+        }),
+      })
+      const data = await res.json()
+      console.log(data.message)
+    } catch (err) {
+      console.error("Error al actualizar convenio:", err)
     }
   }
 
-  const usuarioActual = potencialesMatches[indiceActual]
+  const usuarioMatchActual = potencialesMatches[indiceActual]?.usuario
+
+  if (usuarioActual?.tipoUsuario === 3) {
+    return <p>No puedes hacer matches. Eres administrador.</p>
+  }
 
   return (
-    <div className="max-w-2xl mx-auto mb-20">
+    <div className="max-w-5xl mx-auto mb-20">
       <h1 className="text-2xl font-bold mb-6 text-center">Encuentra tu match perfecto</h1>
-
+  
       <div className="grid md:grid-cols-2 gap-6">
         {/* Sección de swipe */}
         <div className="card">
           <h2 className="text-xl font-semibold mb-4">Descubre</h2>
-
-          {potencialesMatches.length > 0 ? (
+  
+          {potencialesMatches.length > 0 && usuarioMatchActual ? (
             <div className="relative">
               <div className="rounded-lg overflow-hidden mb-4">
                 <Image
-                  src={usuarioActual.imagen || "/placeholder.svg"}
-                  alt={usuarioActual.nombre}
+                  src={usuarioMatchActual?.imagen || "/placeholder.svg"}
+                  alt={usuarioMatchActual?.nombre}
                   width={400}
                   height={400}
                   className="w-full h-64 object-cover"
                 />
               </div>
-
+  
               <div className="mb-4">
                 <div className="flex justify-between items-center mb-1">
-                  <h3 className="text-lg font-bold">{usuarioActual.nombre}</h3>
+                  <h3 className="text-lg font-bold">{usuarioMatchActual.nombre}</h3>
                   <div className="flex items-center text-gray-500 text-sm">
                     <MapPin size={14} className="mr-1" />
-                    {usuarioActual.ubicacion}
+                    {usuarioMatchActual.ubicacion}
                   </div>
                 </div>
-
-                <p className="text-sm text-gray-600 mb-3">{usuarioActual.descripcion}</p>
-
-                {usuarioActual.tipo === "aliado" ? (
+  
+                <p className="text-sm text-gray-600 mb-3">{usuarioMatchActual.descripcion}</p>
+  
+                {usuarioMatchActual.tipoUsuario === 2 ? (
                   <div>
                     <h4 className="font-semibold text-sm mb-1">Puede apoyar con:</h4>
                     <ul className="text-sm">
-                      {usuarioActual.apoyos.map((apoyo, index) => (
-                        <li
-                          key={index}
-                          className="inline-block bg-secondary-light text-white rounded-full px-3 py-1 text-xs mr-2 mb-2"
-                        >
+                      {usuarioMatchActual.apoyos?.map((apoyo, index) => (
+                        <li key={index} className="inline-block bg-secondary-light text-white rounded-full px-3 py-1 text-xs mr-2 mb-2">
                           {apoyo}
                         </li>
                       ))}
@@ -106,30 +137,21 @@ export default function MatchesPage() {
                   <div>
                     <h4 className="font-semibold text-sm mb-1">Necesidades:</h4>
                     <ul className="text-sm">
-                      {usuarioActual.necesidades.map((necesidad, index) => (
-                        <li
-                          key={index}
-                          className="inline-block bg-primary-light text-white rounded-full px-3 py-1 text-xs mr-2 mb-2"
-                        >
-                          {necesidad}
+                      {usuarioMatchActual.necesidades?.map((n, i) => (
+                        <li key={i} className="inline-block bg-primary-light text-white rounded-full px-3 py-1 text-xs mr-2 mb-2">
+                          {n}
                         </li>
                       ))}
                     </ul>
                   </div>
                 )}
               </div>
-
+  
               <div className="flex justify-center gap-2 mt-1 mb-4">
-                <button
-                  onClick={handleRechazar}
-                  className="bg-red-500 text-white rounded-full p-4 shadow-lg hover:bg-red-600"
-                >
+                <button onClick={handleRechazar} className="bg-red-500 text-white rounded-full p-4 shadow-lg hover:bg-red-600">
                   <X size={24} />
                 </button>
-                <button
-                  onClick={handleAceptar}
-                  className="bg-green-500 text-white rounded-full p-4 shadow-lg hover:bg-green-600"
-                >
+                <button onClick={handleAceptar} className="bg-green-500 text-white rounded-full p-4 shadow-lg hover:bg-green-600">
                   <Check size={24} />
                 </button>
               </div>
@@ -141,42 +163,91 @@ export default function MatchesPage() {
             </div>
           )}
         </div>
-
-        {/* Sección de matches actuales */}
-        <div className="card">
-          <h2 className="text-xl font-semibold mb-4">Tus matches</h2>
-
-          {matchesActuales.length > 0 ? (
-            <div className="space-y-4">
-              {matchesActuales.map((match) => (
-                <div key={match.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50">
-                  <Image
-                    src={match.imagen || "/placeholder.svg"}
-                    alt={match.nombre}
-                    width={60}
-                    height={60}
-                    className="rounded-full"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{match.nombre}</h3>
-                    <p className="text-sm text-gray-500">{match.tipo === "escuela" ? "Escuela" : "Aliado"}</p>
-                    <div className="flex mt-1">
-                      <button className="text-xs bg-primary text-white rounded-full px-3 py-1 mr-2">Mensaje</button>
-                      <button className="text-xs bg-gray-200 text-gray-700 rounded-full px-3 py-1">Ver perfil</button>
+  
+        {/* Columna derecha: Matches pendientes y aceptados */}
+        <div className="space-y-10">
+          {/* Sección de matches pendientes por aceptar */}
+          <div className="card">
+            <h2 className="text-xl font-semibold mb-4">Solicitudes recibidas</h2>
+  
+            {matchesActuales.filter(m => m.estadoProgreso === 0).length > 0 ? (
+              <div className="space-y-4">
+                {matchesActuales.filter(m => m.estadoProgreso === 0).map((match) => (
+                  <div key={match.convenioId} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50">
+                    <Image
+                      src={match.usuario.imagen || "/placeholder.svg"}
+                      alt={match.usuario.nombre}
+                      width={60}
+                      height={60}
+                      className="rounded-full"
+                    />
+                    <div className="flex-1">
+                      <h3 className="font-semibold">{match.usuario.nombre}</h3>
+                      <p className="text-sm text-gray-500">{match.usuario.tipoUsuario === 1 ? "Escuela" : "Aliado"}</p>
+                      <div className="flex mt-1">
+                        <button className="text-xs bg-primary text-white rounded-full px-3 py-1 mr-2">Mensaje</button>
+                        <button className="text-xs bg-gray-200 text-gray-700 rounded-full px-3 py-1">Ver perfil</button>
+                        <button
+                          className="ml-2 text-xs bg-green-500 text-white rounded-full px-3 py-1"
+                          onClick={() => actualizarEstadoConvenio(match.convenioId, 1)}
+                        >
+                          Aceptar
+                        </button>
+                        <button
+                          className="ml-1 text-xs bg-red-500 text-white rounded-full px-3 py-1"
+                          onClick={() => actualizarEstadoConvenio(match.convenioId, 2)}
+                        >
+                          Rechazar
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-500">Aún no tienes matches.</p>
-              <p className="text-sm text-gray-400 mt-2">¡Explora perfiles y encuentra colaboradores!</p>
-            </div>
-          )}
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">No tienes solicitudes pendientes.</p>
+              </div>
+            )}
+          </div>
+  
+          {/* Sección de matches aceptados */}
+          <div className="card">
+            <h2 className="text-xl font-semibold mb-4">Tus matches aceptados</h2>
+  
+            {matchesActuales.filter(m => m.estadoProgreso === 1).length > 0 ? (
+              <div className="space-y-4">
+                {matchesActuales.filter(m => m.estadoProgreso === 1).map((match) => (
+                  <div key={match.convenioId} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50">
+                    <Image
+                      src={match.usuario.imagen || "/placeholder.svg"}
+                      alt={match.usuario.nombre}
+                      width={60}
+                      height={60}
+                      className="rounded-full"
+                    />
+                    <div className="flex-1">
+                      <h3 className="font-semibold">{match.usuario.nombre}</h3>
+                      <p className="text-sm text-gray-500">{match.usuario.tipoUsuario === 1 ? "Escuela" : "Aliado"}</p>
+                      <div className="flex mt-1">
+                        <button className="text-xs bg-primary text-white rounded-full px-3 py-1 mr-2">Mensaje</button>
+                        <button className="text-xs bg-gray-200 text-gray-700 rounded-full px-3 py-1">Ver perfil</button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">Aún no tienes convenios aceptados.</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
   )
-}
+}  
+
+
 
