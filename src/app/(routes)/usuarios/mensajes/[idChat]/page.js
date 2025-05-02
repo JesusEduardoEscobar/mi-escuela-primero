@@ -2,18 +2,30 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { getUserRole } from '@/utils/UtilidadesAuth';
 import axios from 'axios';
 
 export default function ChatPage() {
-  const { idChat } = useParams(); // ← en App Router usamos useParams()
-  const idUsuario = 6; // ← reemplaza por el id real si ya tienes login
+  const { idChat } = useParams();
+  const [idUsuario, setIdUsuario] = useState(null); // ← ahora se obtiene dinámicamente
   const [mensajes, setMensajes] = useState([]);
   const [nuevoMensaje, setNuevoMensaje] = useState('');
   const [ultimoTimestamp, setUltimoTimestamp] = useState('2000-01-01 00:00:00');
 
+  // Obtener el id del usuario desde el token al montar el componente
+  useEffect(() => {
+    const userInfo = getUserRole();
+    if (userInfo && userInfo.id) {
+      setIdUsuario(userInfo.id);
+    } else {
+      console.error("No se pudo obtener el ID del usuario desde el token.");
+    }
+  }, []);
+
+  // Cargar mensajes cuando ya se tenga el id del chat
   useEffect(() => {
     if (!idChat) return;
-  
+
     const cargarMensajes = () => {
       axios.get(`http://localhost:1984/mensajes/${idChat}`)
         .then(res => {
@@ -23,17 +35,16 @@ export default function ChatPage() {
           console.error("Error al cargar mensajes:", err);
         });
     };
-  
+
     cargarMensajes(); // primera carga
-  
-    const interval = setInterval(cargarMensajes, 3000); // actualiza cada 3 segundos
-  
+
+    const interval = setInterval(cargarMensajes, 3000);
+
     return () => clearInterval(interval);
   }, [idChat]);
-  
 
   const enviarMensaje = async () => {
-    if (!nuevoMensaje.trim()) return;
+    if (!nuevoMensaje.trim() || !idUsuario) return;
 
     try {
       await axios.post('http://localhost:1984/enviarMensaje', {
