@@ -1,30 +1,9 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Heart, MoreHorizontal } from "lucide-react"
-import { publicaciones, usuariosAliados, usuariosEscuelas } from "@/data/dataUsuarios"
-import Link from 'next/link'
-
-// Función para transformar los datos
-const transformPosts = (publicaciones) => {
-  return publicaciones.map((pub) => {
-    // Busca el usuario en las listas de aliados y escuelas
-    const user = [...usuariosAliados, ...usuariosEscuelas].find((u) => u.id === pub.usuarioId);
-
-    return {
-      id: pub.id,
-      usuarioId: pub.usuarioId,
-      image: pub.imagenes[0], // Usa la primera imagen de la lista
-      caption: pub.descripcion, // Usa la descripción como caption
-      likes: pub.likes,
-      user: {
-        name: user?.nombre || "Usuario Desconocido", // Nombre del usuario
-        image: user?.imagen || "/placeholder.svg", // Imagen de perfil del usuario
-        tipo: user?.tipo || "escuela", // Tipo de usuario (aliado o escuela)
-      },
-    };
-  });
-};
+import { useState, useEffect } from "react";
+import { Heart, MoreHorizontal } from "lucide-react";
+import Link from "next/link";
+import { getDirectLink } from "@/utils/Links";
 
 // Componente Post
 function Post({ post }) {
@@ -34,19 +13,12 @@ function Post({ post }) {
     <div className="border rounded-lg bg-white overflow-hidden shadow-sm">
       {/* Header */}
       <div className="flex items-center justify-between p-5">
-        <Link href={`/usuarios/perfil/${post.usuarioId}`} className="flex items-center gap-2">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full overflow-hidden">
-              <img
-                src={post.user?.image || "/placeholder.svg"}
-                alt={post.user?.name || "Usuario"}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <h2 className="font-semibold text-sm">{post.user?.name || "Usuario"}</h2>
-            <p className="text-xs text-gray-500">{post.user.tipo === "escuela" ? "Escuela" : "Aliado"}</p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h2 className="font-semibold text-sm">{post.user.name}</h2>
+            <p className="text-xs text-gray-500">Evidencia de colaboración</p>
           </div>
-        </Link>
+        </div>
         <button className="p-1">
           <MoreHorizontal className="w-6 h-6" />
         </button>
@@ -54,37 +26,63 @@ function Post({ post }) {
 
       {/* Imagen del post */}
       <div>
-        <img 
-          src={post.image || "/placeholder.svg"} 
-          alt="Post" 
-          className="w-full aspect-square object-cover" 
+        <img
+          src={
+            getDirectLink(post.image)?.directLinkImage ||
+            "/https://imgs.search.brave.com/_jNap9jRRcWdeDWSBOEtwtQvPc8v6E7Vk6RskJHKvoA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTE2/NDgyMjE4OC92ZWN0/b3IvbWFsZS1hdmF0/YXItcHJvZmlsZS1w/aWN0dXJlLmpwZz9z/PTYxMng2MTImdz0w/Jms9MjAmYz1LUHNM/Z1ZJd0VHZER2ZjRf/a2l5bkNYdzk2cF9Q/aEJqSUdkVTY4cWtw/YnVJPQ"
+          } //t3.ftcdn.net/jpg/03/45/05/92/360_F_345059232_CPieT8RIWOUk4JqBkkWkIETYAkmz2b75.jpg"}
+          alt="Post"
+          className="w-full aspect-square object-cover"
         />
       </div>
 
       {/* Acciones */}
       <div className="flex justify-between p-5 pb-3">
         <div className="flex gap-5">
-          <button onClick={() => setIsLiked(!isLiked)} className={isLiked ? "text-red-500" : ""}>
-            <Heart className="w-7 h-7" fill={isLiked ? "currentColor" : "none"} />
+          <button
+            onClick={() => setIsLiked(!isLiked)}
+            className={isLiked ? "text-red-500" : ""}
+          >
+            <Heart
+              className="w-7 h-7"
+              fill={isLiked ? "currentColor" : "none"}
+            />
           </button>
         </div>
       </div>
 
-      {/* Likes, caption y comentarios */}
+      {/* Descripción */}
       <div className="px-5 pb-3">
-        <p className="font-semibold text-base">{post.likes ? post.likes.toLocaleString() : "0"} Me gusta</p>
         <p className="text-base my-1">
-          <span className="font-semibold">{post.user?.name || "Usuario"}</span> {post.caption}
+          <span className="font-semibold">{post.user.name}</span> {post.caption}
         </p>
       </div>
     </div>
   );
 }
 
-// Página PaginaPrincipal
 export default function PaginaPrincipal() {
-  // Transforma los datos de publicaciones
-  const posts = transformPosts(publicaciones)
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:1984/api/verEvidencias")
+      .then((res) => res.json())
+      .then((data) => {
+        const transformed = data.evidencias.map((ev) => ({
+          id: ev.id,
+          image: ev.foto,
+          caption: ev.descripcion,
+          user: {
+            name: `${ev.nombre_aliado} 🤝 ${ev.institucion_escuela}`,
+            image: "/placeholder.svg", // ← Opcional: si tienes imagen del aliado, ponla aquí
+          },
+        }));
+        setPosts(transformed);
+      })
+      .catch((error) => {
+        console.error("❌ Error al cargar evidencias:", error);
+      });
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
