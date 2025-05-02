@@ -16,6 +16,7 @@ setEnviarDatos(app)
 setValidarSesion(app)
 setUsuariosAdmin(app)
 setLlamarUsuario(app)
+setMatches(app)
 mensajes(app)
 
 app.use(express.json());
