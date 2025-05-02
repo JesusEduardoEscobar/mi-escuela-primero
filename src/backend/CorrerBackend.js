@@ -34,11 +34,12 @@ setEnviarDatos(app);
 setValidarSesion(app);
 setUsuariosAdmin(app);
 setLlamarUsuario(app);
-setMatches(app); // Add the missing function call
+setMatches(app);
 mensajes(app);
 infoUsers(app);
 actualizarEstado(app);
 todasSolicitudes(app);
+verEvidencias(app);
 eliminarSolicitud(app);
 setEvidencias(app);
 setCreateEvidences(app);
