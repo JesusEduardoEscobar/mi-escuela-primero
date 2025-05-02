@@ -7,6 +7,7 @@ import { setLlamarUsuario } from './Llamar-usuarios.js'
 import { setPerfil } from './Pefil.js'
 import { setupRoutes } from './Solicitudes.js'
 import { setMatches } from './Matches.js'
+import mensajes from './Mensajeria.js'
 
 const app = express()
 setupRoutes(app)
@@ -15,6 +16,7 @@ setEnviarDatos(app)
 setValidarSesion(app)
 setUsuariosAdmin(app)
 setLlamarUsuario(app)
+mensajes(app)
 
 app.use(express.json());
 
