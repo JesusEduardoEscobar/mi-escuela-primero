@@ -2,10 +2,26 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
+import { getUserRole } from "../utils/UtilidadesAuth"; // Ajusta la ruta si es necesario
 
 export default function NuevaSolicitudModal({ onClose, onSubmit }) {
   const [descripcion, setDescripcion] = useState("");
   const [categoria, setCategoria] = useState("");
+
+  // Obtiene tipoUsuario e idUsuario desde el JWT en localStorage
+  const userRole = getUserRole() || {};
+  const { tipoUsuario, id: usuarioId } = userRole;
+
+  // Para probar manualmente sin login:
+  // const tipoUsuario = 2;  // 1 = escuela, 2 = aliado
+  // const usuarioId    = 25; // Pon aquí un ID válido para tu DB
+
+  console.log(
+    "PRUEBA ⛔⛔⛔ - Tipo de usuario:",
+    tipoUsuario,
+    "- ID de usuario:",
+    usuarioId
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,38 +36,49 @@ export default function NuevaSolicitudModal({ onClose, onSubmit }) {
       return;
     }
 
-    const solicitudPayload = {
-      descripcion,
-      prioridad: "MEDIA",
-      documentacion: "Document",
-      id_Escuela: 3,
-      id_Apoyo: parseInt(categoria), // Ya es valor numérico
-      fecha: new Date().toISOString().split("T")[0], // YYYY-MM-DD
-    };
+   // Payload y endpoint según tipo de usuario
+    let endpoint, payload;
+    if (tipoUsuario === 1) {
+      endpoint = "/api/crearSolicitud";
+      payload = {
+        descripcion,
+        prioridad: "MEDIA",
+        documentacion: "Document",
+        id_Escuela: usuarioId,
+        id_Apoyo: parseInt(categoria),
+        fecha: new Date().toISOString().split("T")[0],
+      };
+    } else {
+      endpoint = "/api/crearOferta";
+      payload = {
+        descripcion,
+        id_Apoyo: parseInt(categoria),
+        id_Aliado: usuarioId,
+        fecha: new Date().toISOString().split("T")[0],
+      };
+    }
 
     try {
-      const response = await fetch("http://localhost:1984/api/crearSolicitud", {
+      const response = await fetch(`http://localhost:1984${endpoint}`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(solicitudPayload),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
-        alert("Solicitud enviada con éxito");
-        const result = await response.json();
-
-        onSubmit({
-          ...solicitudPayload,
-          estado: "pendiente",
-          aliados: [],
-          id: Date.now(), // Simulación
-        });
-
+        alert(
+          tipoUsuario === 1
+            ? "Solicitud enviada con éxito"
+            : "Oferta enviada con éxito"
+        );
+        onSubmit({ ...payload, id: Date.now(), estado: "pendiente" });
         onClose();
       } else {
-        alert("Error al crear la solicitud");
+        alert(
+          tipoUsuario === 1
+            ? "Error al crear la solicitud"
+            : "Error al crear la oferta"
+        );
       }
     } catch (error) {
       console.error("Error de red:", error);
@@ -63,7 +90,9 @@ export default function NuevaSolicitudModal({ onClose, onSubmit }) {
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-lg">
         <div className="flex justify-between items-center p-4 border-b">
-          <h2 className="text-xl font-bold">Nueva solicitud</h2>
+          <h2 className="text-xl font-bold">
+            {tipoUsuario === 1 ? "Nueva solicitud" : "Nueva oferta"}
+          </h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
@@ -74,14 +103,10 @@ export default function NuevaSolicitudModal({ onClose, onSubmit }) {
 
         <form onSubmit={handleSubmit} className="p-4">
           <div className="mb-4">
-            <label
-              htmlFor="descripcion"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Descripción detallada *
             </label>
             <textarea
-              id="descripcion"
               rows={4}
               className="w-full border rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-primary"
               placeholder="Describe tu necesidad, objetivos y resultados esperados..."
@@ -92,14 +117,10 @@ export default function NuevaSolicitudModal({ onClose, onSubmit }) {
           </div>
 
           <div className="mb-6">
-            <label
-              htmlFor="categoria"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Categoría
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Categoría *
             </label>
             <select
-              id="categoria"
               className="w-full border rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-primary"
               value={categoria}
               onChange={(e) => setCategoria(e.target.value)}
@@ -128,7 +149,7 @@ export default function NuevaSolicitudModal({ onClose, onSubmit }) {
               Cancelar
             </button>
             <button type="submit" className="btn-primary">
-              Crear solicitud
+              {tipoUsuario === 1 ? "Crear solicitud" : "Crear oferta"}
             </button>
           </div>
         </form>
