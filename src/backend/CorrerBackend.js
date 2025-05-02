@@ -26,13 +26,13 @@ app.use(
       credentials: true,               
     })
   )
-
+/*
 setEnviarDatos(app);
 setValidarSesion(app);
 setUsuariosAdmin(app);
 setLlamarUsuarios(app);
 setMatches(app);
-
+*/
 app.listen(1984, () => {
     console.log("Archivos ejecutados correctamente en el puerto 1984")
     console.log("http://localhost:1984")
