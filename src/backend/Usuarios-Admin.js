@@ -2,9 +2,7 @@ import cors from "cors";
 import express from "express";
 import { conectar } from "./BaseDeDatos.js";
 
-<<<<<<< Updated upstream
-const app = express()
-
+export function setUsuariosAdmin(app) {
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -12,16 +10,6 @@ app.use(
   }),
 )
 app.use(express.json())
-=======
-export function setUsuariosAdmin(app) {
-  app.use(
-    cors({
-      origin: "http://localhost:3000",
-      credentials: true,
-    })
-  );
-  app.use(express.json());
->>>>>>> Stashed changes
 
   // Ruta para obtener las solicitudes
   app.get("/api/admin/solicitudes", (req, res) => {
@@ -104,7 +92,6 @@ export function setUsuariosAdmin(app) {
     });
   });
 
-<<<<<<< Updated upstream
 app.get("/api/usuarios/escuelas", (res, req) => {
   const conectar = conectar()
   const consulta = "SELECT * FROM usuairos WHERE tipoUsuario = 1 AND estado = 1"
@@ -113,7 +100,7 @@ app.get("/api/usuarios/escuelas", (res, req) => {
     if(err) return res.status(500).json({ message: "Error al obtener aliados" })
   })
 })
-=======
+  
   app.get("/api/usuarios/escuelas", (res, req) => {
     const conectar = conectar();
     const consulta =
@@ -125,4 +112,3 @@ app.get("/api/usuarios/escuelas", (res, req) => {
     });
   });
 }
->>>>>>> Stashed changes

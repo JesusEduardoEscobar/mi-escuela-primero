@@ -1,13 +1,12 @@
-"use client"
+"use client";
 
 import { useState } from "react";
 import { X } from "lucide-react";
 import { getUserRole } from "../utils/UtilidadesAuth"; // Ajusta la ruta si es necesario
 
 export default function NuevaSolicitudModal({ onClose, onSubmit }) {
-  const [titulo, setTitulo] = useState("")
-  const [descripcion, setDescripcion] = useState("")
-  const [categoria, setCategoria] = useState("")
+  const [descripcion, setDescripcion] = useState("");
+  const [categoria, setCategoria] = useState("");
 
   // Obtiene tipoUsuario e idUsuario desde el JWT en localStorage
   const userRole = getUserRole() || {};
@@ -37,7 +36,7 @@ export default function NuevaSolicitudModal({ onClose, onSubmit }) {
       return;
     }
 
-    // Payload y endpoint según tipo de usuario
+   // Payload y endpoint según tipo de usuario
     let endpoint, payload;
     if (tipoUsuario === 1) {
       endpoint = "/api/crearSolicitud";
@@ -90,7 +89,6 @@ export default function NuevaSolicitudModal({ onClose, onSubmit }) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-lg">
-        {/* Header */}
         <div className="flex justify-between items-center p-4 border-b">
           <h2 className="text-xl font-bold">
             {tipoUsuario === 1 ? "Nueva solicitud" : "Nueva oferta"}
@@ -103,7 +101,6 @@ export default function NuevaSolicitudModal({ onClose, onSubmit }) {
           </button>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="p-4">
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -127,14 +124,19 @@ export default function NuevaSolicitudModal({ onClose, onSubmit }) {
               className="w-full border rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-primary"
               value={categoria}
               onChange={(e) => setCategoria(e.target.value)}
+              required
             >
               <option value="">Selecciona una categoría</option>
-              <option value="infraestructura">Infraestructura</option>
-              <option value="material_didactico">Material didáctico</option>
-              <option value="capacitacion">Capacitación</option>
-              <option value="tecnologia">Tecnología</option>
-              <option value="eventos">Eventos</option>
-              <option value="otro">Otro</option>
+              <option value="1">Formación docente</option>
+              <option value="2">Formación a familias</option>
+              <option value="3">Formación niñas y niños</option>
+              <option value="4">Personal de apoyo</option>
+              <option value="5">Infraestructura</option>
+              <option value="6">Materiales</option>
+              <option value="7">Mobiliario</option>
+              <option value="8">Alimentación</option>
+              <option value="9">Transporte</option>
+              <option value="10">Jurídico</option>
             </select>
           </div>
 
@@ -153,6 +155,5 @@ export default function NuevaSolicitudModal({ onClose, onSubmit }) {
         </form>
       </div>
     </div>
-  )
+  );
 }
-

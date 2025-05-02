@@ -1,10 +1,17 @@
 "use client"
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { X, Clock, CheckCircle, AlertCircle } from "lucide-react"
+import { X, Clock, CheckCircle, AlertCircle, Save, Edit2 } from "lucide-react"
 import { usuarios } from "@/data/dataUsuarios"
 
-export default function SolicitudModal({ solicitud, onClose }) {
+export default function SolicitudModal({ solicitud, onClose, onUpdateSolicitud }) {
+  // Estados para manejar la edición del estado
+  const [editandoEstado, setEditandoEstado] = useState(false)
+  const [nuevoEstado, setNuevoEstado] = useState(solicitud ? solicitud.estado : "pendiente")
+  const [guardando, setGuardando] = useState(false)
+  const [mensajeExito, setMensajeExito] = useState("")
+
   if (!solicitud) return null
 
   // Obtener información de los aliados
@@ -28,6 +35,42 @@ export default function SolicitudModal({ solicitud, onClose }) {
     },
   }
 
+  // Función para manejar el cambio de estado
+  const handleCambiarEstado = () => {
+    setEditandoEstado(true)
+  }
+
+  // Función para guardar el nuevo estado
+  const handleGuardarEstado = () => {
+    setGuardando(true)
+
+    // Simulamos una llamada a la API
+    setTimeout(() => {
+      // Aquí iría la lógica para actualizar el estado en la base de datos
+      if (onUpdateSolicitud) {
+        onUpdateSolicitud({
+          ...solicitud,
+          estado: nuevoEstado,
+        })
+      }
+
+      setGuardando(false)
+      setEditandoEstado(false)
+      setMensajeExito("¡Estado actualizado correctamente!")
+
+      // Ocultar el mensaje después de 3 segundos
+      setTimeout(() => {
+        setMensajeExito("")
+      }, 3000)
+    }, 800) // Simulamos un retraso de 800ms para la llamada a la API
+  }
+
+  // Función para cancelar la edición
+  const handleCancelarEdicion = () => {
+    setNuevoEstado(solicitud.estado)
+    setEditandoEstado(false)
+  }
+
   const { color, icon } = estadoInfo[solicitud.estado] || estadoInfo["pendiente"]
 
   return (
@@ -43,18 +86,72 @@ export default function SolicitudModal({ solicitud, onClose }) {
 
         {/* Content */}
         <div className="p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <div className={`px-3 py-1 rounded-full text-sm flex items-center gap-1 ${color}`}>
-              {icon}
-              <span>
-                {solicitud.estado === "pendiente"
-                  ? "Pendiente"
-                  : solicitud.estado === "en proceso"
-                    ? "En proceso"
-                    : "Completada"}
-              </span>
+          {/* Estado con opción para editar */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              {!editandoEstado ? (
+                <>
+                  <div className={`px-3 py-1 rounded-full text-sm flex items-center gap-1 ${color}`}>
+                    {icon}
+                    <span>
+                      {solicitud.estado === "pendiente"
+                        ? "Pendiente"
+                        : solicitud.estado === "en proceso"
+                          ? "En proceso"
+                          : "Completada"}
+                    </span>
+                  </div>
+                  <button
+                    onClick={handleCambiarEstado}
+                    className="ml-2 text-gray-500 hover:text-blue-600 flex items-center gap-1 text-sm"
+                  >
+                    <Edit2 size={14} />
+                    <span>Cambiar</span>
+                  </button>
+                </>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <select
+                    value={nuevoEstado}
+                    onChange={(e) => setNuevoEstado(e.target.value)}
+                    className="border rounded-md px-3 py-1 text-sm"
+                  >
+                    <option value="pendiente">Pendiente</option>
+                    <option value="en proceso">En proceso</option>
+                    <option value="terminada">Completada</option>
+                  </select>
+                  <button
+                    onClick={handleGuardarEstado}
+                    disabled={guardando}
+                    className={`px-3 py-1 rounded-md text-sm bg-green-500 text-white hover:bg-green-600 flex items-center gap-1 ${
+                      guardando ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                  >
+                    {guardando ? (
+                      <span className="inline-block animate-spin rounded-full h-3 w-3 border-t-2 border-white"></span>
+                    ) : (
+                      <Save size={14} />
+                    )}
+                    <span>{guardando ? "Guardando..." : "Guardar"}</span>
+                  </button>
+                  <button
+                    onClick={handleCancelarEdicion}
+                    className="px-3 py-1 rounded-md text-sm bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              )}
             </div>
           </div>
+
+          {/* Mensaje de éxito */}
+          {mensajeExito && (
+            <div className="mb-4 p-2 bg-green-100 text-green-800 rounded-md flex items-center gap-2">
+              <CheckCircle size={16} />
+              {mensajeExito}
+            </div>
+          )}
 
           <div className="mb-4">
             <h3 className="font-semibold mb-2">Descripción</h3>
@@ -72,7 +169,7 @@ export default function SolicitudModal({ solicitud, onClose }) {
                     className="flex items-center gap-3 p-2 border rounded-lg hover:bg-gray-50"
                   >
                     <Image
-                      src={aliado.imagen || "/placeholder.svg"}
+                      src={aliado.imagen || "/placeholder.svg?height=40&width=40"}
                       alt={aliado.nombre}
                       width={40}
                       height={40}
@@ -99,7 +196,9 @@ export default function SolicitudModal({ solicitud, onClose }) {
           <div className="flex flex-wrap gap-2 mt-6">
             {solicitud.estado === "pendiente" && (
               <>
-                <button className="btn-primary">Editar solicitud</button>
+                <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                  Editar solicitud
+                </button>
                 <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
                   Cancelar solicitud
                 </button>
@@ -108,16 +207,23 @@ export default function SolicitudModal({ solicitud, onClose }) {
 
             {solicitud.estado === "en proceso" && (
               <>
-                <button className="btn-primary">Ver progreso</button>
-                <button className="btn-secondary">Contactar aliados</button>
+                <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                  Ver progreso
+                </button>
+                <button className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+                  Contactar aliados
+                </button>
               </>
             )}
 
-            {solicitud.estado === "terminada" && <button className="btn-primary">Ver reporte final</button>}
+            {solicitud.estado === "terminada" && (
+              <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                Ver reporte final
+              </button>
+            )}
           </div>
         </div>
       </div>
     </div>
   )
 }
-

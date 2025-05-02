@@ -80,7 +80,7 @@ export async function POST(request) {
     const datosActualizados = {
       nombre,
       correo,
-    };
+    }
 
     // Procesar la imagen si se proporcionó una nueva
     if (imagenFile && imagenFile.size > 0) {
@@ -114,6 +114,7 @@ export async function POST(request) {
       userId,
       datosActualizados
     );
+
     return NextResponse.json({
       success: true,
       message: "Perfil actualizado correctamente",
@@ -134,10 +135,10 @@ async function actualizarUsuarioEnBaseDeDatos(userId, datos) {
   // Aquí iría tu código para actualizar el usuario en la base de datos
   console.log(`Actualizando usuario ${userId} con datos:`, datos);
 
+
   // Simulamos una respuesta exitosa
   return {
     id: userId,
     ...datos,
     updatedAt: new Date().toISOString(),
-  };
-}
+  }
