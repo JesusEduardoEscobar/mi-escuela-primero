@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { getUserRole } from "@/utils/UtilidadesAuth";
-import { getDirectLink } from "@/utils/Links";
+import { getUserRole } from "@/utils/UtilidadesAuth"
+import { getDirectLink } from "@/utils/Links"
 import { Check, X, MapPin } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 const API_URL = "http://localhost:1984"
 
@@ -13,35 +14,25 @@ export default function MatchesPage() {
   const [matchesActuales, setMatchesActuales] = useState([])
   const [indiceActual, setIndiceActual] = useState(0)
   const [usuarioActual, setUsuarioActual] = useState(null)
-
-  useEffect(() => {
-    const rol = getUserRole()
-    if (rol) {
-      setUsuarioActual(rol)
-    }
-  }, [])
+  const router = useRouter()
 
   useEffect(() => {
     const fetchData = async () => {
       const rol = getUserRole()
       if (!rol) return
-  
+
       try {
         const resUsuarios = await fetch(`${API_URL}/api/usuarios`)
         const dataUsuarios = await resUsuarios.json()
+
         const fetchedUsuario = dataUsuarios.find((u) => u.id === rol.id)
         if (!fetchedUsuario) return console.error("Usuario no encontrado")
-  
-        if (fetchedUsuario.tipoUsuario === 3) return setUsuarioActual(fetchedUsuario)
-  
         setUsuarioActual(fetchedUsuario)
-  
-        // Obtener matches actuales
+
         const resMatches = await fetch(`${API_URL}/api/convenios/usuario/${fetchedUsuario.id}`)
         const dataMatches = await resMatches.json()
         setMatchesActuales(dataMatches)
-  
-        // Obtener posibles matches
+
         const resPotenciales = await fetch(`${API_URL}/api/matches-potenciales/${fetchedUsuario.id}`)
         const posibles = await resPotenciales.json()
         setPotencialesMatches(posibles)
@@ -49,12 +40,14 @@ export default function MatchesPage() {
         console.error("Error cargando datos:", error)
       }
     }
-  
+
     fetchData()
   }, [])
-  
+
   const handleAceptar = async () => {
     const match = potencialesMatches[indiceActual]
+    if (!match || !usuarioActual) return
+
     try {
       await fetch(`${API_URL}/api/convenios`, {
         method: "POST",
@@ -79,6 +72,7 @@ export default function MatchesPage() {
   }
 
   const actualizarEstadoConvenio = async (convenioId, estado) => {
+    if (!usuarioActual) return
     try {
       const res = await fetch(`${API_URL}/api/convenios/${convenioId}/estado`, {
         method: "PUT",
@@ -95,14 +89,19 @@ export default function MatchesPage() {
     }
   }
 
-
+  // Si el usuario es admin
   if (usuarioActual?.tipoUsuario === 3) {
-    return <p>No puedes hacer matches. Eres administrador.</p>
+    return (
+      <div className="max-w-3xl mx-auto text-center py-20 text-gray-600">
+        <h1 className="text-2xl font-bold mb-4">Vista no disponible para administradores</h1>
+        <p>Los administradores no pueden hacer matches. Utiliza otra cuenta para acceder a esta funcionalidad.</p>
+      </div>
+    )
   }
 
-  const matchActual = potencialesMatches[indiceActual];
-  const usuarioMatchActual = matchActual?.usuario;
-  const apoyos = matchActual?.apoyos ?? [];
+  const matchActual = potencialesMatches[indiceActual]
+  const usuarioMatchActual = matchActual?.usuario
+  const apoyos = matchActual?.apoyos ?? []
   const matchImage =
   usuarioMatchActual?.foto
   ? getDirectLink(usuarioMatchActual.foto)?.directLinkImage || "/file.svg"
@@ -206,7 +205,6 @@ export default function MatchesPage() {
                       <h3 className="font-semibold text-gray-800">{match.usuario.nombre}</h3>
                       <p className="text-sm text-gray-500">{match.usuario.tipoUsuario === 1 ? "Escuela" : "Aliado"}</p>
                       <div className="flex flex-wrap gap-2 mt-2">
-                        <button className="text-xs bg-blue-600 text-white rounded-full px-3 py-1 hover:bg-blue-700 transition">Mensaje</button>
                         <button className="text-xs bg-gray-200 text-gray-800 rounded-full px-3 py-1 hover:bg-gray-300 transition">Ver perfil</button>
                         <button
                           onClick={() => actualizarEstadoConvenio(match.convenioId, 1)}
@@ -254,7 +252,8 @@ export default function MatchesPage() {
                       <h3 className="font-semibold text-gray-800">{match.usuario.nombre}</h3>
                       <p className="text-sm text-gray-500">{match.usuario.tipoUsuario === 1 ? "Escuela" : "Aliado"}</p>
                       <div className="flex flex-wrap gap-2 mt-2">
-                        <button className="text-xs bg-blue-600 text-white rounded-full px-3 py-1 hover:bg-blue-700 transition">Mensaje</button>
+                        <button onClick={() => router.push(`mensajes/${match.chatId}`)}
+                        className="text-xs bg-blue-600 text-white rounded-full px-3 py-1 hover:bg-blue-700 transition">Mensaje</button>
                         <button className="text-xs bg-gray-200 text-gray-800 rounded-full px-3 py-1 hover:bg-gray-300 transition">Ver perfil</button>
                       </div>
                     </div>
