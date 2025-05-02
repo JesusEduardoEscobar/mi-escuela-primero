@@ -1,26 +1,39 @@
-"use client"
-import { useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { X, Clock, CheckCircle, AlertCircle, Save, Edit2 } from "lucide-react"
-import { usuarios } from "@/data/dataUsuarios"
+"use client";
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { X, Clock, CheckCircle, AlertCircle, Save, Edit2 } from "lucide-react";
+import { usuarios } from "@/data/dataUsuarios";
+import { realDataUsuarios } from "@/data/realDataUsuarios";
 
-export default function SolicitudModal({ solicitud, onClose, onUpdateSolicitud }) {
+export default function SolicitudModal({
+  solicitud,
+  onClose,
+  onUpdateSolicitud,
+}) {
   // Estados para manejar la edición del estado
-  const [editandoEstado, setEditandoEstado] = useState(false)
-  const [nuevoEstado, setNuevoEstado] = useState(solicitud ? solicitud.estado : "pendiente")
-  const [guardando, setGuardando] = useState(false)
-  const [mensajeExito, setMensajeExito] = useState("")
+  const [editandoEstado, setEditandoEstado] = useState(false);
+  const [nuevoEstado, setNuevoEstado] = useState(
+    solicitud ? solicitud.estado : "pendiente"
+  );
+  const [guardando, setGuardando] = useState(false);
+  const [mensajeExito, setMensajeExito] = useState("");
 
-  if (!solicitud) return null
+  if (!solicitud) return null;
 
   // Obtener información de los aliados
   const aliados = solicitud.aliados
-    ? solicitud.aliados.map((id) => usuarios.find((u) => u.id === id)).filter(Boolean)
-    : []
+    ? solicitud.aliados
+        .map((id) => realDataUsuarios[0].find((u) => u.id === id))
+        .filter(Boolean)
+    : [];
 
   // Determinar el estado y su color/icono
   const estadoInfo = {
+    "en revisión": {
+      color: "bg-red-100 text-red-800 border-red-200",
+      icon: <AlertCircle size={16} className="text-red-500" />,
+    },
     pendiente: {
       color: "bg-yellow-100 text-yellow-800 border-yellow-200",
       icon: <AlertCircle size={16} className="text-yellow-500" />,
@@ -33,81 +46,132 @@ export default function SolicitudModal({ solicitud, onClose, onUpdateSolicitud }
       color: "bg-green-100 text-green-800 border-green-200",
       icon: <CheckCircle size={16} className="text-green-500" />,
     },
-  }
+  };
 
   // Función para manejar el cambio de estado
   const handleCambiarEstado = () => {
-    setEditandoEstado(true)
-  }
+    setEditandoEstado(true);
+  };
 
   // Función para guardar el nuevo estado
-  const handleGuardarEstado = () => {
-    setGuardando(true)
+  const handleGuardarEstado = async () => {
+    setGuardando(true);
+    setMensajeExito("");
 
-    // Simulamos una llamada a la API
-    setTimeout(() => {
-      // Aquí iría la lógica para actualizar el estado en la base de datos
+    const estadoNumerico = {
+      pendiente: 1,
+      "en proceso": 2,
+      terminada: 3,
+    }[nuevoEstado];
+
+    console.log(
+      "Estado numérico nuevo:",
+      estadoNumerico,
+      nuevoEstado,
+      "estado",
+      solicitud.estado,
+      "ID",
+      solicitud.id,
+      "tabla",
+      solicitud.TABLE
+    );
+
+    try {
+      const response = await fetch(
+        "http://localhost:1984/api/actualizarEstadoSolicitud",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: solicitud.id,
+            tabla: solicitud.TABLE,
+            estado: estadoNumerico,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Error al actualizar estado");
+      }
+
+      // Actualiza el estado en el frontend también
       if (onUpdateSolicitud) {
         onUpdateSolicitud({
           ...solicitud,
           estado: nuevoEstado,
-        })
+        });
       }
 
-      setGuardando(false)
-      setEditandoEstado(false)
-      setMensajeExito("¡Estado actualizado correctamente!")
+      setGuardando(false);
+      setEditandoEstado(false);
+      setMensajeExito("¡Estado actualizado correctamente!");
 
-      // Ocultar el mensaje después de 3 segundos
       setTimeout(() => {
-        setMensajeExito("")
-      }, 3000)
-    }, 800) // Simulamos un retraso de 800ms para la llamada a la API
-  }
+        setMensajeExito("");
+      }, 3000);
+    } catch (error) {
+      console.error("Error actualizando estado:", error);
+      setGuardando(false);
+      alert("No se pudo actualizar el estado.");
+    }
+  };
 
   // Función para cancelar la edición
   const handleCancelarEdicion = () => {
-    setNuevoEstado(solicitud.estado)
-    setEditandoEstado(false)
-  }
+    setNuevoEstado(solicitud.estado);
+    setEditandoEstado(false);
+  };
 
-  const { color, icon } = estadoInfo[solicitud.estado] || estadoInfo["pendiente"]
+  const { color, icon } =
+    estadoInfo[solicitud.estado] || estadoInfo["pendiente"];
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center p-4 border-b">
-          <h2 className="text-xl font-bold">{solicitud.titulo}</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+          <h2 className="text-xl font-bold">{solicitud.tipoApoyo}</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+          >
             <X size={24} />
           </button>
         </div>
 
         {/* Content */}
         <div className="p-4">
-          {/* Estado con opción para editar */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               {!editandoEstado ? (
                 <>
-                  <div className={`px-3 py-1 rounded-full text-sm flex items-center gap-1 ${color}`}>
+                  <div
+                    className={`px-3 py-1 rounded-full text-sm flex items-center gap-1 ${color}`}
+                  >
                     {icon}
                     <span>
-                      {solicitud.estado === "pendiente"
+                      {solicitud.estado === "en revisión"
+                        ? "En Revisión"
+                        : solicitud.estado === "pendiente"
                         ? "Pendiente"
                         : solicitud.estado === "en proceso"
-                          ? "En proceso"
-                          : "Completada"}
+                        ? "En Proceso"
+                        : "Completada"}
                     </span>
                   </div>
-                  <button
-                    onClick={handleCambiarEstado}
-                    className="ml-2 text-gray-500 hover:text-blue-600 flex items-center gap-1 text-sm"
-                  >
-                    <Edit2 size={14} />
-                    <span>Cambiar</span>
-                  </button>
+                  {solicitud.estado !== "en revisión" && (
+                    <button
+                      onClick={handleCambiarEstado}
+                      className="ml-2 text-gray-500 hover:text-blue-600 flex items-center gap-1 text-sm"
+                    >
+                      <Edit2 size={14} />
+                      <span>Cambiar</span>
+                    </button>
+                  )}
                 </>
               ) : (
                 <div className="flex items-center gap-2">
@@ -118,7 +182,7 @@ export default function SolicitudModal({ solicitud, onClose, onUpdateSolicitud }
                   >
                     <option value="pendiente">Pendiente</option>
                     <option value="en proceso">En proceso</option>
-                    <option value="terminada">Completada</option>
+                    <option value="terminada">Terminada</option>
                   </select>
                   <button
                     onClick={handleGuardarEstado}
@@ -169,7 +233,9 @@ export default function SolicitudModal({ solicitud, onClose, onUpdateSolicitud }
                     className="flex items-center gap-3 p-2 border rounded-lg hover:bg-gray-50"
                   >
                     <Image
-                      src={aliado.imagen || "/placeholder.svg?height=40&width=40"}
+                      src={
+                        aliado.imagen || "/placeholder.svg?height=40&width=40"
+                      }
                       alt={aliado.nombre}
                       width={40}
                       height={40}
@@ -225,5 +291,5 @@ export default function SolicitudModal({ solicitud, onClose, onUpdateSolicitud }
         </div>
       </div>
     </div>
-  )
+  );
 }

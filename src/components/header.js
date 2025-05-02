@@ -38,6 +38,7 @@ export default function Header() {
   const handleCerrarSesion = async () => {
     await logout(router)
     setMenuAbierto(false)
+    router.refresh()
   }
 
   // Función para abrir el modal de eliminar cuenta

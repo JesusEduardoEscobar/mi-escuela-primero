@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 
 export default function LoginPage() {
+
   // Carousel state
   const [currentImage, setCurrentImage] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
