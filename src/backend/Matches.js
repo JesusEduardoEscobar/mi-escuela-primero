@@ -219,7 +219,7 @@ app.get('/api/matches-potenciales/:usuarioId', (req, res) => {
         // Aliado busca escuelas
         query = `
           SELECT u.id, u.nombre, u.tipoUsuario, e.foto, e.calle, e.colonia, e.cp,
-                 GROUP_CONCAT(DISTINCT ta.categoriaApoyo) AS necesidades
+                 GROUP_CONCAT(DISTINCT ta.categoriaApoyo) AS apoyos
           FROM usuario u
           JOIN escuela e ON u.id = e.id_Usuario
           JOIN perfilnecesidad pn ON pn.id_Escuela = e.id_Usuario
@@ -262,6 +262,7 @@ app.get('/api/matches-potenciales/:usuarioId', (req, res) => {
       });
     });
   });
+  
 
 //VER SOLICITUDES DE MATCHES (EN ESTADO 0/PENDIENTES DE APROBAR) NO EXTRAE IMAGENES PARA MOSTRAR TODAVIA!
 app.get('/api/solicitudes/:idUsuario', (req, res) => {
