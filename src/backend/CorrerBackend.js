@@ -5,6 +5,7 @@ import { setUsuariosAdmin } from './Usuarios-Admin.js'
 import { setLlamarUsuario } from './Llamar-usuarios.js'
 import { setPerfil } from './Pefil.js'
 import { setupRoutes } from './Solicitudes.js'
+import mensajes from './Mensajeria.js'
 
 const app = express()
 setupRoutes(app)
@@ -13,6 +14,7 @@ setEnviarDatos(app)
 setValidarSesion(app)
 setUsuariosAdmin(app)
 setLlamarUsuario(app)
+mensajes(app)
 
 app.listen(1984, () => {
     console.log("Archivos ejecutados correctamente en el puerto 1984")
