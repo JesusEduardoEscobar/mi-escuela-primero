@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { Check, X, MapPin } from "lucide-react"
+
+import { Check, X, MapPin, Bell, MessageCircle } from "lucide-react"
 
 const API_URL = "http://localhost:1984"
 const USUARIO_ACTUAL_ID = 25 // simulado
@@ -10,6 +11,7 @@ const USUARIO_ACTUAL_ID = 25 // simulado
 export default function MatchesPage() {
   const [potencialesMatches, setPotencialesMatches] = useState([])
   const [matchesActuales, setMatchesActuales] = useState([])
+  const [solicitudesPendientes, setSolicitudesPendientes] = useState([])
   const [indiceActual, setIndiceActual] = useState(0)
   const [usuarioActual, setUsuarioActual] = useState(null)
 
@@ -96,9 +98,8 @@ export default function MatchesPage() {
   
       <div className="grid md:grid-cols-2 gap-6">
         {/* Sección de swipe */}
-        <div className="card">
+        <div className="card bg-white p-4 rounded-lg shadow">
           <h2 className="text-xl font-semibold mb-4">Descubre</h2>
-  
           {potencialesMatches.length > 0 && usuarioMatchActual ? (
             <div className="relative">
               <div className="rounded-lg overflow-hidden mb-4">
@@ -163,7 +164,7 @@ export default function MatchesPage() {
             </div>
           )}
         </div>
-  
+
         {/* Columna derecha: Matches pendientes y aceptados */}
         <div className="space-y-10">
           {/* Sección de matches pendientes por aceptar */}
@@ -248,6 +249,4 @@ export default function MatchesPage() {
     </div>
   )
 }  
-
-
 

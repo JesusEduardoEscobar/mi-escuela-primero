@@ -1,15 +1,23 @@
-import jwt from 'jsonwebtoken';
+// src/utils/UtilidadesAuth.js
+import jwt from "jsonwebtoken";
+
+const SECRET_KEY = process.env.SECRET_KEY || "Clave_secreta";
 
 export const getUserRole = () => {
+  console.log("PRUEBA 👀👀👀 - getUserRole() ejecutado");
+
   const token = localStorage.getItem("token");
-  if (token) {
-    try {
-      const decoded = jwt.decode(token);
-      return decoded.tipoUsuario;
-    } catch (error) {
-      console.error("Error decodificando el token:", error);
-      return null;
-    }
+  if (!token) return null;
+
+  try {
+    // decode sin verificar para que funcione en el navegador
+    const decoded = jwt.decode(token);
+    return {
+      tipoUsuario: decoded.tipoUsuario,
+      id: decoded.idUsuario,
+    };
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    return null;
   }
-  return null;
 };

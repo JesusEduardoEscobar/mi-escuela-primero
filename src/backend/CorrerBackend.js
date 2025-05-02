@@ -3,10 +3,18 @@ import cors from 'cors'
 import { setEnviarDatos } from './EnviarDatos.js'
 import { setValidarSesion } from './ValidarSesion.js'
 import { setUsuariosAdmin } from './Usuarios-Admin.js'
-import { setLlamarUsuarios } from './Llamar-usuarios.js'
+import { setLlamarUsuario } from './Llamar-usuarios.js'
+import { setPerfil } from './Pefil.js'
+import { setupRoutes } from './Solicitudes.js'
 import { setMatches } from './Matches.js'
 
 const app = express()
+setupRoutes(app)
+setPerfil(app)
+setEnviarDatos(app)
+setValidarSesion(app)
+setUsuariosAdmin(app)
+setLlamarUsuario(app)
 
 app.use(express.json());
 
@@ -24,5 +32,6 @@ setLlamarUsuarios(app);
 setMatches(app);
 
 app.listen(1984, () => {
-    console.log("Archivos ejecutados correctamente")
-});
+    console.log("Archivos ejecutados correctamente en el puerto 1984")
+    console.log("http://localhost:1984")
+})

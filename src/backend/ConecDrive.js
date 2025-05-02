@@ -1,38 +1,42 @@
 import { google } from 'googleapis'
-import fs from 'fs'
+import stream from 'stream'
+import { getDirectLink } from '../utils/Links.js'
 
 const auth = new google.auth.GoogleAuth({
-    keyFile: './artful-line-457204-v2-ff104f96e3a3.json',
-    scopes: ['https://www.googleapis.com/auth/drive']
+  keyFile: './artful-line-457204-v2-8d2c12099790.json',
+  scopes: ['https://www.googleapis.com/auth/drive']
 })
 
-export async function subirArchivoADrive(nombre, tipoMime, rutaLocal, folderId) {
-    const authClient = await auth.getClient()
-    const drive = google.drive({ version: 'v3', auth: authClient })
+export async function subirArchivoADrive(nombre, tipoMime, buffer, folderId) {
+  const authClient = await auth.getClient()
+  const drive = google.drive({ version: 'v3', auth: authClient })
 
-    const response = await drive.files.create({
-        requestBody: {
-            name: nombre,
-            mimeType: tipoMime,
-            parents: [folderId]
-        },
-        media: {
-            mimeType: tipoMime,
-            body: fs.createReadStream(rutaLocal)
-        }
-    })
+  const bufferStream = new stream.PassThrough()
+  bufferStream.end(buffer)
 
-    const fileId = response.data.id
+  const response = await drive.files.create({
+    requestBody: {
+      name: nombre,
+      mimeType: tipoMime,
+      parents: [folderId]
+    },
+    media: {
+      mimeType: tipoMime,
+      body: bufferStream
+    },
+    fields: 'id'
+  })
 
-    // Hacer el archivo público (opcional)
-    await drive.permissions.create({
-        fileId,
-        requestBody: {
-            role: 'reader',
-            type: 'anyone'
-        }
-    })
+  const fileId = response.data.id
 
-    // Devolver link de vista
-    return `https://drive.google.com/file/d/${fileId}/view`
+  // Hacer público
+  await drive.permissions.create({
+    fileId,
+    requestBody: {
+      role: 'reader',
+      type: 'anyone'
+    }
+  })
+
+  return `https://drive.google.com/file/d/${fileId}/view`
 }

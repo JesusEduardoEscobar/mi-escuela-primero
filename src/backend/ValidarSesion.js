@@ -1,84 +1,135 @@
-import express from 'express'
-import cors from 'cors'
-import {conectar} from './BaseDeDatos.js'
-import jwt from 'jsonwebtoken'
+// src/backend/ValidarSesion.js
+import express from "express";
+import cors from "cors";
+import { conectar } from "./BaseDeDatos.js";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt"; // Asegúrate de instalar bcrypt: npm install bcrypt
 
-const app = express()
-app.use(express.json())
-app.use(
-  cors({
-    origin: "http://localhost:3000",
-    credentials: true,
-  }),
-)
+export function setValidarSesion(app) {
+  app.use(express.json());
+  app.use(
+    cors({
+      origin: "http://localhost:3000",
+      credentials: true,
+    })
+  );
 
-const SECRET_KEY =  process.env.SECRET_KEY || "Clave_secreta"
-export const setValidarSesion = (app) => {
-app.post("/api/login", async (req, res) => {
-  const { email, password } = req.body
+  const SECRET_KEY = process.env.SECRET_KEY || "Clave_secreta";
 
-  try {
-    const connection = conectar() 
-    connection.query(
-      "SELECT email, contrasena, tipoUsuario, estado, sesionActiva FROM usuario WHERE email = ?",
-      [email],
-      (err, results) => {
-        if (err) return res.status(500).json({ message: "Error en el servidor" })
+  app.post("/api/login", async (req, res) => {
+    const { email, password } = req.body;
+    console.log("Recibida solicitud de login:", req.body);
 
-        if (results.length === 0) {
-          return res.status(404).json({ message: "Usuario no encontrado" })
-        }
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ message: "Email y contraseña son requeridos" });
+    }
 
-        const user = results[0]
-
-        if (user.contrasena !== password) { // ⚠️ Usa bcrypt aquí en producción
-          return res.status(401).json({ message: "La contraseña o correo son incorrectos" })
-        }
-
-        if (user.email !== email) { // ⚠️ Usa bcrypt aquí en producción
-          return res.status(401).json({ message: "La contraseña o correo son incorrectos" })
-        }
-
-        if(user.estado !== 1 ) {
-          return res.sendStatus(403).json({ message: "La cuenta a un no ha sido aceptada" })
-        }
-
-        if (!user.sesionActiva) {
-          return res.status(403).json({ message: "Usuario aún no ha sido aceptado" })
-        }
-
-        const token = jwt.sign(
-          {
-            email: user.email,
-            tipoUsuario: user.tipoUsuario,
-          },
-          SECRET_KEY,
-          { expiresIn: '1h' }
-        )
-        
-        
-        connection.query(
-          "UPDATE usuario SET sesionActiva = 1 WHERE email = ?",[email],(updateErr, updateResult) =>{
-            connection.end()
-            if(updateErr) return res.status(500).json({ message: "Error actualizando la sesion activa" })
-            res.status(200).json({
-              message: "Login exitoso",
-              userType: user.userType,
-              email: user.email,
-              token: token,
-            })
-          }
-        )
+    try {
+      const connection = conectar();
+      if (!connection) {
+        console.error("Error: No se pudo conectar a la base de datos.");
+        return res
+          .status(500)
+          .json({ message: "Error de conexión a la base de datos" });
       }
-    )
-  } catch (error) {
-    res.status(500).json({ message: "Error interno", error });
-  }
-  
-});
 
-app.post('/api/validarAdmin', async (req,res) => {
-  const conectar = conectar()
-  const consulta = ``
-})
+      connection.query(
+        "SELECT id, email, constrasenia, tipoUsuario, estado, sesionActiva FROM usuario WHERE email = ?",
+        [email],
+        async (err, results) => {
+          if (err) {
+            console.error("Error en la consulta:", err);
+            connection.end();
+            return res.status(500).json({ message: "Error en el servidor" });
+          }
+
+          if (results.length === 0) {
+            connection.end();
+            return res.status(404).json({ message: "Usuario no encontrado" });
+          }
+
+          const user = results[0];
+
+          // Verificar contraseña con bcrypt
+          if (!password || !user.constrasenia) {
+            console.error(
+              "Error: datos insuficientes para comparar contraseñas."
+            );
+            connection.end();
+            return res
+              .status(500)
+              .json({ message: "Error en la validación de credenciales" });
+          }
+          const passwordMatch = await bcrypt.compare(
+            password,
+            user.constrasenia
+          );
+          console.log("Contraseña comparada:", passwordMatch);
+          if (!passwordMatch) {
+            connection.end();
+            return res
+              .status(401)
+              .json({ message: "Credenciales incorrectas (contra)" });
+          }
+
+          if (user.estado !== 1) {
+            connection.end();
+            return res
+              .status(403)
+              .json({ message: "La cuenta aún no ha sido aceptada" });
+          }
+
+          if (user.sesionActiva === 1) {
+            connection.end();
+            return res
+              .status(403)
+              .json({ message: "La sesión de usuario ya está activada" });
+          }
+
+          // Generar token JWT
+          const token = jwt.sign(
+            {
+              email: user.email,
+              tipoUsuario: user.tipoUsuario,
+              idUsuario: user.id,
+            },
+            SECRET_KEY,
+            { expiresIn: "2h" }
+          );
+
+          // Actualizar sesión activa
+          connection.query(
+            "UPDATE usuario SET sesionActiva = 1 WHERE email = ?",
+            [email],
+            (updateErr) => {
+              if (updateErr) {
+                console.error("Error al actualizar sesión:", updateErr);
+                connection.end();
+                return res
+                  .status(500)
+                  .json({ message: "Error actualizando la sesión activa" });
+              }
+
+              connection.end();
+
+              return res.status(200).json({
+                message: "Login exitoso",
+                token,
+                user: {
+                  email: user.email,
+                  tipoUsuario: user.tipoUsuario,
+                  idUsuario: user.id,
+                },
+              });
+            }
+          );
+        }
+      );
+    } catch (error) {
+      console.error("Error en el try principal:", error);
+      return res.status(500).json({ message: "Error interno del servidor" });
+    }
+  });
 }

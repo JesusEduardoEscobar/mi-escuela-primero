@@ -1,9 +1,8 @@
-import cors from 'cors'
-import express from 'express'
-import { conectar } from "./BaseDeDatos.js"
+import cors from "cors";
+import express from "express";
+import { conectar } from "./BaseDeDatos.js";
 
-const app = express()
-
+export function setUsuariosAdmin(app) {
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -11,6 +10,7 @@ app.use(
   }),
 )
 app.use(express.json())
+
 export const setUsuariosAdmin = (app) => {
 // Ruta para obtener las solicitudes
 app.get("/api/admin/solicitudes", (req, res) => {
@@ -36,58 +36,62 @@ app.get("/api/admin/solicitudes", (req, res) => {
     LEFT JOIN aliado a ON u.id = a.id_Usuario
     WHERE u.estado = 0;
   `;
-  connection.query(consulta, (err, results) => {
-    connection.end();
-    if (err) {
-      console.error("Error executing query:", err);
-      return res.status(500).json({ message: "Internal Server Error", error: err.message });
-    }
-    res.status(200).json(results);
+    connection.query(consulta, (err, results) => {
+      connection.end();
+      if (err) {
+        console.error("Error executing query:", err);
+        return res
+          .status(500)
+          .json({ message: "Internal Server Error", error: err.message });
+      }
+      res.status(200).json(results);
+    });
   });
-});
 
-// Ruta para aprobar las solicitudes
-app.put("/api/admin/solicitudes/aprobar/:id", (req, res) => {
-  const connection = conectar()
-  const { id } = req.params
+  // Ruta para aprobar las solicitudes
+  app.put("/api/admin/solicitudes/aprobar/:id", (req, res) => {
+    const connection = conectar();
+    const { id } = req.params;
 
-  connection.query(
-    "UPDATE users SET estado = 1 WHERE id = ?",
-    [id],
-    (err, result) => {
-      connection.end()
-      if (err) return res.status(500).json({ message: "Error al aprobar solicitud" })
+    connection.query(
+      "UPDATE users SET estado = 1 WHERE id = ?",
+      [id],
+      (err, result) => {
+        connection.end();
+        if (err)
+          return res
+            .status(500)
+            .json({ message: "Error al aprobar solicitud" });
 
-      res.status(200).json({ message: "Usuario aprobado correctamente" })
-    }
-  )
-})
+        res.status(200).json({ message: "Usuario aprobado correctamente" });
+      }
+    );
+  });
 
-// Ruta para rechazar/eliminar una solicitud
-app.delete("/api/admin/solicitudes/rechazar/:id", (req, res) => {
-  const connection = conectar()
-  const { id } = req.params
+  // Ruta para rechazar/eliminar una solicitud
+  app.delete("/api/admin/solicitudes/rechazar/:id", (req, res) => {
+    const connection = conectar();
+    const { id } = req.params;
 
-  connection.query(
-    "DELETE FROM users WHERE id = ?",
-    [id],
-    (err, result) => {
-      connection.end()
-      if (err) return res.status(500).json({ message: "Error al rechazar solicitud" })
+    connection.query("DELETE FROM users WHERE id = ?", [id], (err, result) => {
+      connection.end();
+      if (err)
+        return res.status(500).json({ message: "Error al rechazar solicitud" });
 
-      res.status(200).json({ message: "Usuario rechazado correctamente" })
-    }
-  )
-})
+      res.status(200).json({ message: "Usuario rechazado correctamente" });
+    });
+  });
 
-app.get("/api/usuarios/aliado", (res,req) => {
-  const conectar = conectar()
-  const consulta = "SELECT * FROM usuairos WHERE tipoUsuario = 2 AND estado = 1"
-  conectar.query(consulta, (err, res) => {
-    conectar.end()
-    if(err) return res.status(500).json({ message: "Error al obtener aliados" })
-  })
-})
+  app.get("/api/usuarios/aliado", (res, req) => {
+    const conectar = conectar();
+    const consulta =
+      "SELECT * FROM usuairos WHERE tipoUsuario = 2 AND estado = 1";
+    conectar.query(consulta, (err, res) => {
+      conectar.end();
+      if (err)
+        return res.status(500).json({ message: "Error al obtener aliados" });
+    });
+  });
 
 app.get("/api/usuarios/escuelas", (res, req) => {
   const conectar = conectar()
@@ -97,4 +101,14 @@ app.get("/api/usuarios/escuelas", (res, req) => {
     if(err) return res.status(500).json({ message: "Error al obtener aliados" })
   })
 })
+  app.get("/api/usuarios/escuelas", (res, req) => {
+    const conectar = conectar();
+    const consulta =
+      "SELECT * FROM usuairos WHERE tipoUsuario = 1 AND estado = 1";
+    conectar.query(consulta, (err, res) => {
+      conectar.end();
+      if (err)
+        return res.status(500).json({ message: "Error al obtener aliados" });
+    });
+  });
 }

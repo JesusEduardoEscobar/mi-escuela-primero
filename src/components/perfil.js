@@ -7,12 +7,13 @@ import { MapPin, Mail, Grid, BookOpen, Heart, Clock, Plus, Edit } from "lucide-r
 import { usuarios, publicaciones } from "@/data/dataUsuarios"
 import SolicitudModal from "@/components/solicitudes"
 import NuevaSolicitudModal from "@/components/nueva-solicitud"
-import PerfilMenu from "@/components/ajustesDelPerfil"
 import EditarPerfilModal from "@/components/editar-perfil"
 
 // Simulamos un usuario logueado para la demo
 const USUARIO_ACTUAL_ID = 1
 const USUARIO_INICIAL = usuarios.find((u) => u.id === USUARIO_ACTUAL_ID)
+
+// const response = await fetch('localhost:1984/api/mostrarperfil')
 
 export default function PerfilPage() {
   const [usuario, setUsuario] = useState(USUARIO_INICIAL)
@@ -58,7 +59,7 @@ export default function PerfilPage() {
                 className="absolute bottom-0 right-0 bg-primary text-white rounded-full p-2 shadow-lg"
                 onClick={handleEditarClick}
               >
-                <Edit size={16} />
+                <Edit color="black" size={24} />
               </button>
             </div>
           </div>
@@ -69,45 +70,12 @@ export default function PerfilPage() {
 
             <div className="flex flex-wrap gap-2 justify-center md:justify-start mb-3">
               <div className="flex items-center text-sm text-gray-600">
-                <MapPin size={16} className="mr-1" />
-                {usuario.ubicacion}
-              </div>
-              <div className="flex items-center text-sm text-gray-600">
                 <Mail size={16} className="mr-1" />
                 {usuario.correo}
               </div>
             </div>
 
             <p className="text-sm mb-4">{usuario.descripcion}</p>
-
-            <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-              {usuario.tipo === "escuela" ? (
-                <>
-                  <h3 className="text-sm font-semibold w-full">Necesidades:</h3>
-                  {usuario.necesidades.map((necesidad, index) => (
-                    <span key={index} className="bg-primary-light text-white text-xs rounded-full px-3 py-1">
-                      {necesidad}
-                    </span>
-                  ))}
-                </>
-              ) : (
-                <>
-                  <h3 className="text-sm font-semibold w-full">Áreas de apoyo:</h3>
-                  {usuario.apoyos.map((apoyo, index) => (
-                    <span key={index} className="bg-secondary-light text-white text-xs rounded-full px-3 py-1">
-                      {apoyo}
-                    </span>
-                  ))}
-                </>
-              )}
-            </div>
-          </div>
-
-          <div className="mt-4 md:mt-0 flex md:flex-col gap-4 justify-center">
-            <button className="btn-primary" onClick={handleEditarClick}>
-              Editar perfil
-            </button>
-            <PerfilMenu tipo="config" />
           </div>
         </div>
       </div>

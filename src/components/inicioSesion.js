@@ -1,151 +1,151 @@
-"use client";
+"use client"
 
-import { useState, useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight, Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { useState, useEffect, useRef } from "react"
+import { ChevronLeft, ChevronRight, Mail, Lock, Eye, EyeOff } from "lucide-react"
+import { useRouter } from "next/navigation"
+import Image from "next/image"
 
 export default function LoginPage() {
   // Carousel state
-  const [currentImage, setCurrentImage] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const timerRef = useRef(null);
+  const [currentImage, setCurrentImage] = useState(0)
+  const [isPaused, setIsPaused] = useState(false)
+  const timerRef = useRef(null)
 
-  const user_roles = { 
-    1: 'escuela',
-    2: 'aliado',
-    3: 'admin',
+  const user_roles = {
+    1: "escuela",
+    2: "aliado",
+    3: "admin",
   }
 
   const images = [
     "https://imgs.search.brave.com/Pwq-e9rPFpdlmds3hWMZkC3ypgLlBx0Hh0exgyOCf3w/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9mZ2xn/Lm9yZy5wYS93cC1j/b250ZW50L3VwbG9h/ZHMvMjAxOC8xMS9Q/cm9ncmFtYS1NaS1F/c2N1ZWxhLVByaW1l/cm8tMDAwLmpwZw",
     "https://imgs.search.brave.com/uiLZ86IfaMpRJL1MTw1J2lwui_bEvQBzxDOanTYshhQ/rs:fit:860:0:0:0/g:ce/aHR0cDovL3d3dy5n/b2IubXgvY21zL3Vw/bG9hZHMvaW1hZ2Uv/ZmlsZS81MDQ5MS9f/ZXNjdWVsYV9wcmlt/YXJpYV9taV9wYXRy/aWFfZXNfcHJpbWVy/b18zLmpwZw",
     "https://imgs.search.brave.com/7Q1Hi7qudoypScHzyserBmWnIrVqZa7bAs--Zss4T-0/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZXhp/Y2Fub3NwcmltZXJv/amFsaXNjby5vcmcv/bGFuZGluZy93cC1j/b250ZW50L3VwbG9h/ZHMvMjAyNC8wOC9N/aS1Fc2N1ZWxhLVBy/aW1lcm8tMDItMjA0/OHgxMzczLnBuZw",
-  ];
+  ]
 
   // Form state
-  const [correo, setCorreo] = useState("");
-  const [contra, setContra] = useState("");
-  const [token, setToken] = useState("");
-  const [mensajeCorreo, setMensajeCorreo] = useState("");
-  const [mensajeContra, setMensajeContra] = useState("");
-  const [mensajeToken, setMensajeToken] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [correo, setCorreo] = useState("")
+  const [contra, setContra] = useState("")
+  const [token, setToken] = useState("")
+  const [mensajeCorreo, setMensajeCorreo] = useState("")
+  const [mensajeContra, setMensajeContra] = useState("")
+  const [mensajeToken, setMensajeToken] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState("")
 
   // Auto-rotate carousel
   useEffect(() => {
     if (!isPaused) {
       timerRef.current = setInterval(() => {
-        setCurrentImage((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-      }, 5000);
+        setCurrentImage((prev) => (prev === images.length - 1 ? 0 : prev + 1))
+      }, 5000)
     }
 
     return () => {
       if (timerRef.current) {
-        clearInterval(timerRef.current);
+        clearInterval(timerRef.current)
       }
-    };
-  }, [isPaused, images.length]);
+    }
+  }, [isPaused, images.length])
 
   // Carousel navigation
   const nextImage = () => {
-    setIsPaused(true);
-    setCurrentImage((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    setIsPaused(true)
+    setCurrentImage((prev) => (prev === images.length - 1 ? 0 : prev + 1))
 
     if (timerRef.current) {
-      clearInterval(timerRef.current);
+      clearInterval(timerRef.current)
     }
 
     setTimeout(() => {
-      setIsPaused(false);
-    }, 10000);
-  };
+      setIsPaused(false)
+    }, 10000)
+  }
 
   const prevImage = () => {
-    setIsPaused(true);
-    setCurrentImage((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    setIsPaused(true)
+    setCurrentImage((prev) => (prev === 0 ? images.length - 1 : prev - 1))
 
     if (timerRef.current) {
-      clearInterval(timerRef.current);
+      clearInterval(timerRef.current)
     }
 
     setTimeout(() => {
-      setIsPaused(false);
-    }, 10000);
-  };
+      setIsPaused(false)
+    }, 10000)
+  }
 
   // Form validation
-  const router = useRouter();
+  const router = useRouter()
 
   const validarCorreo = (e) => {
-    const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (regexCorreo.test(e.target.value)) {
-      setMensajeCorreo("✅ El correo ingresado es válido");
-    } else {
-      setMensajeCorreo("❌ El correo ingresado no es válido");
-    }
-    setCorreo(e.target.value);
-  };
+    setCorreo(e.target.value)
+  }
 
   const validarContra = (e) => {
-    const regexContra = /^[A-Za-z1-9]{5,}$/;
-    if (regexContra.test(e.target.value)) {
-      setMensajeContra("✅ La contraseña ingresada es válida");
-    } else {
-      setMensajeContra("❌ La contraseña ingresada no es válida");
-    }
-    setContra(e.target.value);
-  };
+    setContra(e.target.value)
+  }
 
   const validarToken = (e) => {
-    const valor = e.target.value;
-    const regexToken = /^[A-Z]{4}[0-9]{2}$/;
-    if (regexToken.test(valor)) {
-      setMensajeToken("✅ El token ingresado es válido");
-    } else {
-      setMensajeToken("❌ El token ingresado no es válido");
-    }
-    setToken(valor);
+    setToken(e.target.value)
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
     if (!correo.trim() || !contra.trim()) {
-      setError("Por favor, completa todos los campos obligatorios.");
-      return;
+      setError("Por favor, completa todos los campos obligatorios.")
+      return
     }
 
     try {
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: correo, password: contra }),
-      })
+      const response = await fetch("http://localhost:1984/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: correo, password: contra }),
+      });
 
-      const data = await response.json();
+      console.log("Status de la respuesta:", response.status);
 
       if (!response.ok) {
-        setError(data.message);
-        return;
+          const errorData = await response.json();
+          console.error("Error en el login:", errorData);
+          throw new Error(errorData.message || "Error en el inicio de sesión");
       }
 
-      localStorage.setItem("token", data.token);
-        // Verificar si el usuario es un administrador
-      const userRole = user_roles[data.userType]
-      if (userRole === "admin") {
-        // Redirigir a la página de administradores
-        router.push("/admin/token");
-      } else {
-        // Guardar datos del usuario o token en el estado/localStorage
-        router.push("/usuarios/paginaPrincipal");
+      const data = await response.json();
+      console.log("Datos recibidos completos:", data);
+
+      // Validar que `data.user` existe antes de acceder a `tipoUsuario`
+      if (!data.user || !data.user.tipoUsuario) {
+          throw new Error("Datos de usuario inválidos en la respuesta");
       }
+
+      // Guardar el token en localStorage
+      localStorage.setItem("token", data.token);
+
+      // Verificar el tipo de usuario y redirigir
+      const userType = data.user.tipoUsuario;
+      console.log("Tipo de usuario:", userType);
+
+      let redirectUrl = "/"; // Default redirect en caso de error
+
+      if (userType === 3) {
+          redirectUrl = "/admin/paginaPrincipal";
+      } else if (userType === 1 || userType === 2) {
+          redirectUrl = "/usuarios/paginaPrincipal";
+      } else {
+          throw new Error("Tipo de usuario no reconocido");
+      }
+
+      console.log("Redirigiendo a:", redirectUrl);
+      router.push(redirectUrl);
 
     } catch (error) {
-      setError("Error en el servidor. Intenta nuevamente.");
+      console.error("Error en el inicio de sesión:", error);
+      setError(error.message || "Error en el servidor. Intenta nuevamente.");
     }
-  };
+  }
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
@@ -176,9 +176,9 @@ export default function LoginPage() {
               <button
                 key={index}
                 onClick={() => {
-                  setIsPaused(true);
-                  setCurrentImage(index);
-                  setTimeout(() => setIsPaused(false), 10000);
+                  setIsPaused(true)
+                  setCurrentImage(index)
+                  setTimeout(() => setIsPaused(false), 10000)
                 }}
                 className={`h-2 w-2 rounded-full ${currentImage === index ? "bg-white" : "bg-white/50"}`}
                 aria-label={`Go to slide ${index + 1}`}
@@ -190,11 +190,11 @@ export default function LoginPage() {
         <div className="prose">
           <h2 className="text-2xl font-bold mb-4 text-black">Mi escuela primero</h2>
           <p className="text-black">
-            "Mi Escuela Primero" es un proyecto en Jalisco que impulsa la mejora de escuelas públicas a través de la colaboración entre empresas, organizaciones y la comunidad. Su objetivo es garantizar que niñas, niños y jóvenes tengan acceso a una educación de calidad en espacios adecuados.
+            "Mi Escuela Primero" es un proyecto en Jalisco que impulsa la mejora de escuelas públicas a través de la
+            colaboración entre empresas, organizaciones y la comunidad. Su objetivo es garantizar que niñas, niños y
+            jóvenes tengan acceso a una educación de calidad en espacios adecuados.
           </p>
-          <p className="text-black">
-            Este programa se enfoca en:
-          </p>
+          <p className="text-black">Este programa se enfoca en:</p>
           <ul className="list-disc pl-5 text-black">
             <li>Formación y capacitación para docentes, estudiantes y familias.</li>
             <li>Suministro de material y equipamiento escolar.</li>
@@ -202,53 +202,39 @@ export default function LoginPage() {
           </ul>
 
           <p className="text-black">
-            Gracias a estas acciones, "Mi Escuela Primero" ha fortalecido el aprendizaje y la permanencia escolar, logrando un impacto positivo en miles de estudiantes.
+            Gracias a estas acciones, "Mi Escuela Primero" ha fortalecido el aprendizaje y la permanencia escolar,
+            logrando un impacto positivo en miles de estudiantes.
           </p>
-          <p className="text-black font-bold">
-            ¡Súmate y ayuda a transformar la educación en Jalisco!
-          </p>
+          <p className="text-black font-bold">¡Súmate y ayuda a transformar la educación en Jalisco!</p>
         </div>
       </div>
 
       {/* Right side - Login form with green to white gradient */}
       <div className="w-full md:w-1/2 bg-gradient-to-b from-green-500 to-white p-6 md:p-12 flex items-center justify-center">
         <div className="absolute top-4 right-4 flex space-x-4">
-          <h1 className="text-3xl font-bold mb-6 text-center text-green-900 mt-7">
-            Conocenos:
-          </h1>
+          <h1 className="text-3xl font-bold mb-6 text-center text-green-900 mt-7">Conocenos:</h1>
           <a href="https://www.mexicanosprimero.org" target="_blank" rel="noopener noreferrer">
-            <Image 
-              src="/img/Mexicanos_Primero_Jalisco_blanco.png" 
-              width={100} 
-              height={100} 
+            <Image
+              src="/img/Mexicanos_Primero_Jalisco_blanco.png"
+              width={100}
+              height={100}
               alt="Mexicanos Primero Jalisco"
             />
           </a>
         </div>
 
         <div className="w-full max-w-md p-8 bg-white/70 rounded-lg shadow-md">
-        <div className="flex items-center justify-center">
-            <Image 
-              src="/img/Mi_Escuela_Primero.png" 
-              width={200} 
-              height={10} 
-              alt="Mi Escuela Primero"
-            />
+          <div className="flex items-center justify-center">
+            <Image src="/img/Mi_Escuela_Primero.png" width={200} height={10} alt="Mi Escuela Primero" />
           </div>
-          <h1 className="text-3xl font-bold mb-6 text-center text-green-900">
-            Iniciar Sesión
-          </h1>
+          <h1 className="text-3xl font-bold mb-6 text-center text-green-900">Iniciar Sesión</h1>
 
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              {error}
-            </div>
-          )}
+          {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">Correo electrónico</label>
-              <div className="relative"> 
+              <div className="relative">
                 <Mail className="absolute left-3 top-3 h-5 w-5 text-green-600" />
                 <input
                   type="email"
@@ -259,9 +245,6 @@ export default function LoginPage() {
                   required
                 />
               </div>
-              <p className={`text-xs ${mensajeCorreo.includes("✅") ? "text-green-600" : "text-red-500"}`}>
-                {mensajeCorreo}
-              </p>
             </div>
 
             <div className="space-y-2">
@@ -284,9 +267,6 @@ export default function LoginPage() {
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-              <p className={`text-xs ${mensajeContra.includes("✅") ? "text-green-600" : "text-red-500"}`}>
-                {mensajeContra}
-              </p>
             </div>
 
             <div className="space-y-2">
@@ -298,9 +278,6 @@ export default function LoginPage() {
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none"
                 placeholder="Ingresa tu token"
               />
-              <p className={`text-xs ${mensajeToken.includes("✅") ? "text-green-600" : "text-red-500"}`}>
-                {mensajeToken}
-              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
@@ -331,5 +308,5 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }
