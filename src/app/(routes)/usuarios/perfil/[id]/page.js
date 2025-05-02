@@ -1,286 +1,182 @@
-"use client"
+'use client'
+import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
+import Image from 'next/image'
+import { getDirectLink } from '@/utils/Links'
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { useParams } from "next/navigation"
-import { MapPin, Mail, Grid, BookOpen, Heart, MessageCircle } from "lucide-react"
-import { usuarios, publicaciones } from "@/data/dataUsuarios"
-
-export default function PerfilUsuarioPage() {
-  const params = useParams()
-  const [usuario, setUsuario] = useState(null)
-  const [pestanaActiva, setPestanaActiva] = useState("publicaciones")
-  const [publicacionesUsuario, setPublicacionesUsuario] = useState([])
+export default function PerfilUsuario() {
+  const { id } = useParams()
+  const [perfil, setPerfil] = useState(null)
+  const [estado, setEstado] = useState({ cargando: true, error: null })
 
   useEffect(() => {
-    if (params.id) {
-      // Convertir a número si viene como string
-      const usuarioId = Number.parseInt(params.id, 10)
-
-      // Buscar el usuario
-      const usuarioEncontrado = usuarios.find((u) => u.id === usuarioId)
-      setUsuario(usuarioEncontrado)
-
-      // Buscar publicaciones del usuario
-      const publicacionesEncontradas = publicaciones.filter((p) => p.usuarioId === usuarioId)
-      setPublicacionesUsuario(publicacionesEncontradas)
+    const cargarPerfil = async () => {
+      try {
+        setEstado({ cargando: true, error: null })
+        const respuesta = await fetch(`http://localhost:1984/api/perfil/${id}`)
+        
+        if (!respuesta.ok) {
+          throw new Error(`Error al cargar perfil: ${respuesta.status}`)
+        }
+        
+        const datos = await respuesta.json()
+        
+        if (!datos.usuario) {
+          throw new Error('Estructura de datos incorrecta')
+        }
+        
+        setPerfil(datos.usuario)
+        setEstado({ cargando: false, error: null })
+        
+      } catch (error) {
+        console.error('Error:', error)
+        setEstado({ cargando: false, error: error.message })
+      }
     }
-  }, [params.id])
 
-  if (!usuario) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <p className="text-gray-500">Cargando perfil...</p>
-      </div>
-    )
-  }
+    cargarPerfil()
+  }, [id])
 
-  // Obtener solicitudes o escuelas apoyadas según el tipo de usuario
-  const solicitudesOApoyos = usuario.tipo === "escuela" ? usuario.solicitudes || [] : usuario.escuelasApoyadas || []
+  if (estado.cargando) return <div className="p-4 text-center">Cargando perfil...</div>
+  if (estado.error) return <div className="p-4 text-red-500 text-center">Error: {estado.error}</div>
+  if (!perfil) return <div className="p-4 text-center">No se encontró el perfil</div>
 
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* Cabecera del perfil */}
-      <div className="card mb-6">
-        <div className="md:flex gap-6">
-          <div className="mb-4 md:mb-0">
-            <div className="relative w-32 h-32 mx-auto md:mx-0">
-              <Image
-                src={usuario.imagen || "/placeholder.svg"}
-                alt={usuario.nombre}
-                fill
-                className="rounded-full object-cover border-4 border-white shadow-md"
-              />
-            </div>
+    <div className="container mx-auto p-4 max-w-6xl">
+      {/* Sección superior con información básica */}
+      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="flex flex-col md:flex-row gap-6 items-start">
+          <div className="flex-shrink-0">
+            <Image
+              src={getDirectLink(perfil.imagen).directLinkImage || '/usuario-default.png'}
+              alt={`Foto de ${perfil.nombre}`}
+              width={160}
+              height={160}
+              className="rounded-full border-4 border-white shadow-lg"
+            />
           </div>
-
-          <div className="flex-1 text-center md:text-left">
-            <h1 className="text-2xl font-bold mb-1">{usuario.nombre}</h1>
-            <p className="text-gray-500 mb-2">{usuario.tipo === "escuela" ? "Escuela" : "Aliado"}</p>
-
-            <div className="flex flex-wrap gap-2 justify-center md:justify-start mb-3">
-              <div className="flex items-center text-sm text-gray-600">
-                <MapPin size={16} className="mr-1" />
-                {usuario.ubicacion}
-              </div>
-              <div className="flex items-center text-sm text-gray-600">
-                <Mail size={16} className="mr-1" />
-                {usuario.correo}
-              </div>
-            </div>
-
-            <p className="text-sm mb-4">{usuario.descripcion}</p>
-
-            <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-              {usuario.tipo === "escuela" ? (
-                <>
-                  <h3 className="text-sm font-semibold w-full">Necesidades:</h3>
-                  {usuario.necesidades.map((necesidad, index) => (
-                    <span key={index} className="bg-primary-light text-white text-xs rounded-full px-3 py-1">
-                      {necesidad}
-                    </span>
-                  ))}
-                </>
-              ) : (
-                <>
-                  <h3 className="text-sm font-semibold w-full">Áreas de apoyo:</h3>
-                  {usuario.apoyos.map((apoyo, index) => (
-                    <span key={index} className="bg-secondary-light text-white text-xs rounded-full px-3 py-1">
-                      {apoyo}
-                    </span>
-                  ))}
-                </>
+          
+          <div className="flex-grow">
+            <h1 className="text-3xl font-bold mb-2">{perfil.nombre}</h1>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <p><span className="font-semibold">Tipo:</span> {perfil.tipo === 'escuela' ? 'Escuela' : 'Aliado'}</p>
+              <p><span className="font-semibold">Email:</span> {perfil.email}</p>
+              <p><span className="font-semibold">Teléfono:</span> {perfil.telefono}</p>
+              {perfil.calle && perfil.colonia && (
+                <p><span className="font-semibold">Dirección:</span> {perfil.calle}, {perfil.colonia}</p>
+              )}
+              {perfil.tipo === 'escuela' && perfil.nombreInstitucion && (
+                <p><span className="font-semibold">Institución:</span> {perfil.nombreInstitucion}</p>
+              )}
+              {perfil.tipo === 'aliado' && perfil.institucion && (
+                <p><span className="font-semibold">Organización:</span> {perfil.institucion}</p>
               )}
             </div>
           </div>
+        </div>
+      </div>
 
-          <div className="mt-4 md:mt-0 flex md:flex-col gap-4 justify-center">
-            {/* <button className="btn-primary">Enviar mensaje</button>
-            <button className="btn-secondary">Solicitar apoyo</button> */}
+      {/* Sección de Matches */}
+      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 className="text-2xl font-bold mb-4">Matches Activos</h2>
+        {perfil.matches && perfil.matches.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {perfil.matches.map((match) => (
+              <div key={match.id} className="border rounded-lg p-4 flex items-center gap-3">
+                {match.foto && (
+                  <Image
+                    src={getDirectLink(match.foto).directLinkImage || '/usuario-default.png'}
+                    alt={`Foto de ${match.nombre}`}
+                    width={60}
+                    height={60}
+                    className="rounded-full"
+                  />
+                )}
+                <div>
+                  <h3 className="font-semibold">{match.nombre}</h3>
+                  <p className="text-sm text-gray-500">ID: {match.id}</p>
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
+        ) : (
+          <p className="text-gray-500">No hay matches activos</p>
+        )}
       </div>
 
-      {/* Pestañas */}
-      <div className="flex border-b mb-6">
-        <button
-          className={`flex items-center gap-1 px-4 py-2 text-sm font-medium ${
-            pestanaActiva === "publicaciones"
-              ? "border-b-2 border-primary text-primary"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-          onClick={() => setPestanaActiva("publicaciones")}
-        >
-          <Grid size={18} />
-          Publicaciones
-        </button>
-        <button
-          className={`flex items-center gap-1 px-4 py-2 text-sm font-medium ${
-            pestanaActiva === "solicitudes"
-              ? "border-b-2 border-primary text-primary"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-          onClick={() => setPestanaActiva("solicitudes")}
-        >
-          <BookOpen size={18} />
-          {usuario.tipo === "escuela" ? "Solicitudes" : "Escuelas apoyadas"}
-        </button>
-      </div>
-
-      {/* Contenido según pestaña activa */}
-      {pestanaActiva === "publicaciones" && (
-        <div>
-          {publicacionesUsuario.length > 0 ? (
-            <div className="grid md:grid-cols-2 gap-6">
-              {publicacionesUsuario.map((post) => (
-                <article key={post.id} className="card">
-                  <h2 className="font-bold text-lg mb-2">{post.titulo}</h2>
-
-                  <div className="relative mb-3 rounded-lg overflow-hidden">
+      {/* Sección de Relaciones (Solicitudes o Apoyos) */}
+      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 className="text-2xl font-bold mb-4">
+          {perfil.tipo === 'escuela' ? 'Solicitudes' : 'Escuelas Apoyadas'}
+        </h2>
+        {perfil.relaciones && perfil.relaciones.length > 0 ? (
+          <div className="space-y-3">
+            {perfil.relaciones.map((relacion) => (
+              <div key={relacion.id} className="border-b pb-3 last:border-b-0">
+                <div className="flex items-center gap-3">
+                  {relacion.foto && (
                     <Image
-                      src={post.imagenes[0] || "/placeholder.svg"}
-                      alt={post.titulo}
-                      width={400}
-                      height={300}
-                      className="w-full h-48 object-cover"
+                      src={getDirectLink(relacion.foto).directLinkImage}
+                      alt={perfil.tipo === 'escuela' ? 'Solicitud' : 'Escuela apoyada'}
+                      width={50}
+                      height={50}
+                      className="rounded-full"
                     />
-                  </div>
-
-                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">{post.descripcion}</p>
-
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm text-gray-500">
-                      {new Date(post.fecha).toLocaleDateString("es-ES", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm flex items-center">
-                        <Heart size={14} className="mr-1" />
-                        {post.likes}
-                      </span>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 card">
-              <p className="text-gray-500">Este usuario aún no ha publicado nada</p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {pestanaActiva === "solicitudes" && (
-        <div>
-          {usuario.tipo === "escuela" ? (
-            // Mostrar solicitudes si es una escuela
-            solicitudesOApoyos.length > 0 ? (
-              <div className="space-y-4">
-                {solicitudesOApoyos.map((solicitud) => (
-                  <div key={solicitud.id} className="card">
-                    <div className="flex justify-between items-start mb-2">
-                      <h2 className="font-bold text-lg">{solicitud.titulo}</h2>
-                      <span
-                        className={`text-xs px-2 py-1 rounded-full ${
-                          solicitud.estado === "pendiente"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : solicitud.estado === "en proceso"
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-green-100 text-green-800"
-                        }`}
-                      >
-                        {solicitud.estado === "pendiente"
-                          ? "Pendiente"
-                          : solicitud.estado === "en proceso"
-                            ? "En proceso"
-                            : "Completada"}
-                      </span>
-                    </div>
-
-                    <p className="text-sm text-gray-600 mb-3">{solicitud.descripcion}</p>
-
-                    {solicitud.aliados && solicitud.aliados.length > 0 ? (
-                      <div>
-                        <h3 className="text-sm font-semibold mb-2">Aliados participantes:</h3>
-                        <div className="flex flex-wrap gap-2">
-                          {solicitud.aliados.map((aliadoId) => {
-                            const aliado = usuarios.find((u) => u.id === aliadoId)
-                            return (
-                              <Link
-                                key={aliadoId}
-                                href={`/perfil/${aliadoId}`}
-                                className="flex items-center gap-1 bg-gray-100 rounded-full pl-1 pr-3 py-1"
-                              >
-                                <Image
-                                  src={aliado.imagen || "/placeholder.svg"}
-                                  alt={aliado.nombre}
-                                  width={24}
-                                  height={24}
-                                  className="rounded-full"
-                                />
-                                <span className="text-xs">{aliado.nombre}</span>
-                              </Link>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-gray-500">Esperando aliados</p>
+                  )}
+                  <div>
+                    <h3 className="font-semibold">
+                      {perfil.tipo === 'escuela' ? relacion.titulo : relacion.nombreInstitucion}
+                    </h3>
+                    {perfil.tipo === 'escuela' && (
+                      <p className="text-sm text-gray-500">
+                        Estado: <span className="capitalize">{relacion.estado}</span>
+                      </p>
                     )}
                   </div>
-                ))}
+                </div>
+                {perfil.tipo === 'escuela' && relacion.descripcion && (
+                  <p className="mt-2 text-gray-600">{relacion.descripcion}</p>
+                )}
               </div>
-            ) : (
-              <div className="text-center py-8 card">
-                <p className="text-gray-500">No hay solicitudes activas</p>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500">
+            {perfil.tipo === 'escuela' ? 'No hay solicitudes' : 'No hay escuelas apoyadas'}
+          </p>
+        )}
+      </div>
+
+      {/* Sección de Publicaciones */}
+      <div className="bg-white rounded-lg shadow-md p-6 pb-20">
+        <h2 className="text-2xl font-bold mb-4">Publicaciones</h2>
+        {perfil.publicaciones && perfil.publicaciones.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {perfil.publicaciones.map((publicacion) => (
+              <div key={publicacion.id} className="border rounded-lg overflow-hidden">
+                {publicacion.foto && (
+                  <div className="h-48 relative">
+                    <Image
+                      src={publicacion.foto}
+                      alt="Publicación"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+                <div className="p-4">
+                  <p className="text-gray-700">{publicacion.descripcion}</p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    {new Date(publicacion.fecha).toLocaleDateString()}
+                  </p>
+                </div>
               </div>
-            )
-          ) : // Mostrar escuelas apoyadas si es un aliado
-          solicitudesOApoyos.length > 0 ? (
-            <div className="grid md:grid-cols-2 gap-4">
-              {solicitudesOApoyos.map((escuelaId) => {
-                const escuela = usuarios.find((u) => u.id === escuelaId)
-                return (
-                  <Link
-                    key={escuelaId}
-                    href={`/perfil/${escuelaId}`}
-                    className="card hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex gap-4">
-                      <Image
-                        src={escuela.imagen || "/placeholder.svg"}
-                        alt={escuela.nombre}
-                        width={80}
-                        height={80}
-                        className="rounded-full"
-                      />
-                      <div>
-                        <h2 className="font-bold text-lg">{escuela.nombre}</h2>
-                        <p className="text-sm text-gray-500 mb-1">Escuela</p>
-                        <div className="flex items-center text-xs text-gray-600 mb-2">
-                          <MapPin size={12} className="mr-1" />
-                          {escuela.ubicacion}
-                        </div>
-                        <p className="text-sm line-clamp-2">{escuela.descripcion}</p>
-                      </div>
-                    </div>
-                  </Link>
-                )
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-8 card">
-              <p className="text-gray-500">Este aliado aún no apoya a ninguna escuela</p>
-            </div>
-          )}
-        </div>
-      )}
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500">No hay publicaciones</p>
+        )}
+      </div>
     </div>
   )
 }
-

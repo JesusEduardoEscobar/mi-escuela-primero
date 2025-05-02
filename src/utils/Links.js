@@ -15,7 +15,7 @@ export function getDirectLink(shareableLink) {
   }
 
   if (!fileId) {
-    console.error("No se pudo extraer el ID del archivo")
+    // console.error("No se pudo extraer el ID del archivo")
     return null
   }
 

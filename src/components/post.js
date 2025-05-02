@@ -58,41 +58,6 @@ export default function Post({ post }) {
             <Bookmark className="w-6 h-6" fill={isSaved ? "currentColor" : "none"} />
           </button>
         </div>
-
-        {/* Cantidad de likes y descripción */}
-        <div className="space-y-1">
-          <p className="font-semibold text-sm">{post.likes ? post.likes.toLocaleString() : "0"} Me gusta</p>
-          <p className="text-sm">
-            <span className="font-semibold">{post.user?.name || 'Usuario'}</span> {post.caption}
-          </p>
-          {post.comments.map((comment, i) => (
-            <p key={i} className="text-sm text-gray-500">
-              <span className="font-semibold text-black">{comment.user}</span> {comment.text}
-            </p>
-          ))}
-        </div>
-
-        {/* Input para comentar */}
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            placeholder="Agrega un comentario..."
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            onClick={() => {
-              if (comment.trim()) {
-                // Aquí puedes manejar el envío del comentario
-                setComment("")
-              }
-            }}
-            className="text-blue-500 font-semibold hover:text-blue-600"
-          >
-            Publicar
-          </button>
-        </div>
       </div>
     </div>
   )

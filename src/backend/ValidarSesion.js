@@ -62,6 +62,8 @@ export function setValidarSesion(app) {
               .status(500)
               .json({ message: "Error en la validación de credenciales" });
           }
+          // const hashedPassword = await bcrypt.hash(password, 10);
+          // console.log(hashedPassword);
           const passwordMatch = await bcrypt.compare(
             password,
             user.constrasenia

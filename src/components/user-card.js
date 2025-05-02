@@ -3,6 +3,7 @@ import Image from "next/image"
 import { Phone, Mail, MapPin, Building } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {StrikeManager} from "./strike-manager"
+import { getDirectLink } from "@/utils/Links"
 
 export function UserCard({ user, showStrikes = false, enableStrikeManagement = false, onStrikeChange }) {
     const getStrikeColor = (strikes) => {
@@ -12,6 +13,16 @@ export function UserCard({ user, showStrikes = false, enableStrikeManagement = f
         if(strikes === 3) return "bg-red border-red-200"
         return ""
     }
+    // Lógica para obtener la imagen según el tipo de usuario
+    const getUserImage = (user) => {
+        if (user.tipo === "aliado" && user.fotoAliado) return user.fotoAliado
+        if (user.tipo === "escuela" && user.fotoEscuela) return user.fotoEscuela
+        return null
+    }
+
+
+    // const directLinkObj = getDirectLink(user.imagen);
+    console.log("Direct link object:", user.fotoAliado);
     return (
         <div className={cn(
             "border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow",
@@ -20,7 +31,10 @@ export function UserCard({ user, showStrikes = false, enableStrikeManagement = f
             <div className="flex items-center space-x-4">
                 <Link href={`/admin/perfil/${user.id}`}>
                     <div className="relative h-16 w-16 rounded-full overflow-hidden">
-                        <Image src={user.imagen || "/https://imgs.search.brave.com/_jNap9jRRcWdeDWSBOEtwtQvPc8v6E7Vk6RskJHKvoA/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTE2/NDgyMjE4OC92ZWN0/b3IvbWFsZS1hdmF0/YXItcHJvZmlsZS1w/aWN0dXJlLmpwZz9z/PTYxMng2MTImdz0w/Jms9MjAmYz1LUHNM/Z1ZJd0VHZER2ZjRf/a2l5bkNYdzk2cF9Q/aEJqSUdkVTY4cWtw/YnVJPQ"} alt={user.nombre} fill className="object-cover" />
+                        <Image src={getDirectLink(getUserImage(user))?.directLinkImage || "/user-placeholder.png"} 
+                        alt={user.nombre} 
+                        fill 
+                        className="object-cover" />
                     </div>
                 </Link>
                 <div className="flex-1">

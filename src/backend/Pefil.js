@@ -1,8 +1,6 @@
 import express from "express";
 import { conectar } from "./BaseDeDatos.js";
 import cors from "cors";
-import { NextResponse } from "next/server.js";
-import { subirArchivoADrive } from "./ConecDrive.js";
 
 export function setPerfil(app) {
   app.use(express.json());
@@ -53,81 +51,78 @@ export function setPerfil(app) {
       res.status(500).json({ message: "Error interno", error });
     }
   });
-}
 
-export async function POST(request) {
-  try {
-    // Obtener los datos del formulario
-    const formData = await request.formData();
+  app.get("/api/admin/usuarios-strikes", (req, res) => {
+  const connection = conectar();
 
-    // Extraer los campos básicos
-    const userId = formData.get("userId");
-    const nombre = formData.get("nombre");
-    const correo = formData.get("correo");
+  const consulta = `
+    SELECT
+      u.*,
+      CASE
+        WHEN u.tipoUsuario = 1 THEN 'escuela'
+        WHEN u.tipoUsuario = 2 THEN 'aliado'
+        ELSE 'otro'
+      END AS tipo,
+      -- Campos de escuela
+      e.nivelEducativo,
+      e.cct,
+      e.numeroEstudiantes,
+      e.calle AS calleEscuela,
+      e.colonia AS coloniaEscuela,
+      e.nombreInstitucion,
+      e.foto AS fotoEscuela,
+      -- Campos de aliado
+      a.institucion,
+      a.calle AS calleAliado,
+      a.colonia AS coloniaAliado,
+      a.foto AS fotoAliado,
+      a.sector
+    FROM usuario u
+    LEFT JOIN escuela e ON u.id = e.id_Usuario
+    LEFT JOIN aliado a ON u.id = a.id_Usuario
+    WHERE u.estado = 1 AND u.tipoUsuario IN (1, 2) AND u.id NOT IN (2, 3, 6);
+  `;
 
-    // Obtener el archivo de imagen si existe
-    const imagenFile = formData.get("imagen");
-
-    // Validar datos básicos
-    if (!userId || !nombre || !correo) {
-      return NextResponse.json(
-        { error: "Faltan campos obligatorios" },
-        { status: 400 }
-      );
+  connection.query(consulta, (err, results) => {
+    if (err) {
+      connection.end();
+      console.error("Error executing query:", err);
+      return res.status(500).json({ message: "Internal Server Error", error: err.message });
     }
 
-    // Objeto para almacenar los datos actualizados
-    const datosActualizados = {
-      nombre,
-      correo,
+    // Filtrar usuarios con 3 strikes
+    const usuariosCon3Strikes = results.filter(user => user.strikes === 3);
+
+    if (usuariosCon3Strikes.length === 0) {
+      connection.end();
+      return res.status(200).json(results); // No hay usuarios con 3 strikes
     }
 
-    // Procesar la imagen si se proporcionó una nueva
-    if (imagenFile && imagenFile.size > 0) {
-      try {
-        // Usar la función existente para subir la imagen a Drive
-        const imagenUrl = await subirArchivoADrive(imagenFile);
+    // Obtener los IDs de los usuarios a eliminar
+    const idsAEliminar = usuariosCon3Strikes.map(user => user.id);
 
-        // Añadir la URL de la imagen a los datos actualizados
-        datosActualizados.imagen = imagenUrl;
-      } catch (error) {
-        console.error("Error al subir la imagen:", error);
-        return NextResponse.json(
-          { error: "Error al procesar la imagen" },
-          { status: 500 }
-        );
+    // Eliminar usuarios con 3 strikes
+    const deleteQuery = `DELETE FROM usuario WHERE id IN (?)`;
+
+    connection.query(deleteQuery, [idsAEliminar], (deleteErr, deleteResult) => {
+      connection.end();
+
+      if (deleteErr) {
+        console.error("Error eliminando usuarios:", deleteErr);
+        return res.status(500).json({ message: "Error eliminando usuarios con 3 strikes" });
       }
-    }
 
-    // Aquí iría la lógica para actualizar los datos en tu base de datos
-    // Por ejemplo, usando un ORM como Prisma o una conexión directa a la base de datos
+      // Filtrar resultados para no incluir a los eliminados
+      const usuariosRestantes = results.filter(user => user.strikes < 3);
 
-    // Ejemplo con Prisma (comentado):
-    /*
-    const usuarioActualizado = await prisma.usuario.update({
-      where: { id: parseInt(userId) },
-      data: datosActualizados
-    })
-    */
-
-    const usuarioActualizado = await actualizarUsuarioEnBaseDeDatos(
-      userId,
-      datosActualizados
-    );
-
-    return NextResponse.json({
-      success: true,
-      message: "Perfil actualizado correctamente",
-      usuario: usuarioActualizado,
+      return res.status(200).json({
+        message: `Se eliminaron ${idsAEliminar.length} usuario(s) con 3 strikes`,
+        eliminados: idsAEliminar,
+        usuarios: usuariosRestantes
+      });
     });
-  } catch (error) {
-    console.error("Error al actualizar el perfil:", error);
-    return NextResponse.json(
-      { error: "Error al actualizar el perfil" },
-      { status: 500 }
-    );
-  }
-}
+  });
+});
 
 // Función simulada para actualizar el usuario en la base de datos
 // Reemplaza esto con tu implementación real
@@ -142,4 +137,5 @@ async function actualizarUsuarioEnBaseDeDatos(userId, datos) {
     ...datos,
     updatedAt: new Date().toISOString(),
   }
+}
 }
