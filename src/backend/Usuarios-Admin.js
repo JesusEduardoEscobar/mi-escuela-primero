@@ -11,10 +11,11 @@ app.use(
 )
 app.use(express.json())
 
-  // Ruta para obtener las solicitudes
-  app.get("/api/admin/solicitudes", (req, res) => {
-    const connection = conectar();
-    const consulta = `
+export const setUsuariosAdmin = (app) => {
+// Ruta para obtener las solicitudes
+app.get("/api/admin/solicitudes", (req, res) => {
+  const connection = conectar();
+  const consulta = `
     SELECT
       u.*,
       e.nivelEducativo,
@@ -100,7 +101,6 @@ app.get("/api/usuarios/escuelas", (res, req) => {
     if(err) return res.status(500).json({ message: "Error al obtener aliados" })
   })
 })
-  
   app.get("/api/usuarios/escuelas", (res, req) => {
     const conectar = conectar();
     const consulta =
