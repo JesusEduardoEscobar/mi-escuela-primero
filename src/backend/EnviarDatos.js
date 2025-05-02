@@ -6,6 +6,7 @@ import fs from "fs"
 import { subirArchivoADrive } from "./ConecDrive.js"
 import bcrypt from 'bcrypt'
 
+
 async function registrarEscuela(req, res, connection) {
   // Fix parameter names to match frontend
   const {
@@ -277,6 +278,7 @@ app.post("/api/registrar",
     }
   },
 )
+
 
 app.post("/api/crear-post", upload.single("media"), async (req, res) => {
   try {

@@ -10,6 +10,8 @@ app.use(
   }),
 )
 
+app.use(express.json())
+export const setLlamarUsuario = (app) => {
 app.get('/api/publicaciones/:idConvenio', (req, res) => {
   const { idConvenio } = req.params;
   const connection = conectar()
@@ -65,4 +67,15 @@ app.get("/api/admin/usuarios-aprobados", (req, res) => {
   });
 });
 
+<<<<<<< HEAD
 }
+=======
+app.get('/api/mostrarperfiles', (req,res) => {
+  const connection = conectar()
+  const consulta = `
+    SELECT * FROM usuario
+  `  
+  connection.query(consulta, )
+})
+}
+>>>>>>> 73868f21c9a6c8e5b9c1f510e4c9cca96cab3e99
