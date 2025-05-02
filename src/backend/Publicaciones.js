@@ -6,48 +6,61 @@
 
   const upload = multer({ storage: multer.memoryStorage() });
 
+  export function setCreateEvidences(app) {
+    app.use(express.json());
+    app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+    // Endpoint: Crear evidencia
+    app.post("/api/crear-evidencia", upload.single("foto"), async (req, res) => {
+  console.log("Datos recibidos en el backend:", req.body);
+  console.log("Archivo recibido:", req.file);
+
+  if (!req.file) {
+    console.warn("⚠ No se recibió ningún archivo, pero continuando ejecución...");
+    return res.status(201).json({ mensaje: "Evidencia creada sin imagen." });
+  }
+
+  const { convenioId, descripcion, usuarioId } = req.body;
+  const connection = conectar();
+
+  let driveUrl = null;
+  try {
+    driveUrl = await subirArchivoADrive(
+      req.file.originalname,
+      req.file.mimetype,
+      req.file.buffer,
+      "1GMDOIlROBwVtldg2p_ARvRxuAltD7V_H"
+    );
+
+    if (!driveUrl) {
+      console.warn("⚠ Error subiendo imagen a Drive. Continuando sin imagen...");
+    }
+  } catch (err) {
+    console.warn("⚠ Error al subir archivo a Drive:", err.message);
+  }
+
+  console.log("Imagen subida a Drive:", driveUrl);
+
+  let result = null;
+  try {
+    result = await connection.queryAsync(
+      `INSERT INTO evidenciaproyecto (descripcion, foto, id_Convenio, fecha) VALUES (?, ?, ?, CURRENT_TIMESTAMP)`,
+      [descripcion, driveUrl || "", convenioId]
+    );
+  } catch (error) {
+    console.warn("⚠ Error en la consulta SQL:", error.message);
+  }
+
+  res.status(201).json({
+    id: result?.insertId || null,
+    mensaje: result ? "Evidencia creada exitosamente" : "Evidencia creada con errores",
+    imagen: driveUrl || null
+  });
+});
+  }
+
   export function setEvidencias(app) {
     app.use(express.json());
     app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
-
-    // Endpoint: Crear evidencia
-    app.post('/crear-evidencia', upload.single('foto'), async (req, res) => {
-      const connection = conectar();
-      const { convenioId, descripcion, usuarioId } = req.body;
-      console.log("Datos recibidos en el backend:", req.body); // 🔥 Verifica qué datos llegan
-  console.log("Archivo recibido:", req.file);
-
-      try {
-        let driveUrl = null
-        if (req.file) {
-          driveUrl = await subirArchivoADrive(
-            req.file.originalname,
-            req.file.mimetype,
-            req.file.buffer,
-            '1GMDOIlROBwVtldg2p_ARvRxuAltD7V_H'
-          );
-        }
-        if (!req.file) {
-          return res.status(400).json({ error: "No se recibió ningún archivo. Asegúrate de que 'foto' está en el formulario." });
-        }
-
-        const [result] = await connection.queryAsync(
-          `INSERT INTO evidenciaProyecto (descripcion, foto, id_Convenio, fecha) VALUES (?, ?, ?, CURRENT_TIMESTAMP)`,
-          [descripcion, driveUrl, convenioId]
-        );
-
-        res.status(201).json({
-          id: result.insertId,
-          mensaje: 'Evidencia creada exitosamente',
-          imagen: driveUrl,
-        });
-      } catch (error) {
-        console.error('Error al crear evidencia:', error);
-        res.status(500).json({ error: 'Error al crear evidencia' });
-      } finally {
-        connection.end();
-      }
-    });
 
     // Nuevo endpoint: Obtener convenios por usuario
     app.get('/convenios-usuario/:usuarioId', async (req, res) => {

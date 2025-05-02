@@ -156,7 +156,7 @@ export default function PerfilUsuario() {
       </div>
 
       {/* Sección de Publicaciones */}
-      <div className="bg-white rounded-lg shadow-md p-6 pb-20">
+      {/* <div className="bg-white rounded-lg shadow-md p-6 pb-20">
         <h2 className="text-2xl font-bold mb-4">Publicaciones</h2>
         {perfil.publicaciones && perfil.publicaciones.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -184,7 +184,7 @@ export default function PerfilUsuario() {
         ) : (
           <p className="text-gray-500">No hay publicaciones</p>
         )}
-      </div>
+      </div> */}
     </div>
   )
 }

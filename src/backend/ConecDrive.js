@@ -1,6 +1,5 @@
 import { google } from 'googleapis'
 import stream from 'stream'
-import { getDirectLink } from '../utils/Links.js'
 
 const auth = new google.auth.GoogleAuth({
   keyFile: './artful-line-457204-v2-8d2c12099790.json',

@@ -11,8 +11,8 @@ import mensajes from "./Mensajeria.js";
 import { infoUsers } from "./infoUsuario.js";
 import { actualizarEstado } from "./actualizarEstadoSolicitud.js";
 import { todasSolicitudes } from "./verSolicitudes.js";
-import { eliminarSolicitud } from "./EliminarSolicitud.js";
-import { setEvidencias } from "./Publicaciones.js"; 
+import { eliminarSolicitud } from "./eliminarSolicitud.js";
+import { setEvidencias, setCreateEvidences } from "./Publicaciones.js"; 
 
 const app = express();
 const PORT = 1984;
@@ -39,7 +39,8 @@ infoUsers(app);
 actualizarEstado(app);
 todasSolicitudes(app);
 eliminarSolicitud(app);
-setEnvidencias(app);
+setEvidencias(app);
+setCreateEvidences(app);
 
 // Start server
 app.listen(PORT, () => {
