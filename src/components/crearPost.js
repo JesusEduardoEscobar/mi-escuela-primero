@@ -90,28 +90,19 @@ useEffect(() => {
       formData.append("descripcion", content);
       formData.append("usuarioId", userInfo.id);
 
-
       if (incluirSolicitud && solicitudAtendida) {
         formData.append("solicitudId", solicitudAtendida.id)
       }
-
-      if (media) {
-        formData.append("foto", media)
-      }
-
-      const res = await fetch("http://localhost:1984/crear-evidencia", {
+      const res = await fetch("http://localhost:1984/api/crear-evidencia", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: formData,
       });
 
       console.log("Respuesta sin procesar:", res); // 🔥 Verifica si es HTML
-      const texto = await res.text(); // 🔥 Intenta ver la respuesta en texto
-      console.log("Contenido de la respuesta:", texto);
 
-      const data = await response.json()
+      const data = await res.json()
 
-      if (!response.ok) {
+      if (!res.ok) {
         throw new Error(data.message || "Error al crear la publicación")
       }
 

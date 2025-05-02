@@ -10,18 +10,6 @@ export function setLlamarUsuario(app) {
     }),
   )
 
-app.use(express.json())
-app.get('/api/publicaciones/:idConvenio', (req, res) => {
-  const { idConvenio } = req.params;
-  const connection = conectar()
-  const solicitud = `
-    SELECT * FROM evidenciaproyecto WHERE idConvenio?
-  `
-  connection.query(query, [idConvenio], (error, results) => {
-    if (error) {
-      return res.status(500).json({ message: "Error en el servidor" });
-    }
-    res.json(results)
   app.use(express.json())
   app.get('/api/publicaciones/:idConvenio', (req, res) => {
     const { idConvenio } = req.params;
