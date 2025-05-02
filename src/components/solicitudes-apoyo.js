@@ -17,7 +17,7 @@ export default function SolicitudesApoyoPage() {
       try {
         const res = await fetch("http://localhost:1984/api/todasSolicitudes");
         const data = await res.json();
-        setSolicitudes(data.escuelas);
+        setSolicitudes(data.aliados);
       } catch (error) {
         console.error("Error al cargar solicitudes del servidor:", error);
       }
@@ -63,7 +63,7 @@ export default function SolicitudesApoyoPage() {
 
   return (
     <div className="space-y-6 pb-20">
-      <h1 className="text-2xl font-bold">Solicitudes de Apoyo</h1>
+      <h1 className="text-2xl font-bold">Ofertas de Apoyo</h1>
 
       {/* Barra de búsqueda y filtros */}
       <div className="bg-white p-4 rounded-lg border shadow-sm">

@@ -15,7 +15,7 @@ export default function SolicitudesAyudaPage() {
       try {
         const res = await fetch("http://localhost:1984/api/todasSolicitudes");
         const data = await res.json();
-        setSolicitudes(data.aliados); // Se cargan las solicitudes de aliados
+        setSolicitudes(data.escuelas); // Se cargan las solicitudes de aliados
       } catch (error) {
         console.error("Error al cargar solicitudes de ayuda:", error);
       }

@@ -1,4 +1,3 @@
-
 import { conectar } from "./BaseDeDatos.js";
 import cors from "cors";
 import express from "express";
@@ -20,18 +19,22 @@ export function eliminarSolicitud(app) {
     } else if (tabla == 2) {
       tablaNombre = "perfiloferta";
     } else {
-      return res.status(400).json({ error: "Tabla no válida" });
+      return res.status(400).json({
+        error: "Valor inválido para tabla: debe ser 1 (oferta) o 2 (necesidad)",
+      });
     }
 
     const connection = conectar();
-    const query = `DELETE FROM \${tablaNombre} WHERE id = ?`;
+    const query = `DELETE FROM ${tablaNombre} WHERE id = ?`;
 
     connection.query(query, [id], (err, result) => {
       connection.end();
 
       if (err) {
         console.error("Error al eliminar solicitud:", err);
-        return res.status(500).json({ error: "Error al eliminar la solicitud" });
+        return res
+          .status(500)
+          .json({ error: "Error al eliminar la solicitud" });
       }
 
       if (result.affectedRows === 0) {

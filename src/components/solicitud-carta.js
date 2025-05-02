@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -46,26 +46,28 @@ export function SolicitudCard({ solicitud, onUpdate }) {
   const aprobarSolicitud = async () => {
     setProcesando(true);
     try {
-      const res = await fetch("http://localhost:1984/api/actualizarEstadoSolicitud", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: solicitud.id,
-          tabla: solicitud.TABLE,
-          estado: 1, // estado aprobado: pendiente
-        }),
-      });
+      const res = await fetch(
+        "http://localhost:1984/api/actualizarEstadoSolicitud",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: solicitud.id,
+            tabla: solicitud.TABLE,
+            estado: 1,
+          }),
+        }
+      );
 
       if (!res.ok) throw new Error("Error al aprobar");
 
       const data = await res.json();
-      console.log("✅ Solicitud aprobada:", data);
+      if (onUpdate) onUpdate({ ...solicitud, estado: "pendiente" });
 
-      if (onUpdate) {
-        onUpdate({ ...solicitud, estado: "pendiente" });
-      }
+      alert("✅ Solicitud aprobada correctamente");
+      window.location.reload();
     } catch (error) {
       console.error("❌ Error al aprobar:", error);
       alert("No se pudo aprobar la solicitud");
@@ -75,8 +77,12 @@ export function SolicitudCard({ solicitud, onUpdate }) {
   };
 
   const rechazarSolicitud = async () => {
-    const confirmar = confirm("¿Estás seguro de que quieres rechazar y eliminar esta solicitud?");
+    const confirmar = confirm(
+      "¿Estás seguro de que quieres rechazar y eliminar esta solicitud?"
+    );
     if (!confirmar) return;
+
+    console.log("💜💜💜rechazarSolicitud", solicitud.id, solicitud.TABLE);
 
     setProcesando(true);
     try {
@@ -94,11 +100,10 @@ export function SolicitudCard({ solicitud, onUpdate }) {
       if (!res.ok) throw new Error("Error al rechazar");
 
       const data = await res.json();
-      console.log("🗑️ Solicitud eliminada:", data);
+      if (onUpdate) onUpdate(null);
 
-      if (onUpdate) {
-        onUpdate(null); // Indica que se eliminó
-      }
+      alert("🗑️ Solicitud rechazada y eliminada correctamente");
+      window.location.reload();
     } catch (error) {
       console.error("❌ Error al rechazar:", error);
       alert("No se pudo eliminar la solicitud");
@@ -128,7 +133,9 @@ export function SolicitudCard({ solicitud, onUpdate }) {
           <div className="flex justify-between items-start">
             <div>
               <Link href={`/admin/perfil/${solicitud.id_Dueño}`}>
-                <h3 className="font-medium text-lg hover:underline">{solicitud.nombre}</h3>
+                <h3 className="font-medium text-lg hover:underline">
+                  {solicitud.nombre}
+                </h3>
               </Link>
               <div className="flex items-center text-sm text-gray-600 mt-1">
                 <Building size={16} className="mr-1" />
@@ -140,15 +147,20 @@ export function SolicitudCard({ solicitud, onUpdate }) {
               </div>
               <div className="flex items-center text-sm text-gray-600 mt-1">
                 <Calendar size={16} className="mr-1" />
-                <span>Solicitud: {new Date(solicitud.fecha).toLocaleDateString()}</span>
+                <span>
+                  Solicitud: {new Date(solicitud.fecha).toLocaleDateString()}
+                </span>
               </div>
             </div>
             <div className="flex flex-col items-end">
               <span
-                className={`mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(solicitud.estado)}`}
+                className={`mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(
+                  solicitud.estado
+                )}`}
               >
                 {getStatusIcon(solicitud.estado)}
-                {solicitud.estado.charAt(0).toUpperCase() + solicitud.estado.slice(1)}
+                {solicitud.estado.charAt(0).toUpperCase() +
+                  solicitud.estado.slice(1)}
               </span>
             </div>
           </div>
