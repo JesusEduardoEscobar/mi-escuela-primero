@@ -1,17 +1,31 @@
 "use client";
-import { useEffect, useState, useContext } from 'react';
-//import { UserContext } from '@/context/UserContext';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
+import { getUserRole } from '@/utils/UtilidadesAuth';
 
 export default function ListaDeChats() {
-  const idUsuario = 6;
   const [chats, setChats] = useState([]);
+  const [idUsuario, setIdUsuario] = useState(null);
 
   useEffect(() => {
-    axios.get(`http://localhost:1984/mis-chats/${idUsuario}`)
-      .then(res => setChats(res.data))
-      .catch(err => console.error('Error cargando chats:', err));
+    const user = getUserRole();
+    console.log("🔍 Usuario decodificado desde el token:", user); // <-- Aquí
+    if (user && user.id) {
+      setIdUsuario(user.id);
+      console.log("ID de usuario:", user.id); // <-- Aquí
+    } else {
+      console.error("No se pudo obtener el ID del usuario desde el token");
+    }
+  }, []);
+  
+
+  useEffect(() => {
+    if (idUsuario !== null) {
+      axios.get(`http://localhost:1984/mis-chats/${idUsuario}`)
+        .then(res => setChats(res.data))
+        .catch(err => console.error('Error cargando chats:', err));
+    }
   }, [idUsuario]);
 
   return (
