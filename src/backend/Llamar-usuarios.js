@@ -24,19 +24,45 @@ app.get('/api/publicaciones/:idConvenio', (req, res) => {
   })
 })
 
-app.get('api/mostrarperfil', (req,res) => {
-  const connection = conectar()
+app.get("/api/admin/usuarios-aprobados", (req, res) => {
+  const connection = conectar();
   const consulta = `
-    SELECT * FROM usuario WHERE id ?
-  ` 
-  connection.query(consulta, )
-})
+    SELECT
+      u.*,
+      CASE
+        WHEN u.tipoUsuario = 1 THEN 'escuela'
+        WHEN u.tipoUsuario = 2 THEN 'aliado'
+        ELSE 'otro'
+      END AS tipo,
+      -- Campos de escuela
+      e.nivelEducativo,
+      e.cct,
+      e.numeroEstudiantes,
+      e.documentoVerificacion AS docEscuela,
+      e.calle AS calleEscuela,
+      e.colonia AS coloniaEscuela,
+      e.nombreInstitucion,
+      e.foto AS fotoEscuela,
+      -- Campos de aliado
+      a.institucion,
+      a.documentoVerificacion AS docAliado,
+      a.calle AS calleAliado,
+      a.colonia AS coloniaAliado,
+      a.foto AS fotoAliado
+    FROM usuario u
+    LEFT JOIN escuela e ON u.id = e.id_Usuario
+    LEFT JOIN aliado a ON u.id = a.id_Usuario
+    WHERE u.estado = 1;
+  `;
 
-app.get('/api/mostrarperfiles', (req,res) => {
-  const connection = conectar()
-  const consulta = `
-    SELECT * FROM usuario
-  `  
-  connection.query(consulta, )
-})
+  connection.query(consulta, (err, results) => {
+    connection.end();
+    if (err) {
+      console.error("Error executing query:", err);
+      return res.status(500).json({ message: "Internal Server Error", error: err.message });
+    }
+    res.status(200).json(results);
+  });
+});
+
 }
