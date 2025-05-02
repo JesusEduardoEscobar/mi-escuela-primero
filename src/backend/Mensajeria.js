@@ -125,4 +125,27 @@ export default function mensajes(app) {
       res.send(results);
     });
   });
+
+  // Obtener todos los usuarios para crear chats
+app.get('/usuarios', (req, res) => {
+  db.query(`SELECT id, nombre FROM usuario`, (err, results) => {
+    if (err) return res.status(500).send(err);
+    res.json(results);
+  });
+});
+
+  app.get('/admin/todos-los-chats', (req, res) => {
+    db.query(`
+      SELECT 
+        c.idChat, 
+        u1.nombre AS nombreUsuario1, 
+        u2.nombre AS nombreUsuario2
+      FROM chats c
+      JOIN usuario u1 ON c.idUsuario1 = u1.id
+      JOIN usuario u2 ON c.idUsuario2 = u2.id
+    `, (err, results) => {
+      if (err) return res.status(500).send(err);
+      res.send(results);
+    });
+  });
 }

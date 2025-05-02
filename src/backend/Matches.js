@@ -178,90 +178,89 @@ app.put('/api/convenios/:id/estado', (req, res) => {
   }
   
 
-//MUESTRA MATCHES POTENCIALES (aún no aprobados)
+//MUESTRA MATCHES POTENCIALES (aún no aprobados ni enviados)
 app.get('/api/matches-potenciales/:usuarioId', (req, res) => {
-    const { usuarioId } = req.params;
-    const connection = conectar();
-  
-    const tipoQuery = 'SELECT tipoUsuario FROM usuario WHERE id = ?';
-    connection.query(tipoQuery, [usuarioId], (err, tipoResults) => {
-      if (err || tipoResults.length === 0) {
-        return res.status(500).json({ error: 'Error obteniendo tipoUsuario' });
-      }
-  
-      const tipoUsuario = tipoResults[0].tipoUsuario;
-      let query = '';
-      let params = [];
-  
-      if (tipoUsuario === 1) {
-        // Escuela busca aliados
-        query = `
-          SELECT u.id, u.nombre, u.tipoUsuario, a.foto, a.calle, a.colonia, a.cp,
-                 GROUP_CONCAT(DISTINCT ta.categoriaApoyo) AS apoyos
-          FROM usuario u
-          JOIN aliado a ON u.id = a.id_Usuario
-          JOIN perfiloferta po ON po.id_Aliado = a.id_Usuario
-          JOIN tipoapoyo ta ON ta.id = po.id_Apoyo
-          WHERE u.id != ?
-            AND u.tipoUsuario = 2
-            AND u.id NOT IN (
-              SELECT CASE
-                WHEN c.Aliado_Usuario_id = ? THEN c.Aliado_Usuario_id
-                ELSE c.Escuela_Usuario_id
-              END
-              FROM convenio c
-              WHERE (c.Escuela_Usuario_id = ? OR c.Aliado_Usuario_id = ?)
-                AND c.estadoProgreso = 1
-            )
-          GROUP BY u.id, u.nombre, u.tipoUsuario, a.foto, a.calle, a.colonia, a.cp
-        `;
-      } else if (tipoUsuario === 2) {
-        // Aliado busca escuelas
-        query = `
-          SELECT u.id, u.nombre, u.tipoUsuario, e.foto, e.calle, e.colonia, e.cp,
-                 GROUP_CONCAT(DISTINCT ta.categoriaApoyo) AS necesidades
-          FROM usuario u
-          JOIN escuela e ON u.id = e.id_Usuario
-          JOIN perfilnecesidad pn ON pn.id_Escuela = e.id_Usuario
-          JOIN tipoapoyo ta ON ta.id = pn.id_Apoyo
-          WHERE u.id != ?
-            AND u.tipoUsuario = 1
-            AND u.id NOT IN (
-              SELECT CASE
-                WHEN c.Aliado_Usuario_id = ? THEN c.Aliado_Usuario_id
-                ELSE c.Escuela_Usuario_id
-              END
-              FROM convenio c
-              WHERE (c.Escuela_Usuario_id = ? OR c.Aliado_Usuario_id = ?)
-                AND c.estadoProgreso = 1
-            )
-          GROUP BY u.id, u.nombre, u.tipoUsuario, e.foto, e.calle, e.colonia, e.cp
-        `;
-      }
-  
-      params = [usuarioId, usuarioId, usuarioId, usuarioId];
-  
-      connection.query(query, params, (err, results) => {
-        if (err) return res.status(500).json({ error: 'Error obteniendo matches potenciales' });
-  
-        const formatted = results.map((r) => ({
-          usuario: {
-            id: r.id,
-            nombre: r.nombre,
-            tipoUsuario: r.tipoUsuario,
-            foto: r.foto,
-            calle: r.calle,
-            colonia: r.colonia,
-            cp: r.cp
-          },
-          apoyos: r.apoyos ? r.apoyos.split(',') : undefined,
-          necesidades: r.necesidades ? r.necesidades.split(',') : undefined
-        }));
-  
-        res.json(formatted);
-      });
+  const { usuarioId } = req.params;
+  const connection = conectar();
+
+  const tipoQuery = 'SELECT tipoUsuario FROM usuario WHERE id = ?';
+  connection.query(tipoQuery, [usuarioId], (err, tipoResults) => {
+    if (err || tipoResults.length === 0) {
+      return res.status(500).json({ error: 'Error obteniendo tipoUsuario' });
+    }
+
+    const tipoUsuario = tipoResults[0].tipoUsuario;
+    let query = '';
+    let params = [];
+
+    // Esta subquery excluye a usuarios con convenios pendientes o aprobados (estado 0 o 1)
+    const exclusionSubquery = `
+      SELECT 
+        CASE 
+          WHEN c.Escuela_Usuario_id = ? THEN c.Aliado_Usuario_id 
+          ELSE c.Escuela_Usuario_id 
+        END AS idRelacionado
+      FROM convenio c
+      WHERE (c.Escuela_Usuario_id = ? OR c.Aliado_Usuario_id = ?)
+        AND c.estadoProgreso IN (0, 1)
+    `;
+
+    if (tipoUsuario === 1) {
+      // Escuela busca aliados
+      query = `
+        SELECT u.id, u.nombre, u.tipoUsuario, a.foto, a.calle, a.colonia, a.cp,
+              GROUP_CONCAT(DISTINCT ta.categoriaApoyo) AS apoyos
+        FROM usuario u
+        JOIN aliado a ON u.id = a.id_Usuario
+        JOIN perfiloferta po ON po.id_Aliado = a.id_Usuario
+        JOIN tipoapoyo ta ON ta.id = po.id_Apoyo
+        WHERE u.id != ?
+          AND u.tipoUsuario = 2
+          AND u.id NOT IN (${exclusionSubquery})
+        GROUP BY u.id, u.nombre, u.tipoUsuario, a.foto, a.calle, a.colonia, a.cp
+      `;
+    } else if (tipoUsuario === 2) {
+      // Aliado busca escuelas
+      query = `
+        SELECT u.id, u.nombre, u.tipoUsuario, e.foto, e.calle, e.colonia, e.cp,
+              GROUP_CONCAT(DISTINCT ta.categoriaApoyo) AS apoyos
+        FROM usuario u
+        JOIN escuela e ON u.id = e.id_Usuario
+        JOIN perfilnecesidad pn ON pn.id_Escuela = e.id_Usuario
+        JOIN tipoapoyo ta ON ta.id = pn.id_Apoyo
+        WHERE u.id != ?
+          AND u.tipoUsuario = 1
+          AND u.id NOT IN (${exclusionSubquery})
+        GROUP BY u.id, u.nombre, u.tipoUsuario, e.foto, e.calle, e.colonia, e.cp
+      `;
+    }
+
+    // La subquery tiene 3 parámetros (usuarioId repetido), más el primero u.id != ?
+    params = [usuarioId, usuarioId, usuarioId, usuarioId];
+
+    connection.query(query, params, (err, results) => {
+      if (err) return res.status(500).json({ error: 'Error obteniendo matches potenciales' });
+
+      const formatted = results.map((r) => ({
+        usuario: {
+          id: r.id,
+          nombre: r.nombre,
+          tipoUsuario: r.tipoUsuario,
+          foto: r.foto,
+          calle: r.calle,
+          colonia: r.colonia,
+          cp: r.cp
+        },
+        apoyos: r.apoyos ? r.apoyos.split(',') : undefined,
+        necesidades: r.necesidades ? r.necesidades.split(',') : undefined
+      }));
+
+      res.json(formatted);
     });
   });
+});
+
+  
 
 //VER SOLICITUDES DE MATCHES (EN ESTADO 0/PENDIENTES DE APROBAR) NO EXTRAE IMAGENES PARA MOSTRAR TODAVIA!
 app.get('/api/solicitudes/:idUsuario', (req, res) => {
@@ -284,41 +283,47 @@ app.get('/api/solicitudes/:idUsuario', (req, res) => {
 
 // VER TODOS LOS MATCHES (pendientes y aprobados)
 app.get('/api/convenios/usuario/:usuarioId', (req, res) => {
-    const { usuarioId } = req.params;
-    const connection = conectar();
-  
-    const query = `
-      SELECT u.id, u.nombre, u.tipoUsuario, u.email, u.telefono,
-             c.id AS convenioId, c.estadoProgreso,
-             COALESCE(e.foto, a.foto) AS imagen
-      FROM convenio c
-      JOIN usuario u ON (
-        (u.id = c.Aliado_Usuario_id AND c.Escuela_Usuario_id = ?) OR
-        (u.id = c.Escuela_Usuario_id AND c.Aliado_Usuario_id = ?)
-      )
-      LEFT JOIN escuela e ON u.tipoUsuario = 1 AND u.id = e.id_Usuario
-      LEFT JOIN aliado a ON u.tipoUsuario = 2 AND u.id = a.id_Usuario
-      WHERE (c.Aliado_Usuario_id = ? OR c.Escuela_Usuario_id = ?)
-    `;
-  
-    connection.query(query, [usuarioId, usuarioId, usuarioId, usuarioId], (err, results) => {
-      if (err) return res.status(500).json({ message: 'Error al obtener matches' });
-  
-      const formatted = results.map(r => ({
-        convenioId: r.convenioId,
-        estadoProgreso: r.estadoProgreso,
-        usuario: {
-          id: r.id,
-          nombre: r.nombre,
-          tipoUsuario: r.tipoUsuario,
-          email: r.email,
-          telefono: r.telefono,
-          imagen: r.imagen || null
-        }
-      }));
-  
-      res.json(formatted);
-    });
+  const { usuarioId } = req.params;
+  const connection = conectar();
+
+  const query = `
+    SELECT u.id, u.nombre, u.tipoUsuario, u.email, u.telefono,
+           c.id AS convenioId, c.estadoProgreso,
+           COALESCE(e.foto, a.foto) AS imagen,
+           ch.idChat
+    FROM convenio c
+    JOIN usuario u ON (
+      (u.id = c.Aliado_Usuario_id AND c.Escuela_Usuario_id = ?) OR
+      (u.id = c.Escuela_Usuario_id AND c.Aliado_Usuario_id = ?)
+    )
+    LEFT JOIN escuela e ON u.tipoUsuario = 1 AND u.id = e.id_Usuario
+    LEFT JOIN aliado a ON u.tipoUsuario = 2 AND u.id = a.id_Usuario
+    LEFT JOIN chats ch ON (
+      (ch.idUsuario1 = u.id AND ch.idUsuario2 = ?) OR
+      (ch.idUsuario1 = ? AND ch.idUsuario2 = u.id)
+    )
+    WHERE (c.Aliado_Usuario_id = ? OR c.Escuela_Usuario_id = ?)
+  `;
+
+  connection.query(query, [usuarioId, usuarioId, usuarioId, usuarioId, usuarioId, usuarioId], (err, results) => {
+    if (err) return res.status(500).json({ message: 'Error al obtener matches' });
+
+    const formatted = results.map(r => ({
+      convenioId: r.convenioId,
+      estadoProgreso: r.estadoProgreso,
+      usuario: {
+        id: r.id,
+        nombre: r.nombre,
+        tipoUsuario: r.tipoUsuario,
+        email: r.email,
+        telefono: r.telefono,
+        imagen: r.imagen || null
+      },
+      chatId: r.idChat || null // Aquí agregamos el chatId
+    }));
+
+    res.json(formatted);
+  });
 });
 }
   

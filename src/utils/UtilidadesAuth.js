@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken";
 const SECRET_KEY = process.env.SECRET_KEY || "Clave_secreta";
 
 export const getUserRole = () => {
-  console.log("PRUEBA 👀👀👀 - getUserRole() ejecutado");
 
   const token = localStorage.getItem("token");
   if (!token) return null;

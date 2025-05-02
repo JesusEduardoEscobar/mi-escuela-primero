@@ -124,4 +124,18 @@ export function setPerfil(app) {
   });
 });
 
+// Función simulada para actualizar el usuario en la base de datos
+// Reemplaza esto con tu implementación real
+async function actualizarUsuarioEnBaseDeDatos(userId, datos) {
+  // Aquí iría tu código para actualizar el usuario en la base de datos
+  console.log(`Actualizando usuario ${userId} con datos:`, datos);
+
+
+  // Simulamos una respuesta exitosa
+  return {
+    id: userId,
+    ...datos,
+    updatedAt: new Date().toISOString(),
+  }
+}
 }
