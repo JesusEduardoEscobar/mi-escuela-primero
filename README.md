@@ -51,6 +51,13 @@ Algunas funciones necesarias para obtener poder mostrar laos archivos que se ecu
   Aliado (2)
   Administrador (3)
 
+Los perfiles, tanto de necesidades como de ofertas (almacenados en la base de datos en los campos perfilnecesidad.estado y perfiloferta.estado), pueden encontrarse en uno de los siguientes cuatro estados:
+
+* [0] En revisión: El perfil ha sido registrado pero aún no ha sido aprobado por un administrador.
+* [1] Pendiente: El perfil ya fue aprobado, pero aún no ha iniciado ninguna colaboración con aliados o escuelas.
+* [2] En progreso: Ya se está trabajando activamente con una escuela o un aliado en relación con esta necesidad u oferta.
+* [3] Terminado: El trabajo o colaboración ha concluido satisfactoriamente.
+
 # Archivo backend
 
 - CorrerBackend.js
