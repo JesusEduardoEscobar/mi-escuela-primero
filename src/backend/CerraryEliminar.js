@@ -16,7 +16,6 @@ export const logout = async (router) => {
     });
 
     localStorage.removeItem('token');
-
     router.push('/');
   } catch (error) {
     console.error('Error cerrando sesión:', error);
