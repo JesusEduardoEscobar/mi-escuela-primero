@@ -1,33 +1,11 @@
-"use client"
+"use client";
 
-import TransitionPage from '@/components/transition-page'
-import { useState } from "react"
-import { Heart, MoreHorizontal } from "lucide-react"
-import { publicaciones, usuariosAliados, usuariosEscuelas } from "@/data/dataUsuarios"
-import Link from 'next/link'
+import { useState, useEffect } from "react";
+import { Heart, MessageCircle, MoreHorizontal } from "lucide-react";
+import Link from "next/link";
+import { getDirectLink } from "@/utils/Links";
 
-// Función para transformar los datos
-const transformPosts = (publicaciones) => {
-  return publicaciones.map((pub) => {
-    // Busca el usuario en las listas de aliados y escuelas
-    const user = [...usuariosAliados, ...usuariosEscuelas].find((u) => u.id === pub.usuarioId);
-
-    return {
-      id: pub.id,
-      usuarioId: pub.usuarioId,
-      image: pub.imagenes[0], // Usa la primera imagen de la lista
-      caption: pub.descripcion, // Usa la descripción como caption
-      likes: pub.likes,
-      user: {
-        name: user?.nombre || "Usuario Desconocido", // Nombre del usuario
-        image: user?.imagen || "/placeholder.svg", // Imagen de perfil del usuario
-        tipo: user?.tipo || "escuela", // Tipo de usuario (aliado o escuela)
-      },
-    };
-  });
-};
-
-// Componente Post
+// Componente Post (existing)
 function Post({ post }) {
   const [isLiked, setIsLiked] = useState(false);
 
@@ -37,15 +15,10 @@ function Post({ post }) {
       <div className="flex items-center justify-between p-5">
         <Link href={`/admin/perfil/${post.usuarioId}`} className="flex items-center gap-2">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full overflow-hidden">
-              <img
-                src={post.user?.image || "/placeholder.svg"}
-                alt={post.user?.name || "Usuario"}
-                className="w-full h-full object-cover"
-              />
+            <div>
+              <h2 className="font-semibold text-sm">{post.user?.name || "Usuario"}</h2>
+              <p className="text-xs text-gray-500">{post.user.tipo}</p>
             </div>
-            <h2 className="font-semibold text-sm">{post.user?.name || "Usuario"}</h2>
-            <p className="text-xs text-gray-500">{post.user.tipo === "escuela" ? "Escuela" : "Aliado"}</p>
           </div>
         </Link>
         <button className="p-1">
@@ -56,7 +29,7 @@ function Post({ post }) {
       {/* Imagen del post */}
       <div>
         <img 
-          src={post.image || "/placeholder.svg"} 
+          src={getDirectLink(post.image)?.directLinkImage || "/placeholder.svg"} 
           alt="Post" 
           className="w-full aspect-square object-cover" 
         />
@@ -77,25 +50,76 @@ function Post({ post }) {
         <p className="text-base my-1">
           <span className="font-semibold">{post.user?.name || "Usuario"}</span> {post.caption}
         </p>
+        <p className="text-sm text-gray-500">{new Date(post.fecha).toLocaleDateString()}</p>
       </div>
     </div>
   );
 }
 
-export default function page() {
-  const posts = transformPosts(publicaciones)
+export default function Inicio() {
+  const [evidenciaPosts, setEvidenciaPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Transform evidencias to post format
+  const transformEvidenciasToPosts = (evidencias) => {
+    return evidencias.map((evidencia) => ({
+      id: evidencia.id,
+      usuarioId: evidencia.id_Convenio, // Using convenio ID for linking
+      image: evidencia.foto,
+      caption: evidencia.descripcion,
+      likes: 0, // Default since evidencias don't have likes yet
+      fecha: evidencia.fecha,
+      user: {
+        name: `${evidencia.nombre_aliado} & ${evidencia.institucion_escuela}`,
+        image: "/placeholder.svg", // Default image
+        tipo: "Evidencia de colaboración",
+      },
+    }));
+  };
+
+  // Fetch evidencias when component mounts
+  useEffect(() => {
+    const fetchEvidencias = async () => {
+      try {
+        const response = await fetch('http://localhost:1984/api/verEvidencias');
+        
+        if (!response.ok) {
+          throw new Error('Error al cargar evidencias');
+        }
+        
+        const data = await response.json();
+        const transformedPosts = transformEvidenciasToPosts(data.evidencias);
+        setEvidenciaPosts(transformedPosts);
+      } catch (err) {
+        console.error('Error fetching evidencias:', err);
+        setError('No se pudieron cargar las evidencias');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvidencias();
+  }, []);
+
+  if (loading) return <div className="flex justify-center p-8"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div></div>;
+  if (error) return <div className="text-center p-6 text-red-500">{error}</div>;
+
   return (
-    <div className='pb-20'>
-      <TransitionPage />
-      <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8 max-w-[1400px] mx-auto">
-          {posts.map((post) => (
+    <div className="max-w-4xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-6">Evidencias de colaboración</h1>
+      
+      {evidenciaPosts.length > 0 ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
+          {evidenciaPosts.map((post) => (
             <Post key={post.id} post={post} />
           ))}
         </div>
-      </div>
+      ) : (
+        <div className="text-center p-6 bg-white rounded-lg shadow-sm">
+          <p className="text-gray-500">No hay evidencias disponibles</p>
+        </div>
+      )}
     </div>
-    </div>
-  )
+  );
 }
