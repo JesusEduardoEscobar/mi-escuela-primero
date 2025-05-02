@@ -190,92 +190,75 @@ app.get('/api/matches-potenciales/:usuarioId', (req, res) => {
       }
   
       const tipoUsuario = tipoResults[0].tipoUsuario;
+      let query = '';
+      let params = [];
   
-      // Obtenemos los id_Apoyo del usuario actual
-      const apoyoQuery = tipoUsuario === 1
-        ? `SELECT id_Apoyo FROM perfilnecesidad WHERE id_Escuela = ?`
-        : `SELECT id_Apoyo FROM perfiloferta WHERE id_Aliado = ?`;
+      if (tipoUsuario === 1) {
+        // Escuela busca aliados
+        query = `
+          SELECT u.id, u.nombre, u.tipoUsuario, a.foto, a.calle, a.colonia, a.cp,
+                 GROUP_CONCAT(DISTINCT ta.categoriaApoyo) AS apoyos
+          FROM usuario u
+          JOIN aliado a ON u.id = a.id_Usuario
+          JOIN perfiloferta po ON po.id_Aliado = a.id_Usuario
+          JOIN tipoapoyo ta ON ta.id = po.id_Apoyo
+          WHERE u.id != ?
+            AND u.tipoUsuario = 2
+            AND u.id NOT IN (
+              SELECT CASE
+                WHEN c.Aliado_Usuario_id = ? THEN c.Aliado_Usuario_id
+                ELSE c.Escuela_Usuario_id
+              END
+              FROM convenio c
+              WHERE (c.Escuela_Usuario_id = ? OR c.Aliado_Usuario_id = ?)
+                AND c.estadoProgreso = 1
+            )
+          GROUP BY u.id, u.nombre, u.tipoUsuario, a.foto, a.calle, a.colonia, a.cp
+        `;
+      } else if (tipoUsuario === 2) {
+        // Aliado busca escuelas
+        query = `
+          SELECT u.id, u.nombre, u.tipoUsuario, e.foto, e.calle, e.colonia, e.cp,
+                 GROUP_CONCAT(DISTINCT ta.categoriaApoyo) AS apoyos
+          FROM usuario u
+          JOIN escuela e ON u.id = e.id_Usuario
+          JOIN perfilnecesidad pn ON pn.id_Escuela = e.id_Usuario
+          JOIN tipoapoyo ta ON ta.id = pn.id_Apoyo
+          WHERE u.id != ?
+            AND u.tipoUsuario = 1
+            AND u.id NOT IN (
+              SELECT CASE
+                WHEN c.Aliado_Usuario_id = ? THEN c.Aliado_Usuario_id
+                ELSE c.Escuela_Usuario_id
+              END
+              FROM convenio c
+              WHERE (c.Escuela_Usuario_id = ? OR c.Aliado_Usuario_id = ?)
+                AND c.estadoProgreso = 1
+            )
+          GROUP BY u.id, u.nombre, u.tipoUsuario, e.foto, e.calle, e.colonia, e.cp
+        `;
+      }
   
-      connection.query(apoyoQuery, [usuarioId], (err, apoyoResults) => {
-        if (err) return res.status(500).json({ error: 'Error obteniendo perfil del usuario' });
+      params = [usuarioId, usuarioId, usuarioId, usuarioId];
   
-        const idsApoyoUsuario = apoyoResults.map(r => r.id_Apoyo);
-        if (idsApoyoUsuario.length === 0) {
-          return res.json([]); // No tiene perfil, no devolvemos matches
-        }
+      connection.query(query, params, (err, results) => {
+        if (err) return res.status(500).json({ error: 'Error obteniendo matches potenciales' });
   
-        let query = '';
-        if (tipoUsuario === 1) {
-          // Escuela busca aliados
-          query = `
-            SELECT u.id, u.nombre, u.tipoUsuario, a.foto, a.calle, a.colonia, a.cp,
-                   GROUP_CONCAT(DISTINCT ta.categoriaApoyo) AS apoyos,
-                   COUNT(DISTINCT ta.id) AS coincidencias
-            FROM usuario u
-            JOIN aliado a ON u.id = a.id_Usuario
-            JOIN perfiloferta po ON po.id_Aliado = a.id_Usuario
-            JOIN tipoapoyo ta ON ta.id = po.id_Apoyo
-            WHERE u.id != ?
-              AND u.tipoUsuario = 2
-              AND po.id_Apoyo IN (?)
-              AND u.id NOT IN (
-                SELECT CASE
-                  WHEN c.Aliado_Usuario_id = ? THEN c.Aliado_Usuario_id
-                  ELSE c.Escuela_Usuario_id
-                END
-                FROM convenio c
-                WHERE (c.Escuela_Usuario_id = ? OR c.Aliado_Usuario_id = ?)
-                  AND c.estadoProgreso = 1
-              )
-            GROUP BY u.id, u.nombre, u.tipoUsuario, a.foto, a.calle, a.colonia, a.cp
-            ORDER BY coincidencias DESC
-          `;
-        } else {
-          // Aliado busca escuelas
-          query = `
-            SELECT u.id, u.nombre, u.tipoUsuario, e.foto, e.calle, e.colonia, e.cp,
-                   GROUP_CONCAT(DISTINCT ta.categoriaApoyo) AS apoyos,
-                   COUNT(DISTINCT ta.id) AS coincidencias
-            FROM usuario u
-            JOIN escuela e ON u.id = e.id_Usuario
-            JOIN perfilnecesidad pn ON pn.id_Escuela = e.id_Usuario
-            JOIN tipoapoyo ta ON ta.id = pn.id_Apoyo
-            WHERE u.id != ?
-              AND u.tipoUsuario = 1
-              AND pn.id_Apoyo IN (?)
-              AND u.id NOT IN (
-                SELECT CASE
-                  WHEN c.Aliado_Usuario_id = ? THEN c.Aliado_Usuario_id
-                  ELSE c.Escuela_Usuario_id
-                END
-                FROM convenio c
-                WHERE (c.Escuela_Usuario_id = ? OR c.Aliado_Usuario_id = ?)
-                  AND c.estadoProgreso = 1
-              )
-            GROUP BY u.id, u.nombre, u.tipoUsuario, e.foto, e.calle, e.colonia, e.cp
-            ORDER BY coincidencias DESC
-          `;
-        }
+        const formatted = results.map((r) => ({
+          usuario: {
+            id: r.id,
+            nombre: r.nombre,
+            tipoUsuario: r.tipoUsuario,
+            foto: r.foto,
+            calle: r.calle,
+            colonia: r.colonia,
+            cp: r.cp
+          },
+          apoyos: r.apoyos ? r.apoyos.split(',') : undefined,
+          necesidades: r.necesidades ? r.necesidades.split(',') : undefined
+        }));
   
-        const params = [usuarioId, idsApoyoUsuario, usuarioId, usuarioId, usuarioId];
-        connection.query(query, params, (err, results) => {
-          if (err) return res.status(500).json({ error: 'Error obteniendo matches potenciales' });
-  
-          const formatted = results.map((r) => ({
-            usuario: {
-              id: r.id,
-              nombre: r.nombre,
-              tipoUsuario: r.tipoUsuario,
-              foto: r.foto,
-              calle: r.calle,
-              colonia: r.colonia,
-              cp: r.cp
-            },
-            apoyos: r.apoyos ? r.apoyos.split(',') : []
-          }));
-  
-          res.json(formatted);
-        });
+        res.json(formatted);
       });
     });
   });
