@@ -1,18 +1,32 @@
-"use client"
-
-import Image from "next/image"
-import { useRouter, useParams } from "next/navigation"
-import { usuariosChat } from "@/data/dataAdmin"
-import { Send, ArrowLeft } from "lucide-react"
+"use client";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import axios from "axios";
+import { ArrowLeft } from "lucide-react";
 
 export default function ChatDetailPage() {
-  const router = useRouter()
-  const params = useParams()
-  const user = usuariosChat.find((u) => u.id === params.id)
+  const { id } = useParams(); // Obtener el id de la URL
+  const [messages, setMessages] = useState([]);
+  const [chatInfo, setChatInfo] = useState({});
+  const router = useRouter();
+
+  useEffect(() => {
+    // Cargar los mensajes del chat con el id correspondiente
+    axios
+      .get(`http://localhost:1984/mensajes/${id}`)
+      .then((res) => setMessages(res.data))
+      .catch((err) => console.error(err));
+
+    // Cargar información adicional sobre el chat (opcional, por ejemplo, nombres de los usuarios)
+    axios
+      .get(`http://localhost:1984/mensajes/${id}`)
+      .then((res) => setChatInfo(res.data))
+      .catch((err) => console.error(err));
+  }, [id]);
 
   const goBack = () => {
-    router.back()
-  }
+    router.back(); // Volver a la página anterior
+  };
 
   return (
     <div className="h-[calc(100vh-10rem)] flex flex-col">
@@ -23,48 +37,39 @@ export default function ChatDetailPage() {
         >
           <ArrowLeft size={20} className="text-gray-600" />
         </button>
-        <div className="relative h-10 w-10 rounded-full overflow-hidden">
-          <Image src={user.imagen || "/placeholder.svg"} alt={user.nombre} fill className="object-cover" />
-        </div>
         <div className="ml-3">
-          <h2 className="font-medium">{user.nombre}</h2>
-          <p className="text-sm text-gray-500">{user.institucion}</p>
+          <h2 className="font-medium">Conversación #{id}</h2>
+          <p className="text-sm text-gray-500">
+            {chatInfo.nombreUsuario1} 🗨️ {chatInfo.nombreUsuario2}
+          </p>
         </div>
       </div>
 
       <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
         <div className="space-y-4">
-          {/* Mensajes de ejemplo */}
-          <div className="flex justify-end">
-            <div className="bg-blue-500 text-white rounded-lg py-2 px-4 max-w-xs">Hola, ¿cómo puedo ayudarte hoy?</div>
-          </div>
-
-          <div className="flex">
-            <div className="bg-white border rounded-lg py-2 px-4 max-w-xs">
-              Necesito información sobre el proceso de registro.
+          {messages.map((message, index) => (
+            <div
+              key={index}
+              className={`flex ${
+                message.nombreUsuario === chatInfo.nombreUsuario1
+                  ? "justify-end"
+                  : "justify-start"
+              }`}
+            >
+              <div
+                className={`py-2 px-4 rounded-lg max-w-xs ${
+                  message.nombreUsuario === chatInfo.nombreUsuario1
+                    ? "bg-blue-500 text-white"
+                    : "bg-white border"
+                }`}
+              >
+                <p className="font-medium">{message.nombreUsuario}</p>
+                <p>{message.mensaje}</p>
+              </div>
             </div>
-          </div>
-
-          <div className="flex justify-end">
-            <div className="bg-blue-500 text-white rounded-lg py-2 px-4 max-w-xs">
-              Claro, el proceso de registro consta de tres pasos. Primero debes completar el formulario en línea...
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="p-4 border-t bg-white">
-        <div className="flex items-center">
-          <input
-            type="text"
-            placeholder="Escribe un mensaje..."
-            className="flex-1 border rounded-l-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button className="bg-blue-500 text-white rounded-r-lg p-2 h-full">
-            <Send size={20} />
-          </button>
+          ))}
         </div>
       </div>
     </div>
-  )
+  );
 }
