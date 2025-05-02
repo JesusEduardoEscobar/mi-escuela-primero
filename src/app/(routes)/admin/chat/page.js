@@ -98,7 +98,7 @@ const [userSearch, setUserSearch] = useState("");
     <div className="space-y-6 pb-20">
       {adminId && (
   <button
-    onClick={() => router.push(`/admin/mis-conversaciones/${adminId}`)}
+    onClick={() => router.push(`chat/misMensajes`)}
     className="bg-gray-200 hover:bg-gray-300 text-sm px-4 py-2 rounded-md"
   >
     Mis conversaciones
