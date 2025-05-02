@@ -11,7 +11,6 @@ app.use(
 )
 app.use(express.json())
 
-export const setUsuariosAdmin = (app) => {
 // Ruta para obtener las solicitudes
 app.get("/api/admin/solicitudes", (req, res) => {
   const connection = conectar();

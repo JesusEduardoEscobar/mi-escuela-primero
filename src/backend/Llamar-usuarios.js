@@ -11,7 +11,6 @@ app.use(
 )
 
 app.use(express.json())
-export const setLlamarUsuario = (app) => {
 app.get('/api/publicaciones/:idConvenio', (req, res) => {
   const { idConvenio } = req.params;
   const connection = conectar()

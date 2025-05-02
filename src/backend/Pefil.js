@@ -142,3 +142,4 @@ async function actualizarUsuarioEnBaseDeDatos(userId, datos) {
     ...datos,
     updatedAt: new Date().toISOString(),
   }
+}
