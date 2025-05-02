@@ -56,43 +56,46 @@ const [userSearch, setUserSearch] = useState("");
     .filter(user => user.id !== adminId)
     ;
   
-  const handleCreateChat = () => {
-    if (!selectedUser || !adminId) {
-      alert("Selecciona un usuario.");
-      return;
-    }
-  
-    
-    axios
-    .post('http://localhost:1984/crearChat', { idUsuario1: adminId, idUsuario2: selectedUser })
-    .then((res) => {
-      if (!res.data || !res.data.idChat) {
-        alert('Error inesperado: respuesta inválida del servidor');
+    const handleCreateChat = () => {
+      if (!selectedUser || !adminId) {
+        alert("Selecciona un usuario.");
         return;
       }
-  
-      alert("Chat creado con éxito");
-  
-      const usuarioActual = getUserRole(); // admin
-      const otroUsuario = usuarios.find((u) => u.id === parseInt(selectedUser, 10));
-  
-      const nuevoChat = {
-        idChat: res.data.idChat,
-        idUsuario1: usuarioActual.id,
-        idUsuario2: otroUsuario.id,
-        nombreUsuario1: usuarioActual.nombre,
-        nombreUsuario2: otroUsuario.nombre,
-      };
-  
-      setChats((prevChats) => [...prevChats, nuevoChat]);
-    })
-    .catch((error) => {
-      const mensaje =
-        error.response?.data && typeof error.response.data === 'string'
-          ? error.response.data
-          : 'Ocurrió un error al crear el chat';
-      alert(mensaje);
-    });  }
+    
+      axios
+        .post('http://localhost:1984/crearChat', { idUsuario1: adminId, idUsuario2: selectedUser })
+        .then((res) => {
+          if (!res.data || !res.data.idChat) {
+            alert('Error inesperado: respuesta inválida del servidor');
+            return;
+          }
+    
+          alert("Chat creado con éxito");
+    
+          const usuarioActual = getUserRole(); // admin
+          const otroUsuario = usuarios.find((u) => u.id === parseInt(selectedUser, 10));
+    
+          const nuevoChat = {
+            idChat: res.data.idChat,
+            idUsuario1: usuarioActual.id,
+            idUsuario2: otroUsuario.id,
+            nombreUsuario1: usuarioActual.nombre,
+            nombreUsuario2: otroUsuario.nombre,
+          };
+    
+          setChats((prevChats) => [...prevChats, nuevoChat]);
+    
+          // Redirigir al nuevo chat en la ruta "misMensajes/idChat"
+          router.push(`chat/misMensajes/${res.data.idChat}`);
+        })
+        .catch((error) => {
+          const mensaje =
+            error.response?.data && typeof error.response.data === 'string'
+              ? error.response.data
+              : 'Ocurrió un error al crear el chat';
+          alert(mensaje);
+        });
+    };
 
   return (
     <div className="space-y-6 pb-20">
